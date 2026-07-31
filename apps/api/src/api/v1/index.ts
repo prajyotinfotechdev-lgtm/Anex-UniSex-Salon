@@ -9,6 +9,7 @@ import { appointmentRoutes } from '../../modules/appointment';
 import { appointmentOperationsRoutes } from '../../modules/appointment-operations';
 import { schedulingRoutes } from '../../modules/scheduling';
 import { billingRoutes } from '../../modules/billing';
+import { reportsRoutes } from '../../modules/reports';
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use('/appointments', appointmentRoutes);
 router.use('/appointments', appointmentOperationsRoutes);
 router.use('/scheduling', schedulingRoutes);
 router.use('/billing', billingRoutes);
+router.use('/reports', reportsRoutes);
 
 export default router;

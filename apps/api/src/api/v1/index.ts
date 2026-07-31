@@ -8,6 +8,7 @@ import { serviceRoutes } from '../../modules/service';
 import { appointmentRoutes } from '../../modules/appointment';
 import { appointmentOperationsRoutes } from '../../modules/appointment-operations';
 import { schedulingRoutes } from '../../modules/scheduling';
+import { billingRoutes } from '../../modules/billing';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/services', serviceRoutes);
 router.use('/appointments', appointmentRoutes);
 router.use('/appointments', appointmentOperationsRoutes);
 router.use('/scheduling', schedulingRoutes);
+router.use('/billing', billingRoutes);
 
 export default router;

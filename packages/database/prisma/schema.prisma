@@ -1,0 +1,1627 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// DOMAIN 1: ENUMS
+// ==========================================
+
+enum RoleType {
+  SYSTEM
+  CUSTOM
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum TimeOffType {
+  VACATION
+  SICK
+  UNPAID
+  OTHER
+}
+
+enum TimeOffStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  ON_LEAVE
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  ARRIVED
+  IN_PROGRESS
+  COMPLETED
+  NO_SHOW
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  VOIDED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  GIFT_CARD
+  WALLET
+  LOYALTY_POINTS
+  OTHER
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+enum StockMovementType {
+  RECEIPT
+  SALE
+  ADJUSTMENT_UP
+  ADJUSTMENT_DOWN
+  RETURN
+  WASTAGE
+  INTERNAL_TRANSFER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  SUSPENDED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  CUSTOM
+}
+
+enum PackageStatus {
+  ACTIVE
+  EXHAUSTED
+  EXPIRED
+  CANCELLED
+}
+
+enum PricingType {
+  FIXED
+  STARTING_AT
+  VARIABLE
+  FREE
+}
+
+enum QuestionType {
+  TEXT
+  TEXTAREA
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  BOOLEAN
+  DATE
+  SCALE
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  PUSH
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  READ
+}
+
+enum ActionType {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT
+  REPORT
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum TaxType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum AppointmentSource {
+  WALK_IN
+  PHONE
+  ONLINE
+  APP
+  WHATSAPP
+  INSTAGRAM
+  MANUAL
+}
+
+enum AppointmentBlockType {
+  EXECUTION
+  PROCESSING
+  CLEANUP
+}
+
+enum InvoiceItemType {
+  SERVICE
+  PRODUCT
+  PACKAGE
+  MEMBERSHIP
+  TIP
+  FEE
+}
+
+enum WalletTransactionType {
+  CREDIT
+  DEBIT
+  REFUND
+  ADJUSTMENT
+}
+
+enum LoyaltyTransactionType {
+  EARN
+  REDEEM
+  EXPIRE
+  ADJUST
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  PDF
+}
+
+enum AppointmentHistoryAction {
+  CREATED
+  RESCHEDULED
+  CANCELLED
+  STATUS_CHANGED
+  NO_SHOW
+}
+
+enum AIInsightStatus {
+  PENDING
+  APPLIED
+  DISMISSED
+  ARCHIVED
+}
+
+enum PaymentGateway {
+  CASH
+  RAZORPAY
+  STRIPE
+  PAYPAL
+  PHONEPE
+  PAYTM
+  GPAY
+  OTHER
+}
+
+// ==========================================
+// DOMAIN 2: CORE
+// ==========================================
+
+model Organization {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  currencyCode String    @default("INR")
+  countryCode  String    @default("IN")
+  locale       String    @default("en-IN")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  isActive     Boolean   @default(true)
+
+  branches              Branch[]
+  businessSettings      BusinessSetting[]
+  roles                 Role[]
+  employees             Employee[]
+  customers             Customer[]
+  serviceCategories     ServiceCategory[]
+  services              Service[]
+  membershipPlans       MembershipPlan[]
+  packages              Package[]
+  taxCategories         TaxCategory[]
+  expenseCategories     ExpenseCategory[]
+  vendors               Vendor[]
+  productBrands         ProductBrand[]
+  productCategories     ProductCategory[]
+  products              Product[]
+  consultationTemplates ConsultationTemplate[]
+  notificationTemplates NotificationTemplate[]
+  auditLogs             AuditLog[]
+  tags                  Tag[]
+}
+
+model Branch {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  address        String?
+  phone          String?
+  timeZone       String    @default("UTC")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization       Organization        @relation(fields: [organizationId], references: [id])
+  branchSettings     BranchSetting[]
+  employeeBranches   EmployeeBranch[]
+  serviceBranches    ServiceBranch[]
+  appointments       Appointment[]
+  invoices           Invoice[]
+  expenses           Expense[]
+  purchaseOrders     PurchaseOrder[]
+  branchInventories  BranchInventory[]
+  stockMovements     StockMovement[]
+  attendances        Attendance[]
+  goodsReceipts      GoodsReceipt[]
+  timeOffRequests    TimeOffRequest[]
+  calendarExceptions CalendarException[]
+
+  @@index([organizationId])
+}
+
+model BusinessSetting {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @db.Uuid
+  key            String
+  value          Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, key])
+  @@index([organizationId])
+}
+
+model BranchSetting {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId  String   @db.Uuid
+  key       String
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@unique([branchId, key])
+  @@index([branchId])
+}
+
+// ==========================================
+// DOMAIN 3: AUTHENTICATION
+// ==========================================
+
+model User {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+  isActive     Boolean   @default(true)
+
+  userPermissions UserPermission[]
+  employee        Employee?
+}
+
+model Role {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  type           RoleType
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization    Organization     @relation(fields: [organizationId], references: [id])
+  employees       Employee[]
+  rolePermissions RolePermission[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model Permission {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rolePermissions RolePermission[]
+  userPermissions UserPermission[]
+}
+
+model RolePermission {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roleId       String   @db.Uuid
+  permissionId String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model UserPermission {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @db.Uuid
+  permissionId String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@index([permissionId])
+}
+
+// ==========================================
+// DOMAIN 4: EMPLOYEES
+// ==========================================
+
+model Employee {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String    @db.Uuid
+  userId                String?   @unique @db.Uuid
+  roleId                String    @db.Uuid
+  firstName             String
+  lastName              String
+  email                 String?
+  phone                 String?
+  profileImageUrl       String?
+  bio                   String?
+  dateOfJoining         DateTime? @db.Date
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  calendarColor         String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+  isActive              Boolean   @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User?        @relation(fields: [userId], references: [id])
+  role         Role         @relation(fields: [roleId], references: [id])
+
+  employeeBranches     EmployeeBranch[]
+  employeeServices     EmployeeService[]
+  employeeAvailability EmployeeAvailability[]
+  attendances          Attendance[]
+  timeOffRequests      TimeOffRequest[]
+  appointmentItems     AppointmentItem[]
+  paymentsReceived     Payment[]
+  appointmentsCreated  Appointment[]          @relation("AppointmentCreatedBy")
+  appointmentsUpdated  Appointment[]          @relation("AppointmentUpdatedBy")
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
+  @@index([roleId])
+  @@index([email])
+  @@index([phone])
+}
+
+model EmployeeBranch {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId String   @db.Uuid
+  branchId   String   @db.Uuid
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  branch   Branch   @relation(fields: [branchId], references: [id])
+
+  @@unique([employeeId, branchId])
+  @@index([employeeId])
+  @@index([branchId])
+}
+
+model EmployeeService {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId String   @db.Uuid
+  serviceId  String   @db.Uuid
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  service  Service  @relation(fields: [serviceId], references: [id])
+
+  @@unique([employeeId, serviceId])
+  @@index([employeeId])
+  @@index([serviceId])
+}
+
+model EmployeeAvailability {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId String    @db.Uuid
+  dayOfWeek  DayOfWeek
+  startTime  String
+  endTime    String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+
+  @@index([employeeId])
+}
+
+model Attendance {
+  id         String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId String           @db.Uuid
+  branchId   String           @db.Uuid
+  date       DateTime         @db.Date
+  checkIn    DateTime?
+  checkOut   DateTime?
+  status     AttendanceStatus
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  branch   Branch   @relation(fields: [branchId], references: [id])
+
+  @@index([employeeId])
+  @@index([branchId])
+  @@index([date])
+}
+
+model TimeOffRequest {
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  employeeId String        @db.Uuid
+  branchId   String        @db.Uuid
+  type       TimeOffType
+  status     TimeOffStatus @default(PENDING)
+  startDate  DateTime
+  endDate    DateTime
+  reason     String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  branch   Branch   @relation(fields: [branchId], references: [id])
+
+  @@index([employeeId])
+  @@index([branchId])
+  @@index([status])
+}
+
+model CalendarException {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId  String   @db.Uuid
+  date      DateTime @db.Date
+  isClosed  Boolean  @default(true)
+  startTime String?
+  endTime   String?
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@index([branchId])
+  @@index([date])
+}
+
+// ==========================================
+// DOMAIN 5: CUSTOMERS
+// ==========================================
+
+model Customer {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  firstName      String
+  lastName       String
+  email          String?
+  primaryPhone   String
+  gender         Gender?
+  dob            DateTime? @db.Date
+  addressLine1   String?
+  addressLine2   String?
+  city           String?
+  state          String?
+  zipCode        String?
+  country        String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization         Organization         @relation(fields: [organizationId], references: [id])
+  phones               CustomerPhone[]
+  tags                 CustomerTag[]
+  media                CustomerMedia[]
+  loyaltyTransactions  LoyaltyTransaction[]
+  walletTransactions   WalletTransaction[]
+  memberships          CustomerMembership[]
+  packages             CustomerPackage[]
+  appointments         Appointment[]
+  invoices             Invoice[]
+  consultationForms    ConsultationForm[]
+  appointmentHistories AppointmentHistory[]
+
+  @@unique([organizationId, primaryPhone])
+  @@index([organizationId])
+  @@index([email])
+  @@index([primaryPhone])
+}
+
+model CustomerPhone {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId String   @db.Uuid
+  phone      String
+  label      String?
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([phone])
+}
+
+model Tag {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @db.Uuid
+  name           String
+  color          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  customerTags CustomerTag[]
+
+  @@index([organizationId])
+}
+
+model CustomerTag {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId String   @db.Uuid
+  tagId      String   @db.Uuid
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  tag      Tag      @relation(fields: [tagId], references: [id])
+
+  @@unique([customerId, tagId])
+  @@index([customerId])
+  @@index([tagId])
+}
+
+model CustomerMedia {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId String    @db.Uuid
+  url        String
+  type       MediaType
+  caption    String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+}
+
+model LoyaltyTransaction {
+  id          String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId  String                 @db.Uuid
+  points      Int
+  type        LoyaltyTransactionType
+  description String?
+  createdAt   DateTime               @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+}
+
+model WalletTransaction {
+  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId  String                @db.Uuid
+  amount      Decimal               @db.Decimal(10, 2)
+  type        WalletTransactionType
+  description String?
+  createdAt   DateTime              @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+}
+
+// ==========================================
+// DOMAIN 6: MEMBERSHIPS
+// ==========================================
+
+model MembershipPlan {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String       @db.Uuid
+  name           String
+  description    String?
+  price          Decimal      @db.Decimal(10, 2)
+  billingCycle   BillingCycle
+  durationMonths Int
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean      @default(true)
+
+  organization        Organization         @relation(fields: [organizationId], references: [id])
+  benefits            MembershipBenefit[]
+  customerMemberships CustomerMembership[]
+
+  @@index([organizationId])
+}
+
+model MembershipBenefit {
+  id               String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  membershipPlanId String       @db.Uuid
+  serviceId        String?      @db.Uuid
+  productId        String?      @db.Uuid
+  discountType     DiscountType
+  discountValue    Decimal      @db.Decimal(10, 2)
+  quantity         Int?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  membershipPlan MembershipPlan @relation(fields: [membershipPlanId], references: [id])
+  service        Service?       @relation(fields: [serviceId], references: [id])
+  product        Product?       @relation(fields: [productId], references: [id])
+
+  @@index([membershipPlanId])
+  @@index([serviceId])
+  @@index([productId])
+}
+
+model CustomerMembership {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId       String           @db.Uuid
+  membershipPlanId String           @db.Uuid
+  status           MembershipStatus @default(ACTIVE)
+  startDate        DateTime
+  endDate          DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  customer       Customer                @relation(fields: [customerId], references: [id])
+  membershipPlan MembershipPlan          @relation(fields: [membershipPlanId], references: [id])
+  transactions   MembershipTransaction[]
+  usages         MembershipUsage[]
+
+  @@index([customerId])
+  @@index([membershipPlanId])
+  @@index([status])
+}
+
+model MembershipTransaction {
+  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerMembershipId String        @db.Uuid
+  invoiceId            String?       @db.Uuid
+  amount               Decimal       @db.Decimal(10, 2)
+  paymentDate          DateTime
+  status               PaymentStatus
+  createdAt            DateTime      @default(now())
+
+  customerMembership CustomerMembership @relation(fields: [customerMembershipId], references: [id])
+  invoice            Invoice?           @relation(fields: [invoiceId], references: [id])
+
+  @@index([customerMembershipId])
+  @@index([invoiceId])
+}
+
+model MembershipUsage {
+  id                        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerMembershipId      String   @db.Uuid
+  appointmentItemId         String?  @db.Uuid
+  invoiceItemId             String?  @db.Uuid
+  snapshottedMembershipName String?
+  snapshotData              Json
+  createdAt                 DateTime @default(now())
+
+  customerMembership CustomerMembership @relation(fields: [customerMembershipId], references: [id])
+  appointmentItem    AppointmentItem?   @relation(fields: [appointmentItemId], references: [id])
+  invoiceItem        InvoiceItem?       @relation(fields: [invoiceItemId], references: [id])
+
+  @@index([customerMembershipId])
+}
+
+// ==========================================
+// DOMAIN 7: PACKAGES
+// ==========================================
+
+model Package {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  description    String?
+  price          Decimal   @db.Decimal(10, 2)
+  validityDays   Int?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  items            PackageItem[]
+  customerPackages CustomerPackage[]
+
+  @@index([organizationId])
+}
+
+model PackageItem {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  packageId String   @db.Uuid
+  serviceId String   @db.Uuid
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  packageTemplate Package @relation(fields: [packageId], references: [id])
+  service         Service @relation(fields: [serviceId], references: [id])
+
+  @@index([packageId])
+  @@index([serviceId])
+}
+
+model CustomerPackage {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId   String        @db.Uuid
+  packageId    String        @db.Uuid
+  invoiceId    String?       @db.Uuid
+  status       PackageStatus @default(ACTIVE)
+  purchaseDate DateTime
+  expiryDate   DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  customer        Customer       @relation(fields: [customerId], references: [id])
+  packageTemplate Package        @relation(fields: [packageId], references: [id])
+  invoice         Invoice?       @relation(fields: [invoiceId], references: [id])
+  usages          PackageUsage[]
+
+  @@index([customerId])
+  @@index([packageId])
+  @@index([status])
+}
+
+model PackageUsage {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerPackageId      String   @db.Uuid
+  appointmentItemId      String?  @db.Uuid
+  invoiceItemId          String?  @db.Uuid
+  snapshottedPackageName String?
+  snapshotData           Json
+  createdAt              DateTime @default(now())
+
+  customerPackage CustomerPackage  @relation(fields: [customerPackageId], references: [id])
+  appointmentItem AppointmentItem? @relation(fields: [appointmentItemId], references: [id])
+  invoiceItem     InvoiceItem?     @relation(fields: [invoiceItemId], references: [id])
+
+  @@index([customerPackageId])
+}
+
+// ==========================================
+// DOMAIN 8: SERVICES
+// ==========================================
+
+model ServiceCategory {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  services     Service[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model Service {
+  id                   String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String      @db.Uuid
+  serviceCategoryId    String      @db.Uuid
+  name                 String
+  description          String?
+  pricingType          PricingType
+  basePrice            Decimal     @db.Decimal(10, 2)
+  durationMinutes      Int
+  processingMinutes    Int?
+  cleanupMinutes       Int?
+  beforeBufferMinutes  Int         @default(0)
+  afterBufferMinutes   Int         @default(0)
+  color                String?
+  requiresConsultation Boolean     @default(false)
+  requiresPatchTest    Boolean     @default(false)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  deletedAt            DateTime?
+  isActive             Boolean     @default(true)
+
+  organization    Organization    @relation(fields: [organizationId], references: [id])
+  serviceCategory ServiceCategory @relation(fields: [serviceCategoryId], references: [id])
+
+  serviceBranches    ServiceBranch[]
+  employeeServices   EmployeeService[]
+  appointmentItems   AppointmentItem[]
+  packageItems       PackageItem[]
+  membershipBenefits MembershipBenefit[]
+
+  @@index([organizationId])
+  @@index([serviceCategoryId])
+}
+
+model ServiceBranch {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  serviceId String   @db.Uuid
+  branchId  String   @db.Uuid
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  service Service @relation(fields: [serviceId], references: [id])
+  branch  Branch  @relation(fields: [branchId], references: [id])
+
+  @@unique([serviceId, branchId])
+  @@index([serviceId])
+  @@index([branchId])
+}
+
+// ==========================================
+// DOMAIN 9: APPOINTMENTS
+// ==========================================
+
+model Appointment {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId            String            @db.Uuid
+  customerId          String?           @db.Uuid
+  source              AppointmentSource @default(MANUAL)
+  status              AppointmentStatus @default(PENDING)
+  date                DateTime          @db.Date
+  notes               String?
+  cancellationReason  String?
+  cancelledAt         DateTime?
+  confirmedAt         DateTime?
+  checkedInAt         DateTime?
+  completedAt         DateTime?
+  internalNotes       String?
+  createdByEmployeeId String?           @db.Uuid
+  updatedByEmployeeId String?           @db.Uuid
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime?
+  isActive            Boolean           @default(true)
+
+  branch            Branch               @relation(fields: [branchId], references: [id])
+  customer          Customer?            @relation(fields: [customerId], references: [id])
+  createdByEmployee Employee?            @relation("AppointmentCreatedBy", fields: [createdByEmployeeId], references: [id])
+  updatedByEmployee Employee?            @relation("AppointmentUpdatedBy", fields: [updatedByEmployeeId], references: [id])
+  items             AppointmentItem[]
+  invoices          Invoice[]
+  histories         AppointmentHistory[]
+
+  @@index([branchId])
+  @@index([customerId])
+  @@index([status])
+  @@index([date])
+  @@index([createdByEmployeeId])
+  @@index([updatedByEmployeeId])
+}
+
+model AppointmentItem {
+  id                      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  appointmentId           String   @db.Uuid
+  serviceId               String   @db.Uuid
+  employeeId              String   @db.Uuid
+  startTime               DateTime
+  endTime                 DateTime
+  price                   Decimal  @db.Decimal(10, 2)
+  snapshottedServiceName  String?
+  snapshottedEmployeeName String?
+  snapshottedDuration     Int?
+  snapshottedPrice        Decimal? @db.Decimal(10, 2)
+  snapshotData            Json
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  appointment      Appointment        @relation(fields: [appointmentId], references: [id])
+  service          Service            @relation(fields: [serviceId], references: [id])
+  employee         Employee           @relation(fields: [employeeId], references: [id])
+  blocks           AppointmentBlock[]
+  packageUsages    PackageUsage[]
+  membershipUsages MembershipUsage[]
+
+  @@index([appointmentId])
+  @@index([serviceId])
+  @@index([employeeId])
+}
+
+model AppointmentBlock {
+  id                String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  appointmentItemId String               @db.Uuid
+  type              AppointmentBlockType
+  startTime         DateTime
+  endTime           DateTime
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  appointmentItem AppointmentItem @relation(fields: [appointmentItemId], references: [id])
+
+  @@index([appointmentItemId])
+}
+
+model AppointmentHistory {
+  id            String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  appointmentId String                   @db.Uuid
+  customerId    String?                  @db.Uuid
+  action        AppointmentHistoryAction
+  snapshotData  Json
+  createdAt     DateTime                 @default(now())
+
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+  customer    Customer?   @relation(fields: [customerId], references: [id])
+
+  @@index([appointmentId])
+  @@index([customerId])
+}
+
+// ==========================================
+// DOMAIN 10: BILLING
+// ==========================================
+
+model Invoice {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId      String        @db.Uuid
+  customerId    String?       @db.Uuid
+  appointmentId String?       @db.Uuid
+  invoiceNumber String
+  status        InvoiceStatus @default(DRAFT)
+  subtotal      Decimal       @db.Decimal(10, 2)
+  discountTotal Decimal       @db.Decimal(10, 2)
+  taxTotal      Decimal       @db.Decimal(10, 2)
+  tipAmount     Decimal       @default(0.00) @db.Decimal(10, 2)
+  roundOff      Decimal       @default(0.00) @db.Decimal(10, 2)
+  grandTotal    Decimal       @db.Decimal(10, 2)
+  amountPaid    Decimal       @default(0.00) @db.Decimal(10, 2)
+  amountDue     Decimal       @db.Decimal(10, 2)
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  isActive      Boolean       @default(true)
+
+  branch                 Branch                  @relation(fields: [branchId], references: [id])
+  customer               Customer?               @relation(fields: [customerId], references: [id])
+  appointment            Appointment?            @relation(fields: [appointmentId], references: [id])
+  items                  InvoiceItem[]
+  payments               Payment[]
+  customerPackages       CustomerPackage[]
+  membershipTransactions MembershipTransaction[]
+
+  @@unique([branchId, invoiceNumber])
+  @@index([branchId])
+  @@index([customerId])
+  @@index([appointmentId])
+  @@index([status])
+  @@index([invoiceNumber])
+  @@index([createdAt])
+}
+
+model InvoiceItem {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoiceId        String          @db.Uuid
+  productId        String?         @db.Uuid
+  type             InvoiceItemType
+  quantity         Int
+  unitPrice        Decimal         @db.Decimal(10, 2)
+  discount         Decimal         @default(0.00) @db.Decimal(10, 2)
+  tax              Decimal         @default(0.00) @db.Decimal(10, 2)
+  total            Decimal         @db.Decimal(10, 2)
+  snapshottedName  String?
+  snapshottedSku   String?
+  snapshottedPrice Decimal?        @db.Decimal(10, 2)
+  snapshottedTax   Decimal?        @db.Decimal(10, 2)
+  snapshotData     Json
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  invoice          Invoice           @relation(fields: [invoiceId], references: [id])
+  product          Product?          @relation(fields: [productId], references: [id])
+  packageUsages    PackageUsage[]
+  membershipUsages MembershipUsage[]
+
+  @@index([invoiceId])
+  @@index([productId])
+}
+
+model Payment {
+  id                   String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoiceId            String          @db.Uuid
+  amount               Decimal         @db.Decimal(10, 2)
+  method               PaymentMethod
+  status               PaymentStatus   @default(PENDING)
+  referenceId          String?
+  transactionId        String?
+  gateway              PaymentGateway?
+  gatewayResponse      Json?
+  receivedByEmployeeId String?         @db.Uuid
+  paymentDate          DateTime        @default(now())
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  invoice            Invoice   @relation(fields: [invoiceId], references: [id])
+  receivedByEmployee Employee? @relation(fields: [receivedByEmployeeId], references: [id])
+
+  @@index([invoiceId])
+  @@index([status])
+  @@index([receivedByEmployeeId])
+}
+
+model TaxCategory {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  taxRates     TaxRate[]
+  products     Product[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model TaxRate {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  taxCategoryId String   @db.Uuid
+  name          String
+  rate          Decimal  @db.Decimal(5, 2)
+  type          TaxType  @default(PERCENTAGE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  taxCategory TaxCategory @relation(fields: [taxCategoryId], references: [id])
+  taxRules    TaxRule[]
+
+  @@index([taxCategoryId])
+}
+
+model TaxRule {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  taxRateId String   @db.Uuid
+  region    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  taxRate TaxRate @relation(fields: [taxRateId], references: [id])
+
+  @@index([taxRateId])
+}
+
+model ExpenseCategory {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  expenses     Expense[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+}
+
+model Expense {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId          String        @db.Uuid
+  expenseCategoryId String        @db.Uuid
+  amount            Decimal       @db.Decimal(10, 2)
+  date              DateTime      @db.Date
+  notes             String?
+  status            ExpenseStatus @default(PENDING)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deletedAt         DateTime?
+  isActive          Boolean       @default(true)
+
+  branch          Branch              @relation(fields: [branchId], references: [id])
+  expenseCategory ExpenseCategory     @relation(fields: [expenseCategoryId], references: [id])
+  payments        ExpensePayment[]
+  attachments     ExpenseAttachment[]
+
+  @@index([branchId])
+  @@index([expenseCategoryId])
+  @@index([status])
+}
+
+model ExpensePayment {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expenseId   String        @db.Uuid
+  amount      Decimal       @db.Decimal(10, 2)
+  method      PaymentMethod
+  paymentDate DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  expense Expense @relation(fields: [expenseId], references: [id])
+
+  @@index([expenseId])
+}
+
+model ExpenseAttachment {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  expenseId String   @db.Uuid
+  url       String
+  fileName  String
+  createdAt DateTime @default(now())
+
+  expense Expense @relation(fields: [expenseId], references: [id])
+
+  @@index([expenseId])
+}
+
+// ==========================================
+// DOMAIN 11: INVENTORY
+// ==========================================
+
+model Vendor {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  contactName    String?
+  email          String?
+  phone          String?
+  address        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  purchaseOrders   PurchaseOrder[]
+  supplierPayments SupplierPayment[]
+  products         Product[]
+
+  @@index([organizationId])
+}
+
+model PurchaseOrder {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId    String              @db.Uuid
+  vendorId    String              @db.Uuid
+  orderNumber String
+  status      PurchaseOrderStatus @default(DRAFT)
+  totalAmount Decimal             @db.Decimal(10, 2)
+  orderDate   DateTime            @default(now())
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
+  isActive    Boolean             @default(true)
+
+  branch        Branch              @relation(fields: [branchId], references: [id])
+  vendor        Vendor              @relation(fields: [vendorId], references: [id])
+  items         PurchaseOrderItem[]
+  goodsReceipts GoodsReceipt[]
+
+  @@unique([branchId, orderNumber])
+  @@index([branchId])
+  @@index([vendorId])
+  @@index([status])
+}
+
+model PurchaseOrderItem {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchaseOrderId String   @db.Uuid
+  productId       String   @db.Uuid
+  quantity        Int
+  unitPrice       Decimal  @db.Decimal(10, 2)
+  totalPrice      Decimal  @db.Decimal(10, 2)
+  snapshotData    Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+
+  @@index([purchaseOrderId])
+  @@index([productId])
+}
+
+model GoodsReceipt {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId        String   @db.Uuid
+  purchaseOrderId String?  @db.Uuid
+  receiptNumber   String
+  receiptDate     DateTime @default(now())
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  branch        Branch         @relation(fields: [branchId], references: [id])
+  purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+
+  @@unique([branchId, receiptNumber])
+  @@index([branchId])
+  @@index([purchaseOrderId])
+}
+
+model SupplierPayment {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vendorId    String        @db.Uuid
+  amount      Decimal       @db.Decimal(10, 2)
+  method      PaymentMethod
+  referenceId String?
+  paymentDate DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+}
+
+model ProductBrand {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  products     Product[]
+
+  @@index([organizationId])
+}
+
+model ProductCategory {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  description    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  products     Product[]
+
+  @@index([organizationId])
+}
+
+model Product {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId    String    @db.Uuid
+  productBrandId    String?   @db.Uuid
+  productCategoryId String    @db.Uuid
+  vendorId          String?   @db.Uuid
+  taxCategoryId     String?   @db.Uuid
+  name              String
+  sku               String
+  barcode           String?
+  description       String?
+  costPrice         Decimal   @db.Decimal(10, 2)
+  retailPrice       Decimal   @db.Decimal(10, 2)
+  isRetail          Boolean   @default(true)
+  isProfessional    Boolean   @default(true)
+  unitOfMeasure     String?
+  reorderQuantity   Int?
+  maximumStock      Int?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+  isActive          Boolean   @default(true)
+
+  organization    Organization    @relation(fields: [organizationId], references: [id])
+  productBrand    ProductBrand?   @relation(fields: [productBrandId], references: [id])
+  productCategory ProductCategory @relation(fields: [productCategoryId], references: [id])
+  vendor          Vendor?         @relation(fields: [vendorId], references: [id])
+  taxCategory     TaxCategory?    @relation(fields: [taxCategoryId], references: [id])
+
+  purchaseOrderItems PurchaseOrderItem[]
+  invoiceItems       InvoiceItem[]
+  branchInventories  BranchInventory[]
+  stockMovements     StockMovement[]
+  membershipBenefits MembershipBenefit[]
+
+  @@unique([organizationId, sku])
+  @@index([organizationId])
+  @@index([productBrandId])
+  @@index([productCategoryId])
+  @@index([vendorId])
+  @@index([taxCategoryId])
+  @@index([sku])
+}
+
+model BranchInventory {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId         String    @db.Uuid
+  productId        String    @db.Uuid
+  quantity         Int       @default(0)
+  reorderLevel     Int       @default(0)
+  lastStockCheckAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  branch  Branch  @relation(fields: [branchId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([branchId, productId])
+  @@index([branchId])
+  @@index([productId])
+}
+
+model StockMovement {
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId    String            @db.Uuid
+  productId   String            @db.Uuid
+  type        StockMovementType
+  quantity    Int
+  reason      String?
+  referenceId String?
+  createdAt   DateTime          @default(now())
+
+  branch  Branch  @relation(fields: [branchId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([branchId])
+  @@index([productId])
+  @@index([type])
+}
+
+// ==========================================
+// DOMAIN 12: CONSULTATION
+// ==========================================
+
+model ConsultationTemplate {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  description    String?
+  version        Int       @default(1)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean   @default(true)
+
+  organization Organization           @relation(fields: [organizationId], references: [id])
+  questions    ConsultationQuestion[]
+  forms        ConsultationForm[]
+
+  @@index([organizationId])
+}
+
+model ConsultationQuestion {
+  id                     String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  consultationTemplateId String       @db.Uuid
+  questionText           String
+  type                   QuestionType
+  isRequired             Boolean      @default(false)
+  options                Json?
+  order                  Int          @default(0)
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  consultationTemplate ConsultationTemplate @relation(fields: [consultationTemplateId], references: [id])
+  answers              ConsultationAnswer[]
+
+  @@index([consultationTemplateId])
+}
+
+model ConsultationForm {
+  id                     String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  consultationTemplateId String    @db.Uuid
+  customerId             String    @db.Uuid
+  completedAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  consultationTemplate ConsultationTemplate @relation(fields: [consultationTemplateId], references: [id])
+  customer             Customer             @relation(fields: [customerId], references: [id])
+  answers              ConsultationAnswer[]
+
+  @@index([consultationTemplateId])
+  @@index([customerId])
+}
+
+model ConsultationAnswer {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  consultationFormId     String   @db.Uuid
+  consultationQuestionId String   @db.Uuid
+  answer                 Json
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  consultationForm     ConsultationForm     @relation(fields: [consultationFormId], references: [id])
+  consultationQuestion ConsultationQuestion @relation(fields: [consultationQuestionId], references: [id])
+
+  @@index([consultationFormId])
+  @@index([consultationQuestionId])
+}
+
+// ==========================================
+// DOMAIN 13: COMMUNICATIONS
+// ==========================================
+
+model NotificationTemplate {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String           @db.Uuid
+  name           String
+  type           NotificationType
+  subject        String?
+  body           String
+  variables      Json?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  isActive       Boolean          @default(true)
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([type])
+}
+
+model NotificationLog {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  recipient         String
+  type              NotificationType
+  status            NotificationStatus @default(PENDING)
+  content           String
+  provider          String?
+  providerMessageId String?
+  retryCount        Int                @default(0)
+  metadata          Json?
+  errorLog          String?
+  sentAt            DateTime?
+  createdAt         DateTime           @default(now())
+
+  @@index([recipient])
+  @@index([type])
+  @@index([status])
+}
+
+// ==========================================
+// DOMAIN 14: AUDIT & AI
+// ==========================================
+
+model AuditLog {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String     @db.Uuid
+  entityName     String
+  entityId       String
+  action         ActionType
+  userId         String?    @db.Uuid
+  ipAddress      String?
+  userAgent      String?
+  oldValue       Json?
+  newValue       Json?
+  createdAt      DateTime   @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([entityName, entityId])
+  @@index([action])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model AIInsight {
+  id           String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  targetId     String          @db.Uuid
+  targetType   String
+  status       AIInsightStatus @default(PENDING)
+  insightData  Json
+  confidence   Decimal         @db.Decimal(5, 2)
+  metadata     Json?
+  modelVersion String?
+  generatedAt  DateTime        @default(now())
+  expiresAt    DateTime?
+  createdAt    DateTime        @default(now())
+
+  @@index([targetId, targetType])
+}
+
+model Prediction {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  targetId       String   @db.Uuid
+  targetType     String
+  predictionType String
+  predictedValue Json
+  createdAt      DateTime @default(now())
+
+  @@index([targetId, targetType])
+  @@index([predictionType])
+}

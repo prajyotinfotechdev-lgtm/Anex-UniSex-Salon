@@ -1,0 +1,23 @@
+{
+  "name": "@anex/database",
+  "version": "1.0.0",
+  "private": true,
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
+  },
+  "scripts": {
+    "generate": "prisma generate",
+    "push": "prisma db push",
+    "migrate": "prisma migrate dev",
+    "seed": "tsx prisma/seed/admin.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "bcrypt": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "prisma": "^6.16.2",
+    "tsx": "^4.20.5"
+  }
+}

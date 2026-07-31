@@ -6,6 +6,7 @@ import { employeeRoutes } from '../../modules/employee';
 import { customerRoutes } from '../../modules/customer';
 import { serviceRoutes } from '../../modules/service';
 import { appointmentRoutes } from '../../modules/appointment';
+import { appointmentOperationsRoutes } from '../../modules/appointment-operations';
 import { schedulingRoutes } from '../../modules/scheduling';
 
 const router = Router();
@@ -17,6 +18,7 @@ router.use('/employees', employeeRoutes);
 router.use('/customers', customerRoutes);
 router.use('/services', serviceRoutes);
 router.use('/appointments', appointmentRoutes);
+router.use('/appointments', appointmentOperationsRoutes);
 router.use('/scheduling', schedulingRoutes);
 
 export default router;

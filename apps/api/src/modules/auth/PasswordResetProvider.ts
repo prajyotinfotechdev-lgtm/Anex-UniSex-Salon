@@ -1,5 +1,5 @@
 import { CacheProvider } from '../../cache/CacheProvider';
-import { MemoryCacheProvider } from '../../cache/MemoryCacheProvider';
+import { DBCacheProvider } from '../../cache/DBCacheProvider';
 import { env } from '../../config/env.config';
 
 export class PasswordResetProvider {
@@ -7,7 +7,7 @@ export class PasswordResetProvider {
   private readonly TTL_SECONDS = 15 * 60; // 15 minutes
 
   constructor() {
-    this.cache = new MemoryCacheProvider();
+    this.cache = new DBCacheProvider();
   }
 
   async saveToken(userId: string, token: string): Promise<void> {

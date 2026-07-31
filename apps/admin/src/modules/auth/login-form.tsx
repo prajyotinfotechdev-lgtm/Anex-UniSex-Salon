@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuthStore } from '@/shared/store/authStore';
 import { authApi } from '@/shared/api/auth.api';
 import { Button } from '@/components/ui/button';
@@ -64,9 +65,9 @@ export function LoginForm() {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
-          <a href="#" className="text-sm text-muted-foreground hover:underline">
+          <Link href="/forgot-password" className="text-sm text-muted-foreground hover:underline">
             Forgot password?
-          </a>
+          </Link>
         </div>
         <Input 
           id="password" 

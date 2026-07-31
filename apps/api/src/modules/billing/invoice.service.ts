@@ -51,9 +51,7 @@ export class InvoiceService extends BaseService {
   }
 
   async getInvoiceById(organizationId: string, invoiceId: string) {
-    // In a real scenario, we should validate organizationId ownership either via branch or directly if linked.
-    // For now we rely on branchId filtering or assume the repository handles org scoping.
-    const invoice = await this.repo.getInvoiceById(invoiceId);
+    const invoice = await this.repo.getInvoiceById(invoiceId, organizationId);
     if (!invoice) throw new NotFoundError('Invoice not found');
     return invoice;
   }

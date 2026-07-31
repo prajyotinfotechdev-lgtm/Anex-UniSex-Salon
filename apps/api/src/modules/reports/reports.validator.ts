@@ -11,4 +11,7 @@ export const baseReportFilterSchema = z.object({
     format: z.enum(['json', 'csv']).optional().default('json'),
     period: z.enum(['day', 'week', 'month', 'year']).optional().default('day'),
   }),
+}).refine((data) => new Date(data.query.startDate) <= new Date(data.query.endDate), {
+  message: "startDate cannot be after endDate",
+  path: ["query", "startDate"],
 });

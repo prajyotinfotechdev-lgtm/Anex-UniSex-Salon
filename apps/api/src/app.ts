@@ -7,6 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 
 import { loggerMiddleware } from './middlewares/logger.middleware';
 import { globalRateLimiter } from './middlewares/rate-limit.middleware';
+import { env } from './config/env.config';
 import { globalErrorHandler } from './middlewares/error.middleware';
 import { NotFoundError } from './errors/AppErrors';
 import { swaggerSpec } from './swagger/swagger.config';
@@ -17,14 +18,11 @@ const app = express();
 // Security Middlewares
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
+
+const allowedOrigins = env.CORS_ORIGINS.split(',').map((o: string) => o.trim());
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'http://localhost:3002',
-      'http://127.0.0.1:3002',
-    ],
+    origin: allowedOrigins,
     credentials: true,
   })
 );

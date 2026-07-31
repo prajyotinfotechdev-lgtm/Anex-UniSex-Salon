@@ -80,13 +80,13 @@ export class BillingRepository {
     return txClient ? execute(txClient) : prisma.$transaction(execute);
   }
 
-  async getInvoiceById(invoiceId: string, branchId?: string) {
+  async getInvoiceById(invoiceId: string, organizationId?: string) {
     return prisma.invoice.findFirst({
       where: {
         id: invoiceId,
-        ...(branchId && { branchId }),
         isActive: true,
         deletedAt: null,
+        ...(organizationId && { branch: { organizationId } }),
       },
       include: {
         items: true,

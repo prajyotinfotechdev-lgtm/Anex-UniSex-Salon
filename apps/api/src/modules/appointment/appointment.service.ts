@@ -3,6 +3,7 @@ import { AppointmentRepository } from './appointment.repository';
 import { AuditService } from '../../services/AuditService';
 import { ActionType, AppointmentStatus, AppointmentSource, Prisma } from '@prisma/client';
 import { NotFoundError, ConflictError, ValidationError, ForbiddenError } from '../../errors/AppErrors';
+import { StatusTransitionValidator } from '../appointment-operations/status-transition.validator';
 import {
   CreateAppointmentRequestDto,
   UpdateAppointmentRequestDto,
@@ -107,24 +108,7 @@ export class AppointmentCoreService extends BaseService {
     }) as Prisma.AppointmentItemCreateWithoutAppointmentInput[];
   }
 
-  private validateStatusTransition(oldStatus: AppointmentStatus, newStatus: AppointmentStatus) {
-    if (oldStatus === newStatus) return; // No change
-
-    const validTransitions: Record<AppointmentStatus, AppointmentStatus[]> = {
-      [AppointmentStatus.PENDING]: [AppointmentStatus.CONFIRMED, AppointmentStatus.CANCELLED, AppointmentStatus.NO_SHOW],
-      [AppointmentStatus.CONFIRMED]: [AppointmentStatus.ARRIVED, AppointmentStatus.CANCELLED, AppointmentStatus.NO_SHOW],
-      [AppointmentStatus.ARRIVED]: [AppointmentStatus.IN_PROGRESS, AppointmentStatus.CANCELLED, AppointmentStatus.NO_SHOW],
-      [AppointmentStatus.IN_PROGRESS]: [AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED],
-      [AppointmentStatus.COMPLETED]: [], // Cannot change once completed
-      [AppointmentStatus.CANCELLED]: [], // Cannot change once cancelled
-      [AppointmentStatus.NO_SHOW]: [], // Cannot change once no show
-    };
-
-    const allowed = validTransitions[oldStatus];
-    if (!allowed || !allowed.includes(newStatus)) {
-      throw new ConflictError(`Invalid status transition from ${oldStatus} to ${newStatus}`);
-    }
-  }
+  // Removed duplicate validateStatusTransition
 
   async searchAppointments(organizationId: string, params: SearchAppointmentsQueryDto) {
     return this.repo.search(organizationId, params);
@@ -145,6 +129,13 @@ export class AppointmentCoreService extends BaseService {
     const status = data.status ?? AppointmentStatus.PENDING;
     const now = new Date();
 
+    // Fetch actor's employeeId
+    let employeeId: string | undefined;
+    const actorUser = await this.repo.checkUserEmployee(actorUserId);
+    if (actorUser?.employee) {
+      employeeId = actorUser.employee.id;
+    }
+
     const appointmentData: Prisma.AppointmentCreateInput = {
       branch: { connect: { id: data.branchId } },
       ...(data.customerId && { customer: { connect: { id: data.customerId } } }),
@@ -153,17 +144,12 @@ export class AppointmentCoreService extends BaseService {
       date: new Date(data.date),
       notes: data.notes,
       internalNotes: data.internalNotes,
-      createdByEmployee: { connect: { userId: actorUserId } }, // Assumes actor is an employee, might need user relation or ignore for now if not strict
+      ...(employeeId && { createdByEmployee: { connect: { id: employeeId } } }),
       ...(status === AppointmentStatus.CONFIRMED && { confirmedAt: now }),
       ...(status === AppointmentStatus.ARRIVED && { checkedInAt: now }),
       ...(status === AppointmentStatus.COMPLETED && { completedAt: now }),
       ...(status === AppointmentStatus.CANCELLED && { cancelledAt: now }),
     };
-
-    // The createdByEmployee expects an Employee ID, but we only have actorUserId.
-    // If the schema requires employeeId, we shouldn't fail if the user is an admin without an employee record.
-    // I will omit createdByEmployee for now to prevent FK errors since we don't look up the employee by userId here.
-    delete appointmentData.createdByEmployee;
 
     const appointment = await this.repo.createWithItems(appointmentData, validatedItems);
 
@@ -185,7 +171,7 @@ export class AppointmentCoreService extends BaseService {
 
     const newStatus = data.status ?? existing.status;
     if (data.status && data.status !== existing.status) {
-      this.validateStatusTransition(existing.status, data.status);
+      StatusTransitionValidator.validate(existing.status, data.status);
     }
 
     const now = new Date();
@@ -207,14 +193,18 @@ export class AppointmentCoreService extends BaseService {
 
     const appointment = await this.repo.updateWithItems(appointmentId, updateData, itemsToSet);
 
+    const auditDetails: Record<string, any> = { updated: true };
     if (data.status && data.status !== existing.status) {
-       await this.auditLog(organizationId, ActionType.UPDATE, appointment.id, actorUserId, { note: 'Appointment Status Changed', oldStatus: existing.status, newStatus: data.status });
+       auditDetails.oldStatus = existing.status;
+       auditDetails.newStatus = data.status;
+       auditDetails.note = 'Appointment Status Changed';
     }
     if (data.items) {
-       await this.auditLog(organizationId, ActionType.UPDATE, appointment.id, actorUserId, { note: 'Appointment Items Updated' });
+       auditDetails.itemsUpdated = true;
+       auditDetails.note = auditDetails.note ? auditDetails.note + ' & Items Updated' : 'Appointment Items Updated';
     }
 
-    await this.auditLog(organizationId, ActionType.UPDATE, appointment.id, actorUserId, { updated: true });
+    await this.auditLog(organizationId, ActionType.UPDATE, appointment.id, actorUserId, auditDetails);
     return appointment as unknown as AppointmentResponseDto;
   }
 

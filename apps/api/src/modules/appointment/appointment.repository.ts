@@ -11,7 +11,7 @@ export class AppointmentRepository extends BaseRepository<Appointment, Prisma.Ap
 
   async findByIdWithDetails(id: string, organizationId: string): Promise<Appointment | null> {
     return this.db.appointment.findFirst({
-      where: { id, branch: { organizationId }, deletedAt: null },
+      where: { id, branch: { organizationId }, isActive: true, deletedAt: null },
       include: {
         customer: true,
         branch: true,
@@ -170,6 +170,13 @@ export class AppointmentRepository extends BaseRepository<Appointment, Prisma.Ap
     });
   }
 
+  async checkUserEmployee(userId: string) {
+    return this.db.user.findUnique({
+      where: { id: userId },
+      include: { employee: true },
+    });
+  }
+
   async checkBranchExists(branchId: string, organizationId: string) {
     return this.db.branch.findFirst({
       where: { id: branchId, organizationId, isActive: true, deletedAt: null },
@@ -198,16 +205,23 @@ export class AppointmentRepository extends BaseRepository<Appointment, Prisma.Ap
     });
   }
 
-  // Not implemented directly since we want transactions
+  /** @deprecated Not implemented directly since we want transactions */
   async create(data: Prisma.AppointmentCreateInput): Promise<Appointment> {
     throw new Error('Method not implemented. Use createWithItems.');
   }
 
+  /** @deprecated Not implemented directly since we want transactions */
   async update(id: string, data: Prisma.AppointmentUpdateInput): Promise<Appointment> {
     throw new Error('Method not implemented. Use updateWithItems.');
   }
 
   async delete(id: string): Promise<Appointment> {
+    return this.db.appointment.delete({
+      where: { id },
+    });
+  }
+
+  async hardDelete(id: string): Promise<Appointment> {
     return this.db.appointment.delete({
       where: { id },
     });

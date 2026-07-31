@@ -28,12 +28,14 @@ export function ForgotPasswordForm() {
   const onSubmit = async (data: ForgotPasswordValues) => {
     setIsLoading(true);
     try {
-      await authApi.forgotPassword(data);
-      toast.success('OTP sent to your email');
-      // Passing email as query param for the OTP page
-      router.push(`/otp-verification?email=${encodeURIComponent(data.email)}`);
+      const response = await authApi.forgotPassword(data);
+      toast.success('If an account exists, a reset link has been sent to your email.');
+      if (response?.resetToken) {
+        // Dev mode: automatically redirect to reset page with token
+        router.push(`/reset-password?token=${response.resetToken}`);
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send OTP');
+      toast.error(error.response?.data?.message || 'Failed to request password reset');
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +57,7 @@ export function ForgotPasswordForm() {
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Sending OTP...' : 'Send OTP'}
+        {isLoading ? 'Sending Link...' : 'Send Reset Link'}
       </Button>
     </form>
   );

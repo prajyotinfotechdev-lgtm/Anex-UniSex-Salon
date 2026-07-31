@@ -28,6 +28,8 @@ export interface AuthEmployeeResponseDto {
   email: string | null;
   phone: string | null;
   profileImageUrl: string | null;
+  organizationId: string;
+  branchId?: string | null;
 }
 
 export interface AuthRoleResponseDto {

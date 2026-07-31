@@ -12,6 +12,7 @@ import {
 } from '../../auth/jwt.util';
 import { UnauthorizedError, NotFoundError } from '../../errors/AppErrors';
 import { ActionType } from '@prisma/client';
+import { DBCacheProvider } from '../../cache/DBCacheProvider';
 import {
   LoginRequestDto,
   LoginResponseDto,
@@ -24,11 +25,13 @@ import {
 export class AuthService extends BaseService {
   private repository: AuthRepository;
   private resetProvider: PasswordResetProvider;
+  private cache: DBCacheProvider;
 
   constructor() {
     super();
     this.repository = new AuthRepository();
     this.resetProvider = new PasswordResetProvider();
+    this.cache = new DBCacheProvider();
   }
 
   private async auditLog(
@@ -99,7 +102,7 @@ export class AuthService extends BaseService {
     }
 
     const employee = user.employee;
-    const permissions = employee.role.rolePermissions.map((rp) => rp.permission.name);
+    const permissions = employee.role.rolePermissions.map((rp: any) => rp.permission.name);
 
     const payload: JwtPayload = {
       userId: user.id,
@@ -129,6 +132,8 @@ export class AuthService extends BaseService {
         email: employee.email,
         phone: employee.phone,
         profileImageUrl: employee.profileImageUrl,
+        organizationId: employee.organizationId,
+        branchId: employee.employeeBranches?.[0]?.branchId || null,
       },
       role: { id: employee.role.id, name: employee.role.name, type: employee.role.type },
       permissions,
@@ -149,7 +154,17 @@ export class AuthService extends BaseService {
 
   async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
     try {
+      const isBlacklisted = await this.cache.get(`revoked_token:${token}`);
+      if (isBlacklisted) {
+        throw new UnauthorizedError('Token has been revoked');
+      }
+
       const payload = verifyRefreshToken(token);
+      
+      // Blacklist the old token
+      // Assuming a default of 7 days in seconds for the TTL if not parsing JWT exp
+      await this.cache.set(`revoked_token:${token}`, true, 7 * 24 * 60 * 60);
+
       const newPayload: JwtPayload = {
         userId: payload.userId,
         employeeId: payload.employeeId,
@@ -181,7 +196,7 @@ export class AuthService extends BaseService {
     }
 
     const employee = user.employee;
-    const permissions = employee.role.rolePermissions.map((rp) => rp.permission.name);
+    const permissions = employee.role.rolePermissions.map((rp: any) => rp.permission.name);
 
     return {
       user: { id: user.id, email: user.email, isActive: user.isActive },
@@ -192,6 +207,8 @@ export class AuthService extends BaseService {
         email: employee.email,
         phone: employee.phone,
         profileImageUrl: employee.profileImageUrl,
+        organizationId: employee.organizationId,
+        branchId: employee.employeeBranches?.[0]?.branchId || null,
       },
       role: { id: employee.role.id, name: employee.role.name, type: employee.role.type },
       permissions,

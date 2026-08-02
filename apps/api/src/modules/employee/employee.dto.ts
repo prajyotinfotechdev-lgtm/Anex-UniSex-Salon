@@ -19,7 +19,7 @@ export interface EmployeeResponseDto {
   lastName: string;
   email: string | null;
   phone: string | null;
-  profileImageUrl: string | null;
+  profileImageId: string | null;
   bio: string | null;
   dateOfJoining: Date | null;
   emergencyContactName: string | null;

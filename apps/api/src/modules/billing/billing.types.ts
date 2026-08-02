@@ -1,4 +1,4 @@
-import { InvoiceItemType, PaymentMethod, PaymentStatus, PaymentGateway } from '@prisma/client';
+import { InvoiceItemType, PaymentMethod, PaymentStatus, PaymentGateway } from '@anex/database';
 
 export interface CreateInvoiceItemInput {
   productId?: string;
@@ -40,4 +40,23 @@ export interface InvoiceTotals {
   tipAmount: number;
   roundOff: number;
   grandTotal: number;
+}
+
+export interface InvoiceListQuery {
+  page?: number;
+  limit?: number;
+  branchId?: string;
+  customerId?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+}
+
+export interface PaymentListQuery {
+  page?: number;
+  limit?: number;
+  invoiceId?: string;
+  branchId?: string;
+  method?: PaymentMethod;
 }

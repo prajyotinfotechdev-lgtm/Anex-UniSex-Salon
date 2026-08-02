@@ -9,4 +9,5 @@ export const globalRateLimiter = rateLimit({
     success: false,
     message: 'Too many requests from this IP, please try again after 15 minutes',
   },
+  skip: () => process.env.NODE_ENV !== 'production',
 });

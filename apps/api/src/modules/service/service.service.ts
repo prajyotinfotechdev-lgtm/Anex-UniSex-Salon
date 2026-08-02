@@ -1,7 +1,7 @@
 import { BaseService } from '../../services/BaseService';
 import { ServiceRepository } from './service.repository';
 import { AuditService } from '../../services/AuditService';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@anex/database';
 import { NotFoundError, ConflictError, ValidationError } from '../../errors/AppErrors';
 import {
   CreateServiceRequestDto,

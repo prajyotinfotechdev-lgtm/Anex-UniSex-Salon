@@ -1,4 +1,4 @@
-import { DayOfWeek } from '@prisma/client';
+import { DayOfWeek } from '@anex/database';
 import { SchedulingRepository } from './scheduling.repository';
 import { TimeBlock } from './scheduling.types';
 

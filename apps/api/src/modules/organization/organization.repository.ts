@@ -1,4 +1,4 @@
-import { Prisma, Organization, Branch, CalendarException } from '@prisma/client';
+import { Prisma, Organization, Branch, CalendarException } from '@anex/database';
 import { BaseRepository } from '../../repositories/BaseRepository';
 
 export class OrganizationRepository extends BaseRepository<Organization, Prisma.OrganizationCreateInput, Prisma.OrganizationUpdateInput> {

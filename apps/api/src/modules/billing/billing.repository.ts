@@ -1,6 +1,6 @@
-import { Prisma, InvoiceStatus, PaymentStatus } from '@prisma/client';
+import { Prisma, InvoiceStatus, PaymentStatus } from '@anex/database';
 import { prisma } from '../../database/prisma.client';
-import { CreateInvoiceInput, AddPaymentInput } from './billing.types';
+import { CreateInvoiceInput, AddPaymentInput, InvoiceListQuery, PaymentListQuery } from './billing.types';
 import { InvoiceCalculator } from './invoice.calculator';
 import { PaymentAllocator } from './payment.allocator';
 
@@ -91,9 +91,11 @@ export class BillingRepository {
       include: {
         items: true,
         payments: {
-          where: { status: PaymentStatus.COMPLETED }
+          where: { status: PaymentStatus.COMPLETED },
+          orderBy: { createdAt: 'asc' },
         },
         customer: true,
+        branch: { select: { id: true, name: true } },
       },
     });
   }
@@ -164,5 +166,101 @@ export class BillingRepository {
       where: { id: invoiceId },
       data: { status },
     });
+  }
+
+  async listInvoices(organizationId: string, query: InvoiceListQuery) {
+    const { page = 1, limit = 10, branchId, customerId, status, startDate, endDate, search } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+
+    const where: Prisma.InvoiceWhereInput = {
+      branch: { organizationId }, // Organization scoping
+    };
+
+    if (branchId) where.branchId = branchId;
+    if (customerId) where.customerId = customerId;
+    if (status) where.status = status as InvoiceStatus;
+    if (startDate || endDate) {
+      where.issueDate = {};
+      if (startDate) where.issueDate.gte = new Date(startDate);
+      if (endDate) where.issueDate.lte = new Date(endDate);
+    }
+    if (search) {
+      where.OR = [
+        { invoiceNumber: { contains: search, mode: 'insensitive' } },
+        { customer: { firstName: { contains: search, mode: 'insensitive' } } },
+        { customer: { lastName: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [data, total] = await prisma.$transaction([
+      prisma.invoice.findMany({
+        where,
+        include: {
+          customer: { select: { id: true, firstName: true, lastName: true, email: true, primaryPhone: true } },
+          branch: { select: { id: true, name: true } },
+        },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.invoice.count({ where }),
+    ]);
+
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    return {
+      data,
+      meta: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    };
+  }
+
+  async listPayments(organizationId: string, query: PaymentListQuery) {
+    const { page = 1, limit = 10, invoiceId, branchId, method } = query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+
+    const invoiceWhere: Prisma.InvoiceWhereInput = {
+      branch: { organizationId }, // Organization scoping
+    };
+
+    if (branchId) invoiceWhere.branchId = branchId;
+
+    const where: Prisma.PaymentWhereInput = {
+      invoice: invoiceWhere,
+    };
+
+    if (invoiceId) where.invoiceId = invoiceId;
+    if (method) where.method = method;
+
+    const [data, total] = await prisma.$transaction([
+      prisma.payment.findMany({
+        where,
+        include: {
+          invoice: { select: { invoiceNumber: true, branchId: true } },
+        },
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.payment.count({ where }),
+    ]);
+
+    const pageNum = Number(page);
+    const limitNum = Number(limit);
+    return {
+      data,
+      meta: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@anex/database";
 
 declare global {
   // eslint-disable-next-line no-var

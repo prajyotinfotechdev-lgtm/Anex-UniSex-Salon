@@ -22,6 +22,13 @@ export function formatDate(date: string | Date | undefined, includeTime = false)
   }).format(d);
 }
 
+/**
+ * Formats a date including time (shorthand for formatDate with includeTime=true)
+ */
+export function formatDateTime(date: string | Date | undefined): string {
+  return formatDate(date, true);
+}
+
 export function formatRelativeTime(date: string | Date | undefined): string {
   if (!date) return '-';
   

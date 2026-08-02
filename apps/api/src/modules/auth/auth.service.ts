@@ -11,7 +11,7 @@ import {
   JwtPayload,
 } from '../../auth/jwt.util';
 import { UnauthorizedError, NotFoundError } from '../../errors/AppErrors';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@anex/database';
 import { DBCacheProvider } from '../../cache/DBCacheProvider';
 import {
   LoginRequestDto,
@@ -131,7 +131,7 @@ export class AuthService extends BaseService {
         lastName: employee.lastName,
         email: employee.email,
         phone: employee.phone,
-        profileImageUrl: employee.profileImageUrl,
+        profileImageId: employee.profileImageId,
         organizationId: employee.organizationId,
         branchId: employee.employeeBranches?.[0]?.branchId || null,
       },
@@ -206,7 +206,7 @@ export class AuthService extends BaseService {
         lastName: employee.lastName,
         email: employee.email,
         phone: employee.phone,
-        profileImageUrl: employee.profileImageUrl,
+        profileImageId: employee.profileImageId,
         organizationId: employee.organizationId,
         branchId: employee.employeeBranches?.[0]?.branchId || null,
       },

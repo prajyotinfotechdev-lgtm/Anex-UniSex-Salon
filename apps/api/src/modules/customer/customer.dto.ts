@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Gender } from '@prisma/client';
+import { Gender } from '@anex/database';
 import { createCustomerSchema, updateCustomerSchema, searchCustomersSchema } from './customer.validator';
 
 export type CreateCustomerRequestDto = z.infer<typeof createCustomerSchema>['body'];

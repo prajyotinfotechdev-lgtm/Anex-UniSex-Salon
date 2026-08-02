@@ -43,8 +43,9 @@ export function ResetPasswordForm() {
       await authApi.resetPassword({ token, newPassword: data.newPassword });
       toast.success('Password reset successfully. You can now login.');
       router.push('/login');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to reset password');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err?.response?.data?.message || 'Failed to reset password');
     } finally {
       setIsLoading(false);
     }

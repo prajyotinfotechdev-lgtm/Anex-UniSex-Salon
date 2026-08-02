@@ -1,8 +1,9 @@
 import { apiClient } from './axios';
+import { User } from '@/shared/store/authStore';
 
 export const authApi = {
-  login: async (data: any) => {
-    const response = await apiClient.post('/auth/login', data);
+  login: async (credentials: unknown): Promise<{ accessToken: string; refreshToken: string; user: User }> => {
+    const response = await apiClient.post('/auth/login', credentials);
     const { tokens, employee, role, permissions, user } = response.data.data;
     
     return {
@@ -34,7 +35,7 @@ export const authApi = {
     return response.data.data;
   },
   
-  resetPassword: async (data: any) => {
+  resetPassword: async (data: Record<string, unknown>) => {
     const response = await apiClient.post('/auth/reset-password', data);
     return response.data.data;
   },

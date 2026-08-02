@@ -5,12 +5,16 @@ import { requirePermission } from '../../rbac/permission.middleware';
 import {
   createInvoiceSchema,
   addPaymentSchema,
+  invoiceListSchema,
+  paymentListSchema,
 } from './billing.validator';
 import {
   createInvoiceHandler,
   getInvoiceHandler,
+  listInvoicesHandler,
   voidInvoiceHandler,
   addPaymentHandler,
+  listPaymentsHandler,
 } from './billing.controller';
 
 const router = Router();
@@ -66,6 +70,20 @@ router.use(requireAuth);
  *         description: Invoice created
  */
 router.post('/invoices', requirePermission('Billing.Create' as any), validate(createInvoiceSchema), createInvoiceHandler);
+
+/**
+ * @swagger
+ * /api/v1/billing/invoices:
+ *   get:
+ *     summary: Get list of invoices
+ *     tags: [Billing]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of invoices
+ */
+router.get('/invoices', requirePermission('Billing.Read' as any), validate(invoiceListSchema), listInvoicesHandler);
 
 /**
  * @swagger
@@ -137,5 +155,19 @@ router.patch('/invoices/:id/void', requirePermission('Billing.Manage' as any), v
  *         description: Payment added
  */
 router.post('/payments', requirePermission('Billing.Create' as any), validate(addPaymentSchema), addPaymentHandler);
+
+/**
+ * @swagger
+ * /api/v1/billing/payments:
+ *   get:
+ *     summary: Get list of payments
+ *     tags: [Billing]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of payments
+ */
+router.get('/payments', requirePermission('Billing.Read' as any), validate(paymentListSchema), listPaymentsHandler);
 
 export default router;

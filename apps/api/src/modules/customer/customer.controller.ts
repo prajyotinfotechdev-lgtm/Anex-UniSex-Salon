@@ -66,3 +66,33 @@ export const deactivateCustomerHandler = async (req: Request, res: Response, nex
     next(error);
   }
 };
+
+import { CustomerAuthService } from '../customer-auth/customer-auth.service';
+
+export const listCustomerDevicesHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const devices = await customerService.getCustomerDevices(req.user!.organizationId, req.params.id as string);
+    return res.status(200).json(successResponse('Customer devices', devices));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const revokeCustomerDeviceHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await customerService.revokeCustomerDevice(req.user!.organizationId, req.params.id as string, req.params.deviceId as string);
+    return res.status(200).json(successResponse('Device revoked', null));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const executeDeviceTransferHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { pairingId } = req.body;
+    const result = await CustomerAuthService.executePairingTransfer(req.user!.organizationId, req.params.id as string, pairingId);
+    return res.status(200).json(successResponse('Device transferred successfully', result));
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PricingType } from '@prisma/client';
+import { PricingType } from '@anex/database';
 
 export const createServiceSchema = z.object({
   body: z.object({

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AppointmentSource, AppointmentStatus } from '@prisma/client';
+import { AppointmentSource, AppointmentStatus } from '@anex/database';
 import { createAppointmentSchema, updateAppointmentSchema, searchAppointmentsSchema } from './appointment.validator';
 
 export type CreateAppointmentRequestDto = z.infer<typeof createAppointmentSchema>['body'];

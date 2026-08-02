@@ -15,6 +15,9 @@ import {
   deleteCustomerHandler,
   activateCustomerHandler,
   deactivateCustomerHandler,
+  listCustomerDevicesHandler,
+  revokeCustomerDeviceHandler,
+  executeDeviceTransferHandler
 } from './customer.controller';
 
 const router = Router();
@@ -227,6 +230,39 @@ router.post('/', requirePermission('Customer.Create' as any), validate(createCus
  *         description: Conflict
  */
 router.put('/:id', requirePermission('Customer.Update' as any), validate(updateCustomerSchema), updateCustomerHandler);
+
+/**
+ * @swagger
+ * /api/v1/customers/{id}/devices:
+ *   get:
+ *     summary: List customer devices
+ *     tags: [Customer]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get('/:id/devices', requirePermission('Customer.Read' as any), listCustomerDevicesHandler);
+
+/**
+ * @swagger
+ * /api/v1/customers/{id}/devices/{deviceId}/revoke:
+ *   patch:
+ *     summary: Revoke a specific customer device
+ *     tags: [Customer]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.patch('/:id/devices/:deviceId/revoke', requirePermission('Customer.Update' as any), revokeCustomerDeviceHandler);
+
+/**
+ * @swagger
+ * /api/v1/customers/{id}/devices/transfer:
+ *   post:
+ *     summary: Execute Device Transfer
+ *     tags: [Customer]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.post('/:id/devices/transfer', requirePermission('Customer.Update' as any), executeDeviceTransferHandler);
 
 /**
  * @swagger

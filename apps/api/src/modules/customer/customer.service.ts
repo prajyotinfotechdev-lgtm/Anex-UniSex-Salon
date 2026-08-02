@@ -1,7 +1,8 @@
 import { BaseService } from '../../services/BaseService';
 import { CustomerRepository } from './customer.repository';
+import { prisma } from '../../database/prisma.client';
 import { AuditService } from '../../services/AuditService';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@anex/database';
 import { NotFoundError, ConflictError, ValidationError } from '../../errors/AppErrors';
 import {
   CreateCustomerRequestDto,
@@ -184,5 +185,25 @@ export class CustomerService extends BaseService {
 
     await this.repo.softDelete(customerId);
     await this.auditLog(organizationId, ActionType.DELETE, customerId, actorUserId, { reason: 'Soft Delete' });
+  }
+
+  async getCustomerDevices(organizationId: string, customerId: string) {
+    const existing = await this.repo.findByIdWithHistory(customerId, organizationId);
+    if (!existing) throw new NotFoundError('Customer not found');
+
+    return prisma.customerDevice.findMany({
+      where: { customerId },
+      orderBy: { lastSeenAt: 'desc' }
+    });
+  }
+
+  async revokeCustomerDevice(organizationId: string, customerId: string, deviceId: string) {
+    const existing = await this.repo.findByIdWithHistory(customerId, organizationId);
+    if (!existing) throw new NotFoundError('Customer not found');
+
+    await prisma.customerDevice.updateMany({
+      where: { customerId, id: deviceId }, // Assuming we pass the db ID as deviceId here
+      data: { isRevoked: true }
+    });
   }
 }

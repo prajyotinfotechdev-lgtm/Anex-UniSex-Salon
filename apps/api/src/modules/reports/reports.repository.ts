@@ -1,4 +1,4 @@
-import { Prisma, PaymentStatus, InvoiceStatus, AppointmentStatus } from '@prisma/client';
+import { Prisma, PaymentStatus, InvoiceStatus, AppointmentStatus } from '@anex/database';
 import { prisma } from '../../database/prisma.client';
 import { BaseReportFilters } from './reports.types';
 

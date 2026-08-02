@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { InvoiceItemType, PaymentMethod, PaymentGateway } from '@prisma/client';
+import { InvoiceItemType, PaymentMethod, PaymentGateway } from '@anex/database';
 
 export const createInvoiceItemSchema = z.object({
   productId: z.string().uuid().optional(),
@@ -34,5 +34,29 @@ export const addPaymentSchema = z.object({
     transactionId: z.string().optional(),
     gateway: z.nativeEnum(PaymentGateway).optional(),
     gatewayResponse: z.record(z.string(), z.any()).optional(),
+  }),
+});
+
+export const invoiceListSchema = z.object({
+  query: z.object({
+    page: z.string().regex(/^\d+$/).optional(),
+    limit: z.string().regex(/^\d+$/).optional(),
+    branchId: z.string().uuid().optional(),
+    customerId: z.string().uuid().optional(),
+    status: z.string().optional(),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+    search: z.string().optional(),
+    dateRange: z.string().optional(),
+  }),
+});
+
+export const paymentListSchema = z.object({
+  query: z.object({
+    page: z.string().regex(/^\d+$/).optional(),
+    limit: z.string().regex(/^\d+$/).optional(),
+    invoiceId: z.string().uuid().optional(),
+    branchId: z.string().uuid().optional(),
+    method: z.nativeEnum(PaymentMethod).optional(),
   }),
 });

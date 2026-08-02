@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 import { CommandPalette } from '../components/CommandPalette';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '../store/authStore';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,13 +61,15 @@ export function Topbar() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{user?.firstName?.[0] || 'A'}{user?.lastName?.[0] || 'U'}</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback>{user?.firstName?.[0] || 'A'}{user?.lastName?.[0] || 'U'}</AvatarFallback>
+                </Avatar>
+              </Button>
+            }
+          />
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">

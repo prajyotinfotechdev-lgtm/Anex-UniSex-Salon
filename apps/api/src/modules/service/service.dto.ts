@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PricingType } from '@prisma/client';
+import { PricingType } from '@anex/database';
 import { createServiceSchema, updateServiceSchema, searchServicesSchema } from './service.validator';
 
 export type CreateServiceRequestDto = z.infer<typeof createServiceSchema>['body'];

@@ -1,4 +1,4 @@
-import { Prisma, EmployeeAvailability, CalendarException, AppointmentItem, Service, Branch, Employee, Customer } from '@prisma/client';
+import { Prisma, EmployeeAvailability, CalendarException, AppointmentItem, Service, Branch, Employee, Customer } from '@anex/database';
 import { BaseRepository } from '../../repositories/BaseRepository';
 import { prisma } from '../../database/prisma.client';
 

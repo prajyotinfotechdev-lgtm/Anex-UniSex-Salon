@@ -1,4 +1,4 @@
-import { AppointmentStatus } from '@prisma/client';
+import { AppointmentStatus } from '@anex/database';
 import { ConflictError } from '../../errors/AppErrors';
 
 export class StatusTransitionValidator {

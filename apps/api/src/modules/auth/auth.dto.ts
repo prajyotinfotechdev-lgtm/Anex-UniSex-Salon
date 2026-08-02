@@ -27,7 +27,7 @@ export interface AuthEmployeeResponseDto {
   lastName: string;
   email: string | null;
   phone: string | null;
-  profileImageUrl: string | null;
+  profileImageId: string | null;
   organizationId: string;
   branchId?: string | null;
 }

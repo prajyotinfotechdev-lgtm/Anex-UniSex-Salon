@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Gender } from '@prisma/client';
+import { Gender } from '@anex/database';
 
 export const createCustomerSchema = z.object({
   body: z.object({

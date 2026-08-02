@@ -1,8 +1,8 @@
-import { ActionType, InvoiceStatus } from '@prisma/client';
+import { ActionType, InvoiceStatus } from '@anex/database';
 import { BaseService } from '../../services/BaseService';
 import { BillingRepository } from './billing.repository';
 import { AuditService } from '../../services/AuditService';
-import { CreateInvoiceInput } from './billing.types';
+import { CreateInvoiceInput, InvoiceListQuery } from './billing.types';
 import { NotFoundError, ConflictError } from '../../errors/AppErrors';
 
 export class InvoiceService extends BaseService {
@@ -76,5 +76,9 @@ export class InvoiceService extends BaseService {
     });
 
     return updated;
+  }
+
+  async getInvoices(organizationId: string, query: InvoiceListQuery) {
+    return this.repo.listInvoices(organizationId, query);
   }
 }

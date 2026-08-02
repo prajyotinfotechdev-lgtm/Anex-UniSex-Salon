@@ -1,8 +1,8 @@
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@anex/database';
 import { BaseService } from '../../services/BaseService';
 import { BillingRepository } from './billing.repository';
 import { AuditService } from '../../services/AuditService';
-import { AddPaymentInput } from './billing.types';
+import { AddPaymentInput, PaymentListQuery } from './billing.types';
 
 export class PaymentService extends BaseService {
   private repo = new BillingRepository();
@@ -39,5 +39,9 @@ export class PaymentService extends BaseService {
     });
 
     return { payment, invoice };
+  }
+
+  async getPayments(organizationId: string, query: PaymentListQuery) {
+    return this.repo.listPayments(organizationId, query);
   }
 }

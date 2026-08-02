@@ -1,7 +1,7 @@
 import { BaseService } from '../../services/BaseService';
 import { AppointmentRepository } from './appointment.repository';
 import { AuditService } from '../../services/AuditService';
-import { ActionType, AppointmentStatus, AppointmentSource, Prisma } from '@prisma/client';
+import { ActionType, AppointmentStatus, AppointmentSource, Prisma } from '@anex/database';
 import { NotFoundError, ConflictError, ValidationError, ForbiddenError } from '../../errors/AppErrors';
 import { StatusTransitionValidator } from '../appointment-operations/status-transition.validator';
 import {

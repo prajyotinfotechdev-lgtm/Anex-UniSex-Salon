@@ -35,19 +35,19 @@ export function DashboardCharts() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { weekday: 'short' })}
+                tickFormatter={(value: unknown) => new Date(value as string).toLocaleDateString(undefined, { weekday: 'short' })}
               />
               <YAxis
                 stroke="#888888"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value: unknown) => `$${value}`}
               />
               <Tooltip 
                 cursor={{ fill: 'transparent' }}
-                labelFormatter={(label: any) => new Date(label).toLocaleDateString()}
-                formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+                labelFormatter={(label: unknown) => new Date(label as string).toLocaleDateString()}
+                formatter={(value: unknown) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
               />
               <Bar dataKey="revenue" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
             </BarChart>

@@ -45,3 +45,20 @@ export const addPaymentHandler = async (req: Request, res: Response, next: NextF
     next(error);
   }
 };
+export const listInvoicesHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await invoiceService.getInvoices(req.user!.organizationId, req.query);
+    return res.status(200).json(successResponse('Invoices fetched successfully', data));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listPaymentsHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = await paymentService.getPayments(req.user!.organizationId, req.query);
+    return res.status(200).json(successResponse('Payments fetched successfully', data));
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,6 +1,6 @@
-import { Prisma, Service } from '@prisma/client';
+import { Prisma, Service } from '@anex/database';
 import { BaseRepository } from '../../repositories/BaseRepository';
-import { PricingType } from '@prisma/client';
+import { PricingType } from '@anex/database';
 
 export class ServiceRepository extends BaseRepository<Service, Prisma.ServiceCreateInput, Prisma.ServiceUpdateInput> {
   async findById(id: string): Promise<Service | null> {

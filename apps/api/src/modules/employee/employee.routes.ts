@@ -122,7 +122,7 @@ router.get('/:id', requirePermission('Employee.Read' as any), getEmployeeHandler
  *                 type: string
  *               bio:
  *                 type: string
- *               profileImageUrl:
+ *               profileImageId:
  *                 type: string
  *               dateOfJoining:
  *                 type: string
@@ -191,7 +191,7 @@ router.post('/', requirePermission('Employee.Create' as any), validate(createEmp
  *                 type: string
  *               bio:
  *                 type: string
- *               profileImageUrl:
+ *               profileImageId:
  *                 type: string
  *               dateOfJoining:
  *                 type: string

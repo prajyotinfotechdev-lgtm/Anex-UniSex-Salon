@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/shared/api/queryKeys';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 
@@ -43,7 +43,7 @@ export function DashboardAppointmentChart() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => new Date(value).toLocaleDateString(undefined, { weekday: 'short' })}
+                tickFormatter={(value: string) => new Date(value).toLocaleDateString(undefined, { weekday: 'short' })}
               />
               <YAxis
                 stroke="#888888"
@@ -53,8 +53,8 @@ export function DashboardAppointmentChart() {
               />
               <Tooltip 
                 cursor={{ fill: 'transparent' }}
-                labelFormatter={(label: any) => new Date(label).toLocaleDateString()}
-                formatter={(value: any) => [`${value}`, 'Appointments']}
+                labelFormatter={(label: unknown) => new Date(label as string).toLocaleDateString()}
+                formatter={(value: unknown) => [`${value}`, 'Appointments']}
               />
               <Line type="monotone" dataKey="appointments" stroke="currentColor" strokeWidth={2} className="stroke-primary" />
             </LineChart>

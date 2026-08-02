@@ -40,8 +40,9 @@ export function LoginForm() {
       
       toast.success('Logged in successfully');
       router.push('/dashboard');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to login');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err?.response?.data?.message || 'Invalid credentials');
     } finally {
       setIsLoading(false);
     }

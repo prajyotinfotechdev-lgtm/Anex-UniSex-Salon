@@ -1,7 +1,7 @@
 import { BaseService } from '../../services/BaseService';
 import { OrganizationRepository, BranchRepository, HolidayRepository } from './organization.repository';
 import { AuditService } from '../../services/AuditService';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@anex/database';
 import { NotFoundError, UnauthorizedError } from '../../errors/AppErrors';
 import {
   UpdateOrganizationRequestDto,

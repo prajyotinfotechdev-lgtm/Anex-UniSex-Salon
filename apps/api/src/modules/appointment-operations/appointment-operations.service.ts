@@ -1,4 +1,4 @@
-import { AppointmentStatus, ActionType, AppointmentSource } from '@prisma/client';
+import { AppointmentStatus, ActionType, AppointmentSource } from '@anex/database';
 import { BaseService } from '../../services/BaseService';
 import { AppointmentCoreService } from '../../modules/appointment/appointment.service';
 import { AppointmentItemDto } from '../../modules/appointment/appointment.dto';

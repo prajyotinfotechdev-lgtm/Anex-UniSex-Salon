@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AppointmentSource, AppointmentStatus } from '@prisma/client';
+import { AppointmentSource, AppointmentStatus } from '@anex/database';
 
 export const appointmentItemSchema = z.object({
   serviceId: z.string().uuid('Invalid service ID'),

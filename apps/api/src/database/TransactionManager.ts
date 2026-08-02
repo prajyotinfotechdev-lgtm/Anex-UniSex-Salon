@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@anex/database';
 import { prisma } from './prisma.client';
 
 export class TransactionManager {

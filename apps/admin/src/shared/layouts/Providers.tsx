@@ -24,6 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultTheme="system"
         enableSystem
         disableTransitionOnChange
+        scriptProps={{ id: 'theme-script' }}
       >
         <PermissionProvider>
           {children}

@@ -34,8 +34,9 @@ export function ForgotPasswordForm() {
         // Dev mode: automatically redirect to reset page with token
         router.push(`/reset-password?token=${response.resetToken}`);
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to request password reset');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err?.response?.data?.message || 'Failed to request password reset');
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,7 @@
 import { BaseService } from '../../services/BaseService';
 import { EmployeeRepository } from './employee.repository';
 import { AuditService } from '../../services/AuditService';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@anex/database';
 import { NotFoundError, ConflictError, ValidationError } from '../../errors/AppErrors';
 import {
   CreateEmployeeRequestDto,
@@ -116,7 +116,7 @@ export class EmployeeService extends BaseService {
       email: data.email,
       phone: data.phone,
       bio: data.bio,
-      profileImageUrl: data.profileImageUrl,
+      ...(data.profileImageId && { profileImage: { connect: { id: data.profileImageId } } }),
       dateOfJoining: data.dateOfJoining ? new Date(data.dateOfJoining) : null,
       emergencyContactName: data.emergencyContactName,
       emergencyContactPhone: data.emergencyContactPhone,
@@ -159,7 +159,7 @@ export class EmployeeService extends BaseService {
       ...(updateData.email !== undefined && { email: updateData.email }),
       ...(updateData.phone !== undefined && { phone: updateData.phone }),
       ...(updateData.bio !== undefined && { bio: updateData.bio }),
-      ...(updateData.profileImageUrl !== undefined && { profileImageUrl: updateData.profileImageUrl }),
+      ...(updateData.profileImageId !== undefined && { profileImage: updateData.profileImageId ? { connect: { id: updateData.profileImageId } } : { disconnect: true } }),
       ...(updateData.dateOfJoining !== undefined && { dateOfJoining: updateData.dateOfJoining ? new Date(updateData.dateOfJoining) : null }),
       ...(updateData.emergencyContactName !== undefined && { emergencyContactName: updateData.emergencyContactName }),
       ...(updateData.emergencyContactPhone !== undefined && { emergencyContactPhone: updateData.emergencyContactPhone }),

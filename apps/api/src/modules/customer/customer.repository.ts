@@ -1,4 +1,4 @@
-import { Prisma, Customer } from '@prisma/client';
+import { Prisma, Customer } from '@anex/database';
 import { BaseRepository } from '../../repositories/BaseRepository';
 
 export class CustomerRepository extends BaseRepository<Customer, Prisma.CustomerCreateInput, Prisma.CustomerUpdateInput> {

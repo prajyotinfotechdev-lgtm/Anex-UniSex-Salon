@@ -7,7 +7,7 @@ export const getDashboardSummary = async (branchId?: string) => {
 };
 
 export const getRevenueTrend = async (startDate: string, endDate: string, branchId?: string) => {
-  const params: any = { startDate, endDate, period: 'day' };
+  const params: Record<string, unknown> = { startDate, endDate, period: 'day' };
   if (branchId) params.branchId = branchId;
   const response = await apiClient.get('/reports/revenue/trend', { params });
   return response.data.data;

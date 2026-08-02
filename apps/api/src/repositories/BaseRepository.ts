@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from '@anex/database';
 import { prisma } from '../database/prisma.client';
 
 export abstract class BaseRepository<T, CreateInput, UpdateInput> {

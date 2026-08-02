@@ -1,6 +1,6 @@
 import { BaseService } from './BaseService';
 import { prisma } from '../database/prisma.client';
-import { ActionType } from '@prisma/client';
+import { ActionType } from '@anex/database';
 
 export interface AuditLogData {
   organizationId: string;

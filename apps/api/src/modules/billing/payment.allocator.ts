@@ -1,4 +1,4 @@
-import { PaymentMethod } from '@prisma/client';
+import { PaymentMethod } from '@anex/database';
 import { ValidationError, ConflictError } from '../../errors/AppErrors';
 
 export class PaymentAllocator {

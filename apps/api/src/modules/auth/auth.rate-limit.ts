@@ -9,6 +9,7 @@ export const loginRateLimiter = rateLimit({
     success: false,
     message: 'Too many login attempts from this IP, please try again after 15 minutes',
   },
+  skip: () => process.env.NODE_ENV !== 'production',
 });
 
 export const refreshRateLimiter = rateLimit({
@@ -20,6 +21,7 @@ export const refreshRateLimiter = rateLimit({
     success: false,
     message: 'Too many refresh attempts from this IP, please try again after 15 minutes',
   },
+  skip: () => process.env.NODE_ENV !== 'production',
 });
 
 export const forgotPasswordRateLimiter = rateLimit({
@@ -31,6 +33,7 @@ export const forgotPasswordRateLimiter = rateLimit({
     success: false,
     message: 'Too many forgot password requests from this IP, please try again after 1 hour',
   },
+  skip: () => process.env.NODE_ENV !== 'production',
 });
 
 export const resetPasswordRateLimiter = rateLimit({
@@ -42,4 +45,5 @@ export const resetPasswordRateLimiter = rateLimit({
     success: false,
     message: 'Too many reset password attempts from this IP, please try again after 15 minutes',
   },
+  skip: () => process.env.NODE_ENV !== 'production',
 });

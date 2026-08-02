@@ -23,7 +23,14 @@ const allowedOrigins = env.CORS_ORIGINS.split(',').map((o: string) => o.trim());
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (
+        !origin || 
+        allowedOrigins.includes(origin) || 
+        allowedOrigins.includes('*') ||
+        origin.endsWith('.netlify.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
         callback(null, true);
       } else {
         console.error(`[CORS BLOCK] Blocked request from unauthorized origin: ${origin}`);

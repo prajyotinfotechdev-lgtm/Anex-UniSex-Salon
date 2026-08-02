@@ -1,4 +1,20 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://anex-api.onrender.com";
+const DEFAULT_API_URL = "https://anex-api.onrender.com";
+
+export function getFullApiUrl(endpoint: string): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL;
+  const baseUrl = envUrl.trim().replace(/\/+$/, '');
+  const cleanEndpoint = endpoint.trim().replace(/^\/+/, '');
+
+  // Handle URL concatenation safely
+  if (baseUrl.endsWith('/api/v1') && cleanEndpoint.startsWith('api/v1/')) {
+    return `${baseUrl}/${cleanEndpoint.slice(7)}`;
+  }
+  if (!baseUrl.includes('/api/v1') && !cleanEndpoint.startsWith('api/v1/')) {
+    return `${baseUrl}/api/v1/${cleanEndpoint}`;
+  }
+
+  return `${baseUrl}/${cleanEndpoint}`;
+}
 
 const getHeaders = () => {
   const headers: Record<string, string> = {
@@ -17,20 +33,20 @@ const getHeaders = () => {
 
 export const api = {
   get: async (url: string) => {
-    const fetchUrl = url.startsWith("/") ? `${API_URL}${url}` : url;
+    const fetchUrl = getFullApiUrl(url);
     const res = await fetch(fetchUrl, { headers: getHeaders() });
-    if (!res.ok) throw new Error('API Error');
+    if (!res.ok) throw new Error(`API Error ${res.status}: ${res.statusText}`);
     return { data: await res.json() };
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   post: async (url: string, body?: any) => {
-    const fetchUrl = url.startsWith("/") ? `${API_URL}${url}` : url;
+    const fetchUrl = getFullApiUrl(url);
     const res = await fetch(fetchUrl, {
       method: 'POST',
       headers: getHeaders(),
       body: body ? JSON.stringify(body) : undefined,
     });
-    if (!res.ok) throw new Error('API Error');
+    if (!res.ok) throw new Error(`API Error ${res.status}: ${res.statusText}`);
     return { data: await res.json() };
   }
 };

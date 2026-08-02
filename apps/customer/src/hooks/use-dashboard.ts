@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getFullApiUrl } from "@/lib/api";
 
 export interface DashboardData {
   greeting: string;
   metrics?: { loyaltyPoints?: number };
   upcomingAppointment?: Record<string, unknown> | null;
   notifications?: { unreadCount: number };
-  urgencyState?: 'NONE' | 'CHECK_IN' | 'PAYMENT' | 'LATE';
+  urgencyState?: 'NONE' | 'CHECK_IN' | 'PAYMENT' | 'LATE' | 'FIRST_TIME' | 'RETURNING' | 'INACTIVE' | 'APPOINTMENT_TODAY';
   urgentAction?: { label: string; action: string; type: 'primary' | 'destructive' };
   predictiveBooking?: { title: string; subtitle: string; serviceId: string; suggestionReason: string };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,6 +18,39 @@ export interface DashboardData {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   discover?: any;
 }
+
+const DEFAULT_GUEST_DASHBOARD: DashboardData = {
+  greeting: "Welcome, Guest",
+  urgencyState: "FIRST_TIME",
+  financials: null,
+  recommendations: [
+    {
+      type: "SERVICE",
+      title: "Discover Premium Haircare",
+      subtitle: "Tailored styling by top professionals.",
+      actionId: "srv_discover"
+    }
+  ],
+  discover: [
+    {
+      id: "content_1",
+      type: "TREND",
+      title: "The Textured Crop",
+      imageUrl: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&auto=format&fit=crop&q=80",
+      action: "BOOK_SERVICE",
+      targetId: "srv_crop"
+    },
+    {
+      id: "content_2",
+      type: "TIP",
+      title: "Rainy Day Frizz Control",
+      imageUrl: "https://images.unsplash.com/photo-1596440263301-3518a424a1e9?w=800&auto=format&fit=crop&q=80",
+      action: "READ_ARTICLE",
+      targetId: "art_12"
+    }
+  ],
+  notifications: { unreadCount: 0 }
+};
 
 export function useDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -28,19 +62,30 @@ export function useDashboard() {
       try {
         const token = localStorage.getItem("anex_device_token");
         if (!token) {
-          throw new Error("No device token found. Please register device.");
+          // Guest User (No device registered yet) -> Load Guest Dashboard
+          setData(DEFAULT_GUEST_DASHBOARD);
+          setIsLoading(false);
+          return;
         }
 
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://anex-api.onrender.com";
-        const res = await fetch(`${API_URL}/api/v1/me/dashboard`, {
+        const fetchUrl = getFullApiUrl('/api/v1/me/dashboard');
+        const res = await fetch(fetchUrl, {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           }
         });
 
+        if (res.status === 401 || res.status === 404) {
+          // Token expired or revoked -> clear local token and revert to Guest Dashboard
+          localStorage.removeItem("anex_device_token");
+          setData(DEFAULT_GUEST_DASHBOARD);
+          setIsLoading(false);
+          return;
+        }
+
         if (!res.ok) {
-          throw new Error("Failed to load dashboard data");
+          throw new Error(`Failed to load dashboard data (Status ${res.status})`);
         }
 
         const json = await res.json();

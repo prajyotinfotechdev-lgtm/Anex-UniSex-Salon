@@ -1,7 +1,16 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://anex-api.onrender.com/api/v1';
+const DEFAULT_API_URL = "https://anex-api.onrender.com";
+
+function getAdminBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL;
+  const cleaned = envUrl.trim().replace(/\/+$/, '');
+  if (cleaned.endsWith('/api/v1')) return cleaned;
+  return `${cleaned}/api/v1`;
+}
+
+const API_URL = getAdminBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_URL,

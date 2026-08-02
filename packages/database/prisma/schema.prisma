@@ -295,6 +295,8 @@ model Organization {
   notificationTemplates NotificationTemplate[]
   auditLogs             AuditLog[]
   tags                  Tag[]
+  InspirationPost       InspirationPost[]
+  InspirationCollection InspirationCollection[]
 }
 
 model Branch {
@@ -323,6 +325,7 @@ model Branch {
   goodsReceipts      GoodsReceipt[]
   timeOffRequests    TimeOffRequest[]
   calendarExceptions CalendarException[]
+  InspirationPost    InspirationPost[]
 
   @@index([organizationId])
 }
@@ -434,24 +437,26 @@ model UserPermission {
 // ==========================================
 
 model Employee {
-  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId        String    @db.Uuid
-  userId                String?   @unique @db.Uuid
-  roleId                String    @db.Uuid
+  id                    String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String      @db.Uuid
+  userId                String?     @unique @db.Uuid
+  roleId                String      @db.Uuid
   firstName             String
   lastName              String
   email                 String?
   phone                 String?
   profileImageUrl       String?
+  profileImageId        String?     @db.Uuid
+  profileImage          MediaAsset? @relation("EmployeeProfileImage", fields: [profileImageId], references: [id])
   bio                   String?
-  dateOfJoining         DateTime? @db.Date
+  dateOfJoining         DateTime?   @db.Date
   emergencyContactName  String?
   emergencyContactPhone String?
   calendarColor         String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
   deletedAt             DateTime?
-  isActive              Boolean   @default(true)
+  isActive              Boolean     @default(true)
 
   organization Organization @relation(fields: [organizationId], references: [id])
   user         User?        @relation(fields: [userId], references: [id])
@@ -466,6 +471,7 @@ model Employee {
   paymentsReceived     Payment[]
   appointmentsCreated  Appointment[]          @relation("AppointmentCreatedBy")
   appointmentsUpdated  Appointment[]          @relation("AppointmentUpdatedBy")
+  InspirationPost      InspirationPost[]
 
   @@unique([organizationId, email])
   @@index([organizationId])
@@ -600,7 +606,7 @@ model Customer {
   deletedAt      DateTime?
   isActive       Boolean   @default(true)
 
-  organization         Organization         @relation(fields: [organizationId], references: [id])
+  organization         Organization          @relation(fields: [organizationId], references: [id])
   phones               CustomerPhone[]
   tags                 CustomerTag[]
   media                CustomerMedia[]
@@ -612,6 +618,8 @@ model Customer {
   invoices             Invoice[]
   consultationForms    ConsultationForm[]
   appointmentHistories AppointmentHistory[]
+  InspirationBookmark  InspirationBookmark[]
+  CustomerDevice       CustomerDevice[]
 
   @@unique([organizationId, primaryPhone])
   @@index([organizationId])
@@ -923,6 +931,7 @@ model Service {
   appointmentItems   AppointmentItem[]
   packageItems       PackageItem[]
   membershipBenefits MembershipBenefit[]
+  InspirationPost    InspirationPost[]
 
   @@index([organizationId])
   @@index([serviceCategoryId])
@@ -1624,4 +1633,178 @@ model Prediction {
 
   @@index([targetId, targetType])
   @@index([predictionType])
+}
+
+enum AssetStatus {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  ARCHIVED
+  ERROR
+}
+
+model MediaAsset {
+  id               String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId   String      @db.Uuid
+  uploadedById     String      @db.Uuid
+  originalFilename String
+  filename         String
+  mimeType         String
+  format           String
+  bytes            Int
+  width            Int
+  height           Int
+  folder           String?
+  caption          String?
+  tags             String[]
+  isFeatured       Boolean     @default(false)
+  status           AssetStatus
+  url              String?
+  secureUrl        String?
+  type             MediaType
+  provider         String?
+  providerId       String?
+  usageCount       Int         @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  deletedAt        DateTime?
+
+  inspirationPostsHero   InspirationPost[]        @relation("HeroMedia")
+  inspirationPostsBefore InspirationPost[]        @relation("BeforeMedia")
+  galleryItems           InspirationGalleryItem[]
+  employeeProfiles       Employee[]               @relation("EmployeeProfileImage")
+  collectionCovers       InspirationCollection[]  @relation("CollectionCoverImage")
+}
+
+model InspirationPost {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String  @db.Uuid
+  branchId       String? @db.Uuid
+  employeeId     String? @db.Uuid
+  serviceId      String? @db.Uuid
+  heroMediaId    String? @db.Uuid
+  beforeMediaId  String? @db.Uuid
+
+  title            String
+  slug             String
+  description      String?
+  status           String    @default("DRAFT")
+  category         String?
+  revenueGenerated Decimal?  @db.Decimal(10, 2)
+  bookmarkCount    Int       @default(0)
+  tags             String[]
+  isFeatured       Boolean   @default(false)
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  branch       Branch?      @relation(fields: [branchId], references: [id])
+  employee     Employee?    @relation(fields: [employeeId], references: [id])
+  service      Service?     @relation(fields: [serviceId], references: [id])
+
+  heroMedia   MediaAsset? @relation("HeroMedia", fields: [heroMediaId], references: [id])
+  beforeMedia MediaAsset? @relation("BeforeMedia", fields: [beforeMediaId], references: [id])
+
+  galleryItems InspirationGalleryItem[]
+  collections  InspirationPostCollection[]
+  bookmarks    InspirationBookmark[]
+  events       InspirationEvent[]
+
+  @@unique([organizationId, slug])
+}
+
+model InspirationGalleryItem {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inspirationPostId String  @db.Uuid
+  mediaId           String  @db.Uuid
+  caption           String?
+  sortOrder         Int     @default(0)
+
+  post  InspirationPost @relation(fields: [inspirationPostId], references: [id], onDelete: Cascade)
+  media MediaAsset      @relation(fields: [mediaId], references: [id])
+}
+
+model InspirationCollection {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String      @db.Uuid
+  title          String
+  slug           String
+  description    String?
+  coverImageId   String?     @db.Uuid
+  coverImage     MediaAsset? @relation("CollectionCoverImage", fields: [coverImageId], references: [id])
+  isPublic       Boolean     @default(true)
+  sortOrder      Int         @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  organization Organization                @relation(fields: [organizationId], references: [id])
+  posts        InspirationPostCollection[]
+
+  @@unique([organizationId, slug])
+}
+
+model InspirationPostCollection {
+  inspirationPostId       String @db.Uuid
+  inspirationCollectionId String @db.Uuid
+  sortOrder               Int    @default(0)
+
+  post       InspirationPost       @relation(fields: [inspirationPostId], references: [id], onDelete: Cascade)
+  collection InspirationCollection @relation(fields: [inspirationCollectionId], references: [id], onDelete: Cascade)
+
+  @@id([inspirationPostId, inspirationCollectionId])
+}
+
+model InspirationBookmark {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inspirationPostId String   @db.Uuid
+  customerId        String   @db.Uuid
+  createdAt         DateTime @default(now())
+
+  post     InspirationPost @relation(fields: [inspirationPostId], references: [id], onDelete: Cascade)
+  customer Customer        @relation(fields: [customerId], references: [id])
+
+  @@unique([inspirationPostId, customerId])
+}
+
+model InspirationEvent {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inspirationPostId String   @db.Uuid
+  customerId        String?  @db.Uuid
+  eventType         String
+  metadata          Json?
+  createdAt         DateTime @default(now())
+
+  post InspirationPost @relation(fields: [inspirationPostId], references: [id], onDelete: Cascade)
+}
+
+model CustomerDevice {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId    String    @db.Uuid
+  deviceId      String    @unique
+  deviceName    String?
+  tokenHash     String
+  isTrusted     Boolean   @default(false)
+  isRevoked     Boolean   @default(false)
+  lastIpAddress String?
+  lastUsedAt    DateTime?
+  platform      String?
+  browser       String?
+  pushToken     String?
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id])
+}
+
+model CustomerPairingSession {
+  pairingId   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  newDeviceId String
+  customerId  String?  @db.Uuid
+  isConsumed  Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
 }

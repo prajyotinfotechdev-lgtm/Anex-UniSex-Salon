@@ -138,7 +138,9 @@ export class MediaService {
 
     // Attempt to delete from Cloudinary
     try {
-      await cloudinaryService.deleteAsset(asset.providerId);
+      if (asset.providerId) {
+        await cloudinaryService.deleteAsset(asset.providerId);
+      }
     } catch (e) {
       console.warn('Failed to delete asset from Cloudinary', e);
       // Soft delete in DB even if cloudinary fails

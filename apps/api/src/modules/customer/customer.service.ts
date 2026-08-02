@@ -193,7 +193,7 @@ export class CustomerService extends BaseService {
 
     return prisma.customerDevice.findMany({
       where: { customerId },
-      orderBy: { lastSeenAt: 'desc' }
+      orderBy: { lastUsedAt: 'desc' }
     });
   }
 

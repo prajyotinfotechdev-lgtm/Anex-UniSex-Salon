@@ -33,7 +33,7 @@ export class CustomerAuthService {
         isActive: true,
       },
       include: {
-        devices: {
+        CustomerDevice: {
           where: { isRevoked: false }
         }
       }
@@ -73,7 +73,7 @@ export class CustomerAuthService {
     }
 
     // Case 2: Customer already exists
-    if (customer.devices && customer.devices.length > 0) {
+    if (customer.CustomerDevice && customer.CustomerDevice.length > 0) {
       // Case 2B: Existing customer, device already registered
       return {
         found: true,
@@ -101,7 +101,7 @@ export class CustomerAuthService {
         isActive: true,
       },
       include: {
-        devices: {
+        CustomerDevice: {
           where: { isRevoked: false }
         }
       }
@@ -111,7 +111,7 @@ export class CustomerAuthService {
       throw new ValidationError('Customer not found');
     }
 
-    if (customer.devices && customer.devices.length > 0) {
+    if (customer.CustomerDevice && customer.CustomerDevice.length > 0) {
       throw new ValidationError('DEVICE_ALREADY_REGISTERED');
     }
 
@@ -169,7 +169,7 @@ export class CustomerAuthService {
     // Update lastSeenAt
     await prisma.customerDevice.update({
       where: { id: device.id },
-      data: { lastSeenAt: new Date() }
+      data: { lastUsedAt: new Date() }
     });
 
     const accessToken = generateCustomerAccessToken({

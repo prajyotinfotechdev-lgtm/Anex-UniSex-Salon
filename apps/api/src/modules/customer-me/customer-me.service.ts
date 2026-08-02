@@ -307,7 +307,7 @@ export class CustomerMeService {
   static async getDevices(organizationId: string, customerId: string) {
     return prisma.customerDevice.findMany({
       where: { customerId, isRevoked: false },
-      orderBy: { lastSeenAt: 'desc' }
+      orderBy: { lastUsedAt: 'desc' }
     });
   }
 

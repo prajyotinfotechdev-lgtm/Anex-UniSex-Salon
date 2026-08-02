@@ -256,7 +256,7 @@ export const InspirationService = {
     setImmediate(async () => {
       try {
         await prisma.inspirationEvent.create({
-          data: { postId, customerId, eventType, metadata },
+          data: { inspirationPostId: postId, customerId, eventType, metadata: metadata || {} },
         });
 
         // Increment the relevant counter
@@ -345,7 +345,7 @@ export const InspirationService = {
   // ─── Customer: Toggle Bookmark ────────────────────────────────────────────────
   async toggleBookmark(customerId: string, postId: string) {
     const existing = await prisma.inspirationBookmark.findUnique({
-      where: { customerId_postId: { customerId, postId } },
+      where: { inspirationPostId_customerId: { customerId, inspirationPostId: postId } },
     });
 
     if (existing) {
@@ -362,7 +362,7 @@ export const InspirationService = {
       return { bookmarked: false };
     }
 
-    await prisma.inspirationBookmark.create({ data: { customerId, postId } });
+    await prisma.inspirationBookmark.create({ data: { customerId, inspirationPostId: postId } });
     setImmediate(async () => {
       try {
         await prisma.inspirationPost.update({

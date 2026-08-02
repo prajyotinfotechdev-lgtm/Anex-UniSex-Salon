@@ -14,6 +14,7 @@ import { swaggerSpec } from './swagger/swagger.config';
 import v1Routes from './api/v1';
 
 const app = express();
+app.set('trust proxy', 1); // Required for express-rate-limit behind Render/Cloudflare
 
 // Security Middlewares
 app.use(helmet());

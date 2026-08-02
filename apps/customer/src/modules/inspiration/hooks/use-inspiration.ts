@@ -35,7 +35,7 @@ export const useCustomerInspirationFeed = () => {
   return useQuery({
     queryKey: ['inspiration-feed'],
     queryFn: async () => {
-      const res = await api.get('/api/v1/inspiration/public/feed');
+      const res = await api.get('/api/v1/public/inspiration');
       return res.data;
     },
   });
@@ -45,7 +45,7 @@ export const useCustomerInspirationPost = (idOrSlug: string) => {
   return useQuery({
     queryKey: ['inspiration-post', idOrSlug],
     queryFn: async () => {
-      const res = await api.get(`/api/v1/inspiration/public/post/${idOrSlug}`);
+      const res = await api.get(`/api/v1/public/inspiration/${idOrSlug}`);
       return res.data;
     },
     enabled: !!idOrSlug,
@@ -56,7 +56,7 @@ export const useCustomerInspirationCollections = () => {
   return useQuery({
     queryKey: ['inspiration-public-collections'],
     queryFn: async () => {
-      const res = await api.get('/api/v1/inspiration/public/collections');
+      const res = await api.get('/api/v1/public/inspiration/collections');
       return res.data;
     },
   });
@@ -66,7 +66,7 @@ export const useCustomerInspirationCollection = (slug: string) => {
   return useQuery({
     queryKey: ['inspiration-collection', slug],
     queryFn: async () => {
-      const res = await api.get(`/api/v1/inspiration/public/collections/${slug}`);
+      const res = await api.get(`/api/v1/public/inspiration/collections/${slug}`);
       return res.data;
     },
     enabled: !!slug,
@@ -82,11 +82,12 @@ export const useCustomerBookmarks = () => {
       const res = await api.get('/api/v1/me/inspiration/bookmarks');
       return res.data;
     },
+    retry: false // Don't retry on 401
   });
 
   const toggleBookmark = useMutation({
     mutationFn: async (postId: string) => {
-      const res = await api.post(`/api/v1/me/inspiration/bookmarks/${postId}`);
+      const res = await api.post(`/api/v1/me/inspiration/${postId}/bookmark`);
       return res.data;
     },
     onMutate: async (postId) => {
@@ -108,7 +109,7 @@ export const useCustomerBookmarks = () => {
 export const useCustomerInspirationAnalytics = () => {
   const trackEvent = useMutation({
     mutationFn: async ({ postId, eventType }: { postId: string, eventType: string }) => {
-      const res = await api.post(`/api/v1/inspiration/public/post/${postId}/track`, { eventType });
+      const res = await api.post(`/api/v1/public/inspiration/${postId}/event`, { eventType });
       return res.data;
     },
   });

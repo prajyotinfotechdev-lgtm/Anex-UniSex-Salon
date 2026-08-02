@@ -53,4 +53,7 @@ export const PERMISSIONS = {
   },
 } as const;
 
-export type PermissionType = typeof PERMISSIONS[keyof typeof PERMISSIONS][keyof typeof PERMISSIONS[keyof typeof PERMISSIONS]];
+type ValueOf<T> = T[keyof T];
+export type PermissionType = ValueOf<{
+  [K in keyof typeof PERMISSIONS]: ValueOf<typeof PERMISSIONS[K]>
+}>;

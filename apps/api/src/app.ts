@@ -41,6 +41,9 @@ app.use(globalRateLimiter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API Routes
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'Anex Salon API is running. See /api-docs for documentation.' });
+});
 app.use('/api/v1', v1Routes);
 
 // 404 Handler

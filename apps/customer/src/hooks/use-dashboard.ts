@@ -31,7 +31,8 @@ export function useDashboard() {
           throw new Error("No device token found. Please register device.");
         }
 
-        const res = await fetch("http://localhost:3001/api/v1/me/dashboard", {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://anex-api.onrender.com";
+        const res = await fetch(`${API_URL}/api/v1/me/dashboard`, {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import {
   createAppointmentSchema,
   updateAppointmentSchema,
@@ -83,7 +84,7 @@ router.use(requireAuth);
  *       200:
  *         description: List of appointments
  */
-router.get('/', requirePermission('Appointment.Read' as any), validate(searchAppointmentsSchema), searchAppointmentsHandler);
+router.get('/', requirePermission(PERMISSIONS.APPOINTMENT.READ), validate(searchAppointmentsSchema), searchAppointmentsHandler);
 
 /**
  * @swagger
@@ -105,7 +106,7 @@ router.get('/', requirePermission('Appointment.Read' as any), validate(searchApp
  *       404:
  *         description: Appointment not found
  */
-router.get('/:id', requirePermission('Appointment.Read' as any), getAppointmentHandler);
+router.get('/:id', requirePermission(PERMISSIONS.APPOINTMENT.READ), getAppointmentHandler);
 
 /**
  * @swagger
@@ -171,7 +172,7 @@ router.get('/:id', requirePermission('Appointment.Read' as any), getAppointmentH
  *       409:
  *         description: Conflict
  */
-router.post('/', requirePermission('Appointment.Create' as any), validate(createAppointmentSchema), createAppointmentHandler);
+router.post('/', requirePermission(PERMISSIONS.APPOINTMENT.CREATE), validate(createAppointmentSchema), createAppointmentHandler);
 
 /**
  * @swagger
@@ -241,7 +242,7 @@ router.post('/', requirePermission('Appointment.Create' as any), validate(create
  *       409:
  *         description: Conflict (invalid state transition)
  */
-router.put('/:id', requirePermission('Appointment.Update' as any), validate(updateAppointmentSchema), updateAppointmentHandler);
+router.put('/:id', requirePermission(PERMISSIONS.APPOINTMENT.UPDATE), validate(updateAppointmentSchema), updateAppointmentHandler);
 
 /**
  * @swagger
@@ -265,6 +266,6 @@ router.put('/:id', requirePermission('Appointment.Update' as any), validate(upda
  *       404:
  *         description: Appointment not found
  */
-router.delete('/:id', requirePermission('Appointment.Delete' as any), deleteAppointmentHandler);
+router.delete('/:id', requirePermission(PERMISSIONS.APPOINTMENT.DELETE), deleteAppointmentHandler);
 
 export default router;

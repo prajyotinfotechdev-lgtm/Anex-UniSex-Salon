@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import { searchCategoriesSchema } from './service-category.validator';
 import { listServiceCategoriesHandler } from './service-category.controller';
 
@@ -45,6 +46,6 @@ router.use(requireAuth);
  *       200:
  *         description: List of service categories
  */
-router.get('/', requirePermission('Service.Read' as any), validate(searchCategoriesSchema), listServiceCategoriesHandler);
+router.get('/', requirePermission(PERMISSIONS.SERVICE.READ), validate(searchCategoriesSchema), listServiceCategoriesHandler);
 
 export default router;

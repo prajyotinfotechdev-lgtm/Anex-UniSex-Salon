@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import {
   checkAvailabilitySchema,
   generateSlotsSchema,
@@ -57,7 +58,7 @@ router.use(requireAuth);
  *       200:
  *         description: Availability checked
  */
-router.post('/check-availability', requirePermission('Appointment.Read' as any), validate(checkAvailabilitySchema), checkAvailabilityHandler);
+router.post('/check-availability', requirePermission(PERMISSIONS.APPOINTMENT.READ), validate(checkAvailabilitySchema), checkAvailabilityHandler);
 
 /**
  * @swagger
@@ -95,6 +96,6 @@ router.post('/check-availability', requirePermission('Appointment.Read' as any),
  *       200:
  *         description: Slots generated
  */
-router.post('/generate-slots', requirePermission('Appointment.Read' as any), validate(generateSlotsSchema), generateSlotsHandler);
+router.post('/generate-slots', requirePermission(PERMISSIONS.APPOINTMENT.READ), validate(generateSlotsSchema), generateSlotsHandler);
 
 export default router;

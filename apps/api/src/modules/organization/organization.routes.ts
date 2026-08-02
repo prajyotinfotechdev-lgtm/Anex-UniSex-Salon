@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import {
   updateOrganizationSchema,
   createBranchSchema,
@@ -49,7 +50,7 @@ router.use(requireAuth);
  *       200:
  *         description: Organization details
  */
-router.get('/', requirePermission('Organization.Read' as any), getOrganizationHandler);
+router.get('/', requirePermission(PERMISSIONS.ORGANIZATION.READ), getOrganizationHandler);
 
 /**
  * @swagger
@@ -80,7 +81,7 @@ router.get('/', requirePermission('Organization.Read' as any), getOrganizationHa
  *       200:
  *         description: Organization updated
  */
-router.put('/', requirePermission('Organization.Update' as any), validate(updateOrganizationSchema), updateOrganizationHandler);
+router.put('/', requirePermission(PERMISSIONS.ORGANIZATION.UPDATE), validate(updateOrganizationSchema), updateOrganizationHandler);
 
 /**
  * @swagger
@@ -94,7 +95,7 @@ router.put('/', requirePermission('Organization.Update' as any), validate(update
  *       200:
  *         description: List of branches
  */
-router.get('/branches', requirePermission('Branch.Read' as any), listBranchesHandler);
+router.get('/branches', requirePermission(PERMISSIONS.BRANCH.READ), listBranchesHandler);
 
 /**
  * @swagger
@@ -127,7 +128,7 @@ router.get('/branches', requirePermission('Branch.Read' as any), listBranchesHan
  *       201:
  *         description: Branch created
  */
-router.post('/branches', requirePermission('Branch.Create' as any), validate(createBranchSchema), createBranchHandler);
+router.post('/branches', requirePermission(PERMISSIONS.BRANCH.CREATE), validate(createBranchSchema), createBranchHandler);
 
 /**
  * @swagger
@@ -147,7 +148,7 @@ router.post('/branches', requirePermission('Branch.Create' as any), validate(cre
  *       200:
  *         description: Branch details
  */
-router.get('/branches/:id', requirePermission('Branch.Read' as any), getBranchHandler);
+router.get('/branches/:id', requirePermission(PERMISSIONS.BRANCH.READ), getBranchHandler);
 
 /**
  * @swagger
@@ -184,7 +185,7 @@ router.get('/branches/:id', requirePermission('Branch.Read' as any), getBranchHa
  *       200:
  *         description: Branch updated
  */
-router.put('/branches/:id', requirePermission('Branch.Update' as any), validate(updateBranchSchema), updateBranchHandler);
+router.put('/branches/:id', requirePermission(PERMISSIONS.BRANCH.UPDATE), validate(updateBranchSchema), updateBranchHandler);
 
 /**
  * @swagger
@@ -204,7 +205,7 @@ router.put('/branches/:id', requirePermission('Branch.Update' as any), validate(
  *       200:
  *         description: Branch soft deleted
  */
-router.delete('/branches/:id', requirePermission('Branch.Delete' as any), deleteBranchHandler);
+router.delete('/branches/:id', requirePermission(PERMISSIONS.BRANCH.DELETE), deleteBranchHandler);
 
 /**
  * @swagger
@@ -224,7 +225,7 @@ router.delete('/branches/:id', requirePermission('Branch.Delete' as any), delete
  *       200:
  *         description: Branch activated
  */
-router.patch('/branches/:id/activate', requirePermission('Branch.Manage' as any), activateBranchHandler);
+router.patch('/branches/:id/activate', requirePermission(PERMISSIONS.BRANCH.MANAGE), activateBranchHandler);
 
 /**
  * @swagger
@@ -244,7 +245,7 @@ router.patch('/branches/:id/activate', requirePermission('Branch.Manage' as any)
  *       200:
  *         description: Branch deactivated
  */
-router.patch('/branches/:id/deactivate', requirePermission('Branch.Manage' as any), deactivateBranchHandler);
+router.patch('/branches/:id/deactivate', requirePermission(PERMISSIONS.BRANCH.MANAGE), deactivateBranchHandler);
 
 /**
  * @swagger
@@ -264,7 +265,7 @@ router.patch('/branches/:id/deactivate', requirePermission('Branch.Manage' as an
  *       200:
  *         description: List of holidays (Calendar Exceptions)
  */
-router.get('/branches/:id/holidays', requirePermission('Branch.Read' as any), listHolidaysHandler);
+router.get('/branches/:id/holidays', requirePermission(PERMISSIONS.BRANCH.READ), listHolidaysHandler);
 
 /**
  * @swagger
@@ -304,7 +305,7 @@ router.get('/branches/:id/holidays', requirePermission('Branch.Read' as any), li
  *       201:
  *         description: Holiday created
  */
-router.post('/branches/:id/holidays', requirePermission('Branch.Manage' as any), validate(createHolidaySchema), createHolidayHandler);
+router.post('/branches/:id/holidays', requirePermission(PERMISSIONS.BRANCH.MANAGE), validate(createHolidaySchema), createHolidayHandler);
 
 /**
  * @swagger
@@ -347,7 +348,7 @@ router.post('/branches/:id/holidays', requirePermission('Branch.Manage' as any),
  *       200:
  *         description: Holiday updated
  */
-router.put('/branches/:id/holidays/:holidayId', requirePermission('Branch.Manage' as any), validate(updateHolidaySchema), updateHolidayHandler);
+router.put('/branches/:id/holidays/:holidayId', requirePermission(PERMISSIONS.BRANCH.MANAGE), validate(updateHolidaySchema), updateHolidayHandler);
 
 /**
  * @swagger
@@ -372,6 +373,6 @@ router.put('/branches/:id/holidays/:holidayId', requirePermission('Branch.Manage
  *       200:
  *         description: Holiday deleted
  */
-router.delete('/branches/:id/holidays/:holidayId', requirePermission('Branch.Manage' as any), deleteHolidayHandler);
+router.delete('/branches/:id/holidays/:holidayId', requirePermission(PERMISSIONS.BRANCH.MANAGE), deleteHolidayHandler);
 
 export default router;

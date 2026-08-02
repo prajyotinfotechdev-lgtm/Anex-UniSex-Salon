@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import {
   createEmployeeSchema,
   updateEmployeeSchema,
@@ -65,7 +66,7 @@ router.use(requireAuth);
  *       200:
  *         description: List of employees with pagination
  */
-router.get('/', requirePermission('Employee.Read' as any), validate(searchEmployeesSchema), searchEmployeesHandler);
+router.get('/', requirePermission(PERMISSIONS.EMPLOYEE.READ), validate(searchEmployeesSchema), searchEmployeesHandler);
 
 /**
  * @swagger
@@ -87,7 +88,7 @@ router.get('/', requirePermission('Employee.Read' as any), validate(searchEmploy
  *       404:
  *         description: Employee not found
  */
-router.get('/:id', requirePermission('Employee.Read' as any), getEmployeeHandler);
+router.get('/:id', requirePermission(PERMISSIONS.EMPLOYEE.READ), getEmployeeHandler);
 
 /**
  * @swagger
@@ -154,7 +155,7 @@ router.get('/:id', requirePermission('Employee.Read' as any), getEmployeeHandler
  *       409:
  *         description: Conflict (Email, Phone, User already linked)
  */
-router.post('/', requirePermission('Employee.Create' as any), validate(createEmployeeSchema), createEmployeeHandler);
+router.post('/', requirePermission(PERMISSIONS.EMPLOYEE.CREATE), validate(createEmployeeSchema), createEmployeeHandler);
 
 /**
  * @swagger
@@ -223,7 +224,7 @@ router.post('/', requirePermission('Employee.Create' as any), validate(createEmp
  *       409:
  *         description: Conflict
  */
-router.put('/:id', requirePermission('Employee.Update' as any), validate(updateEmployeeSchema), updateEmployeeHandler);
+router.put('/:id', requirePermission(PERMISSIONS.EMPLOYEE.UPDATE), validate(updateEmployeeSchema), updateEmployeeHandler);
 
 /**
  * @swagger
@@ -247,7 +248,7 @@ router.put('/:id', requirePermission('Employee.Update' as any), validate(updateE
  *       409:
  *         description: Conflict (has active dependencies)
  */
-router.delete('/:id', requirePermission('Employee.Delete' as any), deleteEmployeeHandler);
+router.delete('/:id', requirePermission(PERMISSIONS.EMPLOYEE.DELETE), deleteEmployeeHandler);
 
 /**
  * @swagger
@@ -269,7 +270,7 @@ router.delete('/:id', requirePermission('Employee.Delete' as any), deleteEmploye
  *       404:
  *         description: Employee not found
  */
-router.patch('/:id/activate', requirePermission('Employee.Manage' as any), activateEmployeeHandler);
+router.patch('/:id/activate', requirePermission(PERMISSIONS.EMPLOYEE.MANAGE), activateEmployeeHandler);
 
 /**
  * @swagger
@@ -293,6 +294,6 @@ router.patch('/:id/activate', requirePermission('Employee.Manage' as any), activ
  *       409:
  *         description: Conflict (has active dependencies)
  */
-router.patch('/:id/deactivate', requirePermission('Employee.Manage' as any), deactivateEmployeeHandler);
+router.patch('/:id/deactivate', requirePermission(PERMISSIONS.EMPLOYEE.MANAGE), deactivateEmployeeHandler);
 
 export default router;

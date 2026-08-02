@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import { listRolesHandler } from './role.controller';
 
 const router = Router();
@@ -31,6 +32,6 @@ router.use(requireAuth);
  *       200:
  *         description: List of roles
  */
-router.get('/', requirePermission('Role.Read' as any), listRolesHandler);
+router.get('/', requirePermission(PERMISSIONS.ROLE.READ), listRolesHandler);
 
 export default router;

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import {
   createCustomerSchema,
   updateCustomerSchema,
@@ -77,7 +78,7 @@ router.use(requireAuth);
  *       200:
  *         description: List of customers
  */
-router.get('/', requirePermission('Customer.Read' as any), validate(searchCustomersSchema), searchCustomersHandler);
+router.get('/', requirePermission(PERMISSIONS.CUSTOMER.READ), validate(searchCustomersSchema), searchCustomersHandler);
 
 /**
  * @swagger
@@ -99,7 +100,7 @@ router.get('/', requirePermission('Customer.Read' as any), validate(searchCustom
  *       404:
  *         description: Customer not found
  */
-router.get('/:id', requirePermission('Customer.Read' as any), getCustomerHandler);
+router.get('/:id', requirePermission(PERMISSIONS.CUSTOMER.READ), getCustomerHandler);
 
 /**
  * @swagger
@@ -162,7 +163,7 @@ router.get('/:id', requirePermission('Customer.Read' as any), getCustomerHandler
  *       409:
  *         description: Conflict (Email or Phone already in use)
  */
-router.post('/', requirePermission('Customer.Create' as any), validate(createCustomerSchema), createCustomerHandler);
+router.post('/', requirePermission(PERMISSIONS.CUSTOMER.CREATE), validate(createCustomerSchema), createCustomerHandler);
 
 /**
  * @swagger
@@ -229,7 +230,7 @@ router.post('/', requirePermission('Customer.Create' as any), validate(createCus
  *       409:
  *         description: Conflict
  */
-router.put('/:id', requirePermission('Customer.Update' as any), validate(updateCustomerSchema), updateCustomerHandler);
+router.put('/:id', requirePermission(PERMISSIONS.CUSTOMER.UPDATE), validate(updateCustomerSchema), updateCustomerHandler);
 
 /**
  * @swagger
@@ -240,7 +241,7 @@ router.put('/:id', requirePermission('Customer.Update' as any), validate(updateC
  *     security:
  *       - bearerAuth: []
  */
-router.get('/:id/devices', requirePermission('Customer.Read' as any), listCustomerDevicesHandler);
+router.get('/:id/devices', requirePermission(PERMISSIONS.CUSTOMER.READ), listCustomerDevicesHandler);
 
 /**
  * @swagger
@@ -251,7 +252,7 @@ router.get('/:id/devices', requirePermission('Customer.Read' as any), listCustom
  *     security:
  *       - bearerAuth: []
  */
-router.patch('/:id/devices/:deviceId/revoke', requirePermission('Customer.Update' as any), revokeCustomerDeviceHandler);
+router.patch('/:id/devices/:deviceId/revoke', requirePermission(PERMISSIONS.CUSTOMER.UPDATE), revokeCustomerDeviceHandler);
 
 /**
  * @swagger
@@ -262,7 +263,7 @@ router.patch('/:id/devices/:deviceId/revoke', requirePermission('Customer.Update
  *     security:
  *       - bearerAuth: []
  */
-router.post('/:id/devices/transfer', requirePermission('Customer.Update' as any), executeDeviceTransferHandler);
+router.post('/:id/devices/transfer', requirePermission(PERMISSIONS.CUSTOMER.UPDATE), executeDeviceTransferHandler);
 
 /**
  * @swagger
@@ -286,7 +287,7 @@ router.post('/:id/devices/transfer', requirePermission('Customer.Update' as any)
  *       409:
  *         description: Conflict (has active dependencies)
  */
-router.delete('/:id', requirePermission('Customer.Delete' as any), deleteCustomerHandler);
+router.delete('/:id', requirePermission(PERMISSIONS.CUSTOMER.DELETE), deleteCustomerHandler);
 
 /**
  * @swagger
@@ -308,7 +309,7 @@ router.delete('/:id', requirePermission('Customer.Delete' as any), deleteCustome
  *       404:
  *         description: Customer not found
  */
-router.patch('/:id/activate', requirePermission('Customer.Manage' as any), activateCustomerHandler);
+router.patch('/:id/activate', requirePermission(PERMISSIONS.CUSTOMER.MANAGE), activateCustomerHandler);
 
 /**
  * @swagger
@@ -332,6 +333,6 @@ router.patch('/:id/activate', requirePermission('Customer.Manage' as any), activ
  *       409:
  *         description: Conflict (has active dependencies)
  */
-router.patch('/:id/deactivate', requirePermission('Customer.Manage' as any), deactivateCustomerHandler);
+router.patch('/:id/deactivate', requirePermission(PERMISSIONS.CUSTOMER.MANAGE), deactivateCustomerHandler);
 
 export default router;

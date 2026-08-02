@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import {
   createInvoiceSchema,
   addPaymentSchema,
@@ -69,7 +70,7 @@ router.use(requireAuth);
  *       201:
  *         description: Invoice created
  */
-router.post('/invoices', requirePermission('Billing.Create' as any), validate(createInvoiceSchema), createInvoiceHandler);
+router.post('/invoices', requirePermission(PERMISSIONS.BILLING.CREATE), validate(createInvoiceSchema), createInvoiceHandler);
 
 /**
  * @swagger
@@ -83,7 +84,7 @@ router.post('/invoices', requirePermission('Billing.Create' as any), validate(cr
  *       200:
  *         description: List of invoices
  */
-router.get('/invoices', requirePermission('Billing.Read' as any), validate(invoiceListSchema), listInvoicesHandler);
+router.get('/invoices', requirePermission(PERMISSIONS.BILLING.READ), validate(invoiceListSchema), listInvoicesHandler);
 
 /**
  * @swagger
@@ -103,7 +104,7 @@ router.get('/invoices', requirePermission('Billing.Read' as any), validate(invoi
  *       200:
  *         description: Invoice details
  */
-router.get('/invoices/:id', requirePermission('Billing.Read' as any), getInvoiceHandler);
+router.get('/invoices/:id', requirePermission(PERMISSIONS.BILLING.READ), getInvoiceHandler);
 
 /**
  * @swagger
@@ -123,7 +124,7 @@ router.get('/invoices/:id', requirePermission('Billing.Read' as any), getInvoice
  *       200:
  *         description: Invoice voided
  */
-router.patch('/invoices/:id/void', requirePermission('Billing.Manage' as any), voidInvoiceHandler);
+router.patch('/invoices/:id/void', requirePermission(PERMISSIONS.BILLING.MANAGE), voidInvoiceHandler);
 
 /**
  * @swagger
@@ -154,7 +155,7 @@ router.patch('/invoices/:id/void', requirePermission('Billing.Manage' as any), v
  *       201:
  *         description: Payment added
  */
-router.post('/payments', requirePermission('Billing.Create' as any), validate(addPaymentSchema), addPaymentHandler);
+router.post('/payments', requirePermission(PERMISSIONS.BILLING.CREATE), validate(addPaymentSchema), addPaymentHandler);
 
 /**
  * @swagger
@@ -168,6 +169,6 @@ router.post('/payments', requirePermission('Billing.Create' as any), validate(ad
  *       200:
  *         description: List of payments
  */
-router.get('/payments', requirePermission('Billing.Read' as any), validate(paymentListSchema), listPaymentsHandler);
+router.get('/payments', requirePermission(PERMISSIONS.BILLING.READ), validate(paymentListSchema), listPaymentsHandler);
 
 export default router;

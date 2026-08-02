@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import {
   createServiceSchema,
   updateServiceSchema,
@@ -90,7 +91,7 @@ router.use(requireAuth);
  *       200:
  *         description: List of services
  */
-router.get('/', requirePermission('Service.Read' as any), validate(searchServicesSchema), searchServicesHandler);
+router.get('/', requirePermission(PERMISSIONS.SERVICE.READ), validate(searchServicesSchema), searchServicesHandler);
 
 /**
  * @swagger
@@ -112,7 +113,7 @@ router.get('/', requirePermission('Service.Read' as any), validate(searchService
  *       404:
  *         description: Service not found
  */
-router.get('/:id', requirePermission('Service.Read' as any), getServiceHandler);
+router.get('/:id', requirePermission(PERMISSIONS.SERVICE.READ), getServiceHandler);
 
 /**
  * @swagger
@@ -182,7 +183,7 @@ router.get('/:id', requirePermission('Service.Read' as any), getServiceHandler);
  *       409:
  *         description: Conflict (Duplicate name)
  */
-router.post('/', requirePermission('Service.Create' as any), validate(createServiceSchema), createServiceHandler);
+router.post('/', requirePermission(PERMISSIONS.SERVICE.CREATE), validate(createServiceSchema), createServiceHandler);
 
 /**
  * @swagger
@@ -252,7 +253,7 @@ router.post('/', requirePermission('Service.Create' as any), validate(createServ
  *       409:
  *         description: Conflict
  */
-router.put('/:id', requirePermission('Service.Update' as any), validate(updateServiceSchema), updateServiceHandler);
+router.put('/:id', requirePermission(PERMISSIONS.SERVICE.UPDATE), validate(updateServiceSchema), updateServiceHandler);
 
 /**
  * @swagger
@@ -276,7 +277,7 @@ router.put('/:id', requirePermission('Service.Update' as any), validate(updateSe
  *       409:
  *         description: Conflict (has active dependencies)
  */
-router.delete('/:id', requirePermission('Service.Delete' as any), deleteServiceHandler);
+router.delete('/:id', requirePermission(PERMISSIONS.SERVICE.DELETE), deleteServiceHandler);
 
 /**
  * @swagger
@@ -298,7 +299,7 @@ router.delete('/:id', requirePermission('Service.Delete' as any), deleteServiceH
  *       404:
  *         description: Service not found
  */
-router.patch('/:id/activate', requirePermission('Service.Manage' as any), activateServiceHandler);
+router.patch('/:id/activate', requirePermission(PERMISSIONS.SERVICE.MANAGE), activateServiceHandler);
 
 /**
  * @swagger
@@ -322,6 +323,6 @@ router.patch('/:id/activate', requirePermission('Service.Manage' as any), activa
  *       409:
  *         description: Conflict (has active dependencies)
  */
-router.patch('/:id/deactivate', requirePermission('Service.Manage' as any), deactivateServiceHandler);
+router.patch('/:id/deactivate', requirePermission(PERMISSIONS.SERVICE.MANAGE), deactivateServiceHandler);
 
 export default router;

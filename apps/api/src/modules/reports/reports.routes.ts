@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middlewares/validate.middleware';
 import { requireAuth } from '../../auth/auth.middleware';
 import { requirePermission } from '../../rbac/permission.middleware';
+import { PERMISSIONS } from '@anex/shared';
 import { baseReportFilterSchema } from './reports.validator';
 import {
   getDashboardSummaryHandler,
@@ -38,7 +39,7 @@ router.use(requireAuth);
  *       200:
  *         description: Dashboard KPIs
  */
-router.get('/dashboard', requirePermission('Reports.Read' as any), getDashboardSummaryHandler);
+router.get('/dashboard', requirePermission(PERMISSIONS.REPORTS.READ), getDashboardSummaryHandler);
 
 /**
  * @swagger
@@ -74,7 +75,7 @@ router.get('/dashboard', requirePermission('Reports.Read' as any), getDashboardS
  *       200:
  *         description: Revenue report
  */
-router.get('/revenue', requirePermission('Reports.Read' as any), validate(baseReportFilterSchema), getRevenueReportHandler);
+router.get('/revenue', requirePermission(PERMISSIONS.REPORTS.READ), validate(baseReportFilterSchema), getRevenueReportHandler);
 
 /**
  * @swagger
@@ -116,7 +117,7 @@ router.get('/revenue', requirePermission('Reports.Read' as any), validate(baseRe
  *       200:
  *         description: Revenue trend
  */
-router.get('/revenue/trend', requirePermission('Reports.Read' as any), validate(baseReportFilterSchema), getRevenueTrendHandler);
+router.get('/revenue/trend', requirePermission(PERMISSIONS.REPORTS.READ), validate(baseReportFilterSchema), getRevenueTrendHandler);
 
 /**
  * @swagger
@@ -152,6 +153,6 @@ router.get('/revenue/trend', requirePermission('Reports.Read' as any), validate(
  *       200:
  *         description: Employee performance report
  */
-router.get('/employees', requirePermission('Reports.Read' as any), validate(baseReportFilterSchema), getEmployeePerformanceHandler);
+router.get('/employees', requirePermission(PERMISSIONS.REPORTS.READ), validate(baseReportFilterSchema), getEmployeePerformanceHandler);
 
 export default router;

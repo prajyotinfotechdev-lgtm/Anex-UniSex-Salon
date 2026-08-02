@@ -22,7 +22,14 @@ app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 const allowedOrigins = env.CORS_ORIGINS.split(',').map((o: string) => o.trim());
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error(`[CORS BLOCK] Blocked request from unauthorized origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );

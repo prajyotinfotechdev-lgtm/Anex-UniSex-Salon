@@ -52,7 +52,7 @@ export const searchEmployeesSchema = z.object({
     branchId: z.string().uuid().optional(),
     roleId: z.string().uuid().optional(),
     isActive: z.string().transform((val) => val === 'true').optional(),
-    sortBy: z.string().optional(),
+    sortBy: z.enum(['createdAt', 'firstName', 'lastName', 'email', 'phone']).optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });

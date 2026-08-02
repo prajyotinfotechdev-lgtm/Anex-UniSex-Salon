@@ -63,7 +63,7 @@ export const searchServicesSchema = z.object({
     maxPrice: z.string().regex(/^\d+(\.\d+)?$/).transform(Number).optional(),
     minDuration: z.string().regex(/^\d+$/).transform(Number).optional(),
     maxDuration: z.string().regex(/^\d+$/).transform(Number).optional(),
-    sortBy: z.string().optional(),
+    sortBy: z.enum(['createdAt', 'name', 'price', 'duration']).optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });

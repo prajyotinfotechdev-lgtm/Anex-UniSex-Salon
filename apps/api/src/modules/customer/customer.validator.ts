@@ -53,7 +53,7 @@ export const searchCustomersSchema = z.object({
     tagId: z.string().uuid().optional(),
     createdAtFrom: z.string().datetime().optional(),
     createdAtTo: z.string().datetime().optional(),
-    sortBy: z.string().optional(),
+    sortBy: z.enum(['createdAt', 'firstName', 'lastName', 'email', 'primaryPhone']).optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });

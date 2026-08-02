@@ -67,7 +67,7 @@ export const searchAppointmentsSchema = z.object({
     source: z.nativeEnum(AppointmentSource).optional(),
     dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-    sortBy: z.string().optional(),
+    sortBy: z.enum(['createdAt', 'scheduledDate', 'status']).optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });

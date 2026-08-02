@@ -14,13 +14,20 @@ export interface AuditLogData {
   userAgent?: string;
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export class AuditService extends BaseService {
   static async log(data: AuditLogData) {
     try {
+      // Validate that organizationId is a valid UUID before creating AuditLog record
+      if (!data.organizationId || !UUID_REGEX.test(data.organizationId)) {
+        return;
+      }
+
       await prisma.auditLog.create({
         data: {
           organizationId: data.organizationId,
-          ...(data.userId && { userId: data.userId }),
+          ...(data.userId && UUID_REGEX.test(data.userId) && { userId: data.userId }),
           action: data.action,
           entityName: data.entityName,
           entityId: data.entityId,
@@ -31,8 +38,8 @@ export class AuditService extends BaseService {
         },
       });
     } catch (error) {
-      console.error('Failed to write audit log', error);
-      // We generally do not want to throw on audit log failure as it could block the main transaction
+      console.error('Failed to write audit log:', error);
+      // Audit log failure should never block application flow
     }
   }
 }

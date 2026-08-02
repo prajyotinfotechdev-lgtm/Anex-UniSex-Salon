@@ -59,7 +59,7 @@ export class AuthService extends BaseService {
   async login(data: LoginRequestDto, ipAddress?: string): Promise<LoginResponseDto> {
     const user = await this.repository.findUserForAuth(data.email);
 
-    if (!user) {
+    if (!user || !user.passwordHash) {
       // Avoid user enumeration
       await this.auditLog(
         'SYSTEM', // Fallback organization ID since we don't know it
@@ -102,7 +102,13 @@ export class AuthService extends BaseService {
     }
 
     const employee = user.employee;
-    const permissions = employee.role.rolePermissions.map((rp: any) => rp.permission.name);
+    if (!employee.role) {
+      throw new UnauthorizedError('No role assigned to this employee');
+    }
+
+    const permissions = (employee.role.rolePermissions || [])
+      .map((rp: any) => rp?.permission?.name)
+      .filter((name: string | undefined): name is string => Boolean(name));
 
     const payload: JwtPayload = {
       userId: user.id,

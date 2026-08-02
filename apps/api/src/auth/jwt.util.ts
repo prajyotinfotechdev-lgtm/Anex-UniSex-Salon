@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.config';
+import { InternalServerError } from '../errors/AppErrors';
 
 export interface JwtPayload {
   userId: string;
@@ -9,11 +10,19 @@ export interface JwtPayload {
 }
 
 export const generateAccessToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
+  try {
+    return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
+  } catch (err: any) {
+    throw new InternalServerError(`Access token generation failed: ${err.message}`);
+  }
 };
 
 export const generateRefreshToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
+  try {
+    return jwt.sign(payload, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
+  } catch (err: any) {
+    throw new InternalServerError(`Refresh token generation failed: ${err.message}`);
+  }
 };
 
 export const verifyAccessToken = (token: string): JwtPayload => {

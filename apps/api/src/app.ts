@@ -28,7 +28,7 @@ app.use(
         !origin || 
         allowedOrigins.includes(origin) || 
         allowedOrigins.includes('*') ||
-        origin.endsWith('.netlify.app') ||
+        origin.endsWith('.onrender.com') ||
         origin.includes('localhost') ||
         origin.includes('127.0.0.1')
       ) {

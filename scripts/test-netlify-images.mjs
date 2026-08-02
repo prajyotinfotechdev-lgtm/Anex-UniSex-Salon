@@ -8,7 +8,7 @@ const sites = [
 
 const imageUrls = [
   'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1596440263301-3518a424a1e9?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=800&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f',
   'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg',

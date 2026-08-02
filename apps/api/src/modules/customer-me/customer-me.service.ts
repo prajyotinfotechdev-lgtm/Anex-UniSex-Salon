@@ -100,7 +100,7 @@ export class CustomerMeService {
         id: "content_2",
         type: "TIP",
         title: "Rainy Day Frizz Control",
-        imageUrl: "https://images.unsplash.com/photo-1596440263301-3518a424a1e9?w=800&auto=format&fit=crop&q=80",
+        imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80",
         action: "READ_ARTICLE",
         targetId: "art_12"
       }

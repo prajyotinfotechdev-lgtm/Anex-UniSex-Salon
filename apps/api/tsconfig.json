@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,

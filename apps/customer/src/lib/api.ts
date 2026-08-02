@@ -22,7 +22,7 @@ const getHeaders = () => {
   };
   
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem("anex_device_token");
+    const token = localStorage.getItem("anex_device_token") || localStorage.getItem("customer_token") || localStorage.getItem("anex_customer_token");
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

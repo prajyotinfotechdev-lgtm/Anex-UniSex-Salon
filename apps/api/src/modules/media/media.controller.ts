@@ -24,7 +24,7 @@ export const mediaController = {
       }
 
       const organizationId = user.organizationId;
-      const uploadedById = user.id;
+      const uploadedById = user.userId;
 
       let parsedTags: string[] = [];
       if (tags) {

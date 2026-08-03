@@ -128,7 +128,7 @@ export const InspirationService = {
     const baseSlug = data.slug || generateSlug(data.title);
     const slug = await ensureUniqueSlug(organizationId, baseSlug);
 
-    const { galleryMediaIds = [], collectionIds = [], ...rest } = data;
+    const { galleryMediaIds = [], collectionIds = [], difficulty, hairLength, maintenanceLevel, isTrending, personalizationTags, ...rest } = data;
 
     const post = await prisma.inspirationPost.create({
       data: {
@@ -164,7 +164,7 @@ export const InspirationService = {
     const existing = await prisma.inspirationPost.findFirst({ where: { id, organizationId } });
     if (!existing) throw new NotFoundError('Inspiration post not found');
 
-    const { galleryMediaIds, collectionIds, ...rest } = data;
+    const { galleryMediaIds, collectionIds, difficulty, hairLength, maintenanceLevel, isTrending, personalizationTags, ...rest } = data;
 
     // Recalculate slug only if title changed and no explicit slug provided
     if (rest.title && !rest.slug) {

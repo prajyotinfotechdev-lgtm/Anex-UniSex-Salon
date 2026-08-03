@@ -54,16 +54,16 @@ export const InspirationService = {
     if (filters.status) where.status = filters.status;
     if (filters.category) where.category = filters.category;
     if (filters.isFeatured !== undefined) where.isFeatured = filters.isFeatured;
-    if (filters.isTrending !== undefined) where.isTrending = filters.isTrending;
+    // Schema fields like isTrending, hairLength etc. are not defined in Prisma InspirationPost
+    // so we omit them from the where clause to prevent Prisma validation errors
     if (filters.employeeId) where.employeeId = filters.employeeId;
     if (filters.serviceId) where.serviceId = filters.serviceId;
     if (filters.branchId) where.branchId = filters.branchId;
-    if (filters.hairLength) where.hairLength = filters.hairLength;
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },
         { description: { contains: filters.search, mode: 'insensitive' } },
-        { personalizationTags: { has: filters.search.toLowerCase() } },
+        { tags: { has: filters.search.toLowerCase() } },
       ];
     }
     if (cursor) where.id = { lt: cursor };
@@ -73,7 +73,7 @@ export const InspirationService = {
       take,
       orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
       include: {
-        heroMedia: { select: { id: true, url: true, secureUrl: true, width: true, height: true, dominantColor: true } },
+        heroMedia: { select: { id: true, url: true, secureUrl: true, width: true, height: true } },
         employee: { select: { id: true, firstName: true, lastName: true, profileImageId: true } },
         service: { select: { id: true, name: true, basePrice: true, durationMinutes: true } },
         branch: { select: { id: true, name: true } },
@@ -382,7 +382,7 @@ export const InspirationService = {
       include: {
         post: {
           include: {
-            heroMedia: { select: { id: true, url: true, secureUrl: true, width: true, height: true, dominantColor: true } },
+            heroMedia: { select: { id: true, url: true, secureUrl: true, width: true, height: true } },
             employee: { select: { id: true, firstName: true, lastName: true } },
             service: { select: { id: true, name: true, basePrice: true, durationMinutes: true } },
           },

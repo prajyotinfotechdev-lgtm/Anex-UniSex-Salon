@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { MediaUploadWizard } from './media-upload-wizard';
 
 const FOLDERS = [
   { id: 'all', name: 'All Media', icon: LayoutDashboard },
@@ -25,6 +26,7 @@ export const MediaStudio = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,19 +51,10 @@ export const MediaStudio = () => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('module', activeFolder === 'all' ? 'general' : activeFolder);
-
-      toast.promise(uploadAsset.mutateAsync(formData), {
-        loading: `Uploading ${file.name}...`,
-        success: 'Asset uploaded successfully!',
-        error: 'Failed to upload asset',
-      });
-    }
-
+    // Open wizard for the first file selected
+    setUploadFile(files[0]);
+    
+    // Clear input so same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -317,6 +310,13 @@ export const MediaStudio = () => {
         )}
       </AnimatePresence>
 
+      <MediaUploadWizard 
+        isOpen={!!uploadFile}
+        onClose={() => setUploadFile(null)}
+        file={uploadFile}
+        defaultContext={activeFolder === 'all' ? undefined : activeFolder.toUpperCase()}
+        onSuccess={() => setUploadFile(null)}
+      />
     </div>
   );
 };

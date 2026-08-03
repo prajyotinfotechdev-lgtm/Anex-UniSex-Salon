@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { mediaService } from './media.service';
 import { MediaType } from '@prisma/client';
+import { mediaContentEngine } from './engine/media.engine';
 
 export const mediaController = {
   /**
@@ -54,6 +55,51 @@ export const mediaController = {
       res.status(201).json({
         success: true,
         data: asset,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
+   * Upload an asset with contextual domain metadata
+   */
+  uploadContextualAsset: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ success: false, message: 'No file uploaded' });
+        return;
+      }
+
+      const { contextType, metadata } = req.body;
+      if (!contextType) {
+        res.status(400).json({ success: false, message: 'contextType is required' });
+        return;
+      }
+
+      const user = (req as any).user;
+      if (!user) {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+        return;
+      }
+
+      const organizationId = user.organizationId;
+      const uploadedById = user.userId;
+
+      const result = await mediaContentEngine.processUpload(
+        req.file.buffer,
+        organizationId,
+        uploadedById,
+        contextType,
+        metadata,
+        req.file.originalname,
+        req.file.mimetype,
+        req.file.size
+      );
+
+      res.status(201).json({
+        success: true,
+        data: result,
       });
     } catch (error) {
       next(error);

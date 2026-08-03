@@ -45,6 +45,21 @@ export const useMediaStudio = () => {
     },
   });
 
+  const uploadContextualAsset = useMutation({
+    mutationFn: async (data: FormData) => {
+      const res = await api.post('/media/upload-contextual', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['media-assets'] });
+      queryClient.invalidateQueries({ queryKey: ['inspiration-posts'] });   // FIX: was missing — Inspiration Studio now updates immediately
+      queryClient.invalidateQueries({ queryKey: ['inspiration-analytics'] });
+    },
+  });
+
+
   const updateAsset = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const res = await api.put(`/media/${id}`, data);
@@ -68,6 +83,7 @@ export const useMediaStudio = () => {
   return {
     getAssets,
     uploadAsset,
+    uploadContextualAsset,
     updateAsset,
     deleteAsset,
   };

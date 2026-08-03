@@ -86,25 +86,35 @@ export class CustomerMeService {
       pointsToNextTier: 380
     };
 
-    // Discover & Content (Trending)
-    const discover = [
-      {
-        id: "content_1",
-        type: "TREND",
-        title: "The Textured Crop",
-        imageUrl: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&auto=format&fit=crop&q=80",
-        action: "BOOK_SERVICE",
-        targetId: "srv_crop"
+    // Discover & Content — pulled from real published InspirationPosts
+    const inspirationPosts = await prisma.inspirationPost.findMany({
+      where: {
+        organizationId,
+        status: 'PUBLISHED',
+        deletedAt: null,
+        heroMediaId: { not: null },     // Only posts that have a hero image
       },
-      {
-        id: "content_2",
-        type: "TIP",
-        title: "Rainy Day Frizz Control",
-        imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80",
-        action: "READ_ARTICLE",
-        targetId: "art_12"
-      }
-    ];
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        category: true,
+        heroMedia: { select: { secureUrl: true, url: true } },
+      },
+      orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+      take: 8,
+    });
+
+    const discover = inspirationPosts
+      .filter(p => p.heroMedia?.secureUrl)  // Guard: skip posts without a valid image
+      .map(p => ({
+        id: p.id,
+        type: p.category || 'INSPIRATION',
+        title: p.title,
+        imageUrl: p.heroMedia!.secureUrl,
+        action: 'VIEW_INSPIRATION',
+        targetId: p.slug || p.id,
+      }));
 
     return {
       greeting,

@@ -1,0 +1,75 @@
+import { Prisma } from '@prisma/client';
+import { ContextHandler } from '../context.types';
+import { ValidationError } from '../../../../errors/AppErrors';
+
+export class InspirationContextHandler implements ContextHandler {
+  name = 'INSPIRATION';
+
+  getMetadataSchema() {
+    return {
+      type: 'object',
+      properties: {
+        title: { type: 'string', required: true },
+        description: { type: 'string', required: false },
+        category: { type: 'string', required: false },
+        serviceId: { type: 'string', required: false },
+        employeeId: { type: 'string', required: false },
+        status: { type: 'string', enum: ['DRAFT', 'PUBLISHED'], default: 'DRAFT' },
+      },
+    };
+  }
+
+  validateMetadata(metadata: any): void {
+    if (!metadata.title || typeof metadata.title !== 'string') {
+      throw new ValidationError('Inspiration context requires a valid title.');
+    }
+  }
+
+  private generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  async createDomainRecord(
+    tx: Prisma.TransactionClient,
+    mediaAssetId: string,
+    metadata: any,
+    organizationId: string,
+    uploadedById: string
+  ): Promise<string> {
+    const baseSlug = this.generateSlug(metadata.title);
+    let slug = baseSlug;
+    let attempt = 0;
+    
+    // Ensure unique slug inside the transaction
+    while (true) {
+      const existing = await tx.inspirationPost.findFirst({
+        where: { organizationId, slug },
+      });
+      if (!existing) break;
+      attempt++;
+      slug = `${baseSlug}-${attempt}`;
+    }
+
+    const post = await tx.inspirationPost.create({
+      data: {
+        organizationId,
+        heroMediaId: mediaAssetId,
+        title: metadata.title,
+        slug,
+        description: metadata.description || null,
+        category: metadata.category || null,
+        serviceId: metadata.serviceId || null,
+        employeeId: metadata.employeeId || null,
+        status: metadata.status || 'DRAFT',
+        publishedAt: metadata.status === 'PUBLISHED' ? new Date() : null,
+      },
+    });
+
+    return post.id;
+  }
+}

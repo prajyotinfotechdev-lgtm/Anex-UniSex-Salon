@@ -21,6 +21,12 @@ router.post(
   mediaController.uploadAsset
 );
 
+router.post(
+  '/upload-contextual',
+  upload.single('file'),
+  mediaController.uploadContextualAsset
+);
+
 router.get(
   '/',
   mediaController.listAssets

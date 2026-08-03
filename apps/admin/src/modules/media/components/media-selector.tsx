@@ -4,6 +4,7 @@ import { Image as ImageIcon, UploadCloud, CheckCircle2, X, LayoutDashboard, Scis
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { MediaUploadWizard } from './media-upload-wizard';
 
 interface MediaSelectorProps {
   onSelect: (asset: MediaAsset) => void;
@@ -28,6 +29,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeFolder, setActiveFolder] = useState(module || 'all');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const { getAssets, uploadAsset } = useMediaStudio();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -44,21 +46,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = ({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const formData = new FormData();
-      formData.append('file', file);
-      // If a hard module is passed as prop, use it. Otherwise use the active folder.
-      const uploadModule = module || (activeFolder === 'all' ? 'general' : activeFolder);
-      formData.append('module', uploadModule);
-
-      toast.promise(uploadAsset.mutateAsync(formData), {
-        loading: `Uploading ${file.name}...`,
-        success: 'Asset uploaded successfully!',
-        error: 'Failed to upload asset',
-      });
-    }
-
+    setUploadFile(files[0]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -199,6 +187,13 @@ export const MediaSelector: React.FC<MediaSelectorProps> = ({
           </>
         )}
       </AnimatePresence>
+
+      <MediaUploadWizard 
+        isOpen={!!uploadFile}
+        onClose={() => setUploadFile(null)}
+        file={uploadFile}
+        defaultContext={module ? module.toUpperCase() : (activeFolder === 'all' ? 'GENERAL' : activeFolder.toUpperCase())}
+      />
     </>
   );
 };

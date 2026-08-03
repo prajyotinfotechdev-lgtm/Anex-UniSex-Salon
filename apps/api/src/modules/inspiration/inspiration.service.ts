@@ -39,23 +39,19 @@ export const InspirationService = {
     status?: string;
     category?: string;
     isFeatured?: boolean;
-    isTrending?: boolean;
     employeeId?: string;
     serviceId?: string;
     branchId?: string;
-    hairLength?: string;
     search?: string;
     cursor?: string;
   }) {
     const { page = 1, limit = 20, cursor, ...filters } = params;
     const take = Math.min(limit, 50);
 
-    const where: any = { organizationId };
+    const where: any = { organizationId, deletedAt: null };
     if (filters.status) where.status = filters.status;
     if (filters.category) where.category = filters.category;
     if (filters.isFeatured !== undefined) where.isFeatured = filters.isFeatured;
-    // Schema fields like isTrending, hairLength etc. are not defined in Prisma InspirationPost
-    // so we omit them from the where clause to prevent Prisma validation errors
     if (filters.employeeId) where.employeeId = filters.employeeId;
     if (filters.serviceId) where.serviceId = filters.serviceId;
     if (filters.branchId) where.branchId = filters.branchId;
@@ -95,6 +91,7 @@ export const InspirationService = {
     const post = await prisma.inspirationPost.findFirst({
       where: {
         organizationId,
+        deletedAt: null,
         OR: [{ slug: slugOrId }, { id: slugOrId }],
       },
       include: {
@@ -128,7 +125,23 @@ export const InspirationService = {
     const baseSlug = data.slug || generateSlug(data.title);
     const slug = await ensureUniqueSlug(organizationId, baseSlug);
 
-    const { galleryMediaIds = [], collectionIds = [], difficulty, hairLength, maintenanceLevel, isTrending, personalizationTags, ...rest } = data;
+    // Strip fields not in Prisma schema to prevent validation errors
+    const {
+      galleryMediaIds = [],
+      collectionIds = [],
+      difficulty,
+      hairLength,
+      maintenanceLevel,
+      isTrending,       // Not in schema — strip it
+      personalizationTags,
+      stylistNotes,     // Not in schema — strip it
+      whyItWorks,       // Not in schema — strip it
+      whoItSuits,       // Not in schema — strip it
+      visitFrequencyWeeks, // Not in schema — strip it
+      scheduledAt,      // Not in schema — strip it
+      hairType,         // Not in schema — strip it
+      ...rest
+    } = data;
 
     const post = await prisma.inspirationPost.create({
       data: {
@@ -145,7 +158,7 @@ export const InspirationService = {
         } : undefined,
         collections: collectionIds.length > 0 ? {
           create: collectionIds.map((id: string, i: number) => ({
-            collectionId: id,
+            inspirationCollectionId: id,  // FIXED: was 'collectionId', must be 'inspirationCollectionId'
             sortOrder: i,
           })),
         } : undefined,
@@ -161,10 +174,26 @@ export const InspirationService = {
 
   // ── Update Post ─────────────────────────────────────────────────────────────
   async updatePost(organizationId: string, id: string, data: any) {
-    const existing = await prisma.inspirationPost.findFirst({ where: { id, organizationId } });
+    const existing = await prisma.inspirationPost.findFirst({ where: { id, organizationId, deletedAt: null } });
     if (!existing) throw new NotFoundError('Inspiration post not found');
 
-    const { galleryMediaIds, collectionIds, difficulty, hairLength, maintenanceLevel, isTrending, personalizationTags, ...rest } = data;
+    // Strip fields not in Prisma schema
+    const {
+      galleryMediaIds,
+      collectionIds,
+      difficulty,
+      hairLength,
+      maintenanceLevel,
+      isTrending,
+      personalizationTags,
+      stylistNotes,
+      whyItWorks,
+      whoItSuits,
+      visitFrequencyWeeks,
+      scheduledAt,
+      hairType,
+      ...rest
+    } = data;
 
     // Recalculate slug only if title changed and no explicit slug provided
     if (rest.title && !rest.slug) {
@@ -194,7 +223,8 @@ export const InspirationService = {
           collections: {
             deleteMany: {},
             create: collectionIds.map((cid: string, i: number) => ({
-              collectionId: cid, sortOrder: i,
+              inspirationCollectionId: cid, // FIXED: was 'collectionId'
+              sortOrder: i,
             })),
           },
         }),
@@ -207,7 +237,7 @@ export const InspirationService = {
 
   // ── Publish / Archive ───────────────────────────────────────────────────────
   async publishPost(organizationId: string, id: string) {
-    const post = await prisma.inspirationPost.findFirst({ where: { id, organizationId } });
+    const post = await prisma.inspirationPost.findFirst({ where: { id, organizationId, deletedAt: null } });
     if (!post) throw new NotFoundError('Inspiration post not found');
 
     return prisma.inspirationPost.update({
@@ -217,7 +247,7 @@ export const InspirationService = {
   },
 
   async archivePost(organizationId: string, id: string) {
-    const post = await prisma.inspirationPost.findFirst({ where: { id, organizationId } });
+    const post = await prisma.inspirationPost.findFirst({ where: { id, organizationId, deletedAt: null } });
     if (!post) throw new NotFoundError('Inspiration post not found');
 
     return prisma.inspirationPost.update({ where: { id }, data: { status: 'ARCHIVED' } });
@@ -232,18 +262,18 @@ export const InspirationService = {
     return { deleted: true };
   },
 
-  // ─── Analytics ────────────────────────────────────────────────────────────────
+  // ─── Analytics (only real schema fields) ─────────────────────────────────────
   async getAnalytics(organizationId: string) {
     const posts = await prisma.inspirationPost.findMany({
-      where: { organizationId, status: 'PUBLISHED' },
+      where: { organizationId, status: 'PUBLISHED', deletedAt: null },
       select: {
         id: true, title: true, slug: true, category: true,
-        viewCount: true, detailOpenCount: true, bookmarkCount: true,
-        shareCount: true, bookThisLookClicks: true, bookingsGenerated: true,
-        completedVisits: true, revenueGenerated: true,
-        heroMedia: { select: { url: true } },
+        bookmarkCount: true,         // EXISTS in schema
+        revenueGenerated: true,      // EXISTS in schema
+        isFeatured: true,
+        heroMedia: { select: { url: true, secureUrl: true } },
       },
-      orderBy: { revenueGenerated: 'desc' },
+      orderBy: { bookmarkCount: 'desc' },
       take: 50,
     });
 
@@ -259,15 +289,9 @@ export const InspirationService = {
           data: { inspirationPostId: postId, customerId, eventType, metadata: metadata || {} },
         });
 
-        // Increment the relevant counter
+        // Only increment counters that exist in the schema
         const counterMap: Record<string, any> = {
-          IMPRESSION: { viewCount: { increment: 1 } },
-          DETAIL_OPEN: { detailOpenCount: { increment: 1 } },
           BOOKMARK: { bookmarkCount: { increment: 1 } },
-          SHARE: { shareCount: { increment: 1 } },
-          BOOK_CLICK: { bookThisLookClicks: { increment: 1 } },
-          BOOKING_CONFIRMED: { bookingsGenerated: { increment: 1 } },
-          VISIT_COMPLETED: { completedVisits: { increment: 1 } },
         };
 
         if (counterMap[eventType]) {
@@ -290,7 +314,7 @@ export const InspirationService = {
         coverImage: { select: { id: true, url: true, secureUrl: true } },
         _count: { select: { posts: true } },
       },
-      orderBy: [{ isFeatured: 'desc' }, { sortOrder: 'asc' }],
+      orderBy: { sortOrder: 'asc' },  // FIXED: removed isFeatured (doesn't exist on InspirationCollection)
     });
   },
 
@@ -307,7 +331,10 @@ export const InspirationService = {
         slug,
         organizationId,
         posts: postIds.length > 0 ? {
-          create: postIds.map((pid: string, i: number) => ({ postId: pid, sortOrder: i })),
+          create: postIds.map((pid: string, i: number) => ({
+            inspirationPostId: pid,  // FIXED: was 'postId'
+            sortOrder: i
+          })),
         } : undefined,
       },
       include: { coverImage: { select: { id: true, url: true } } },
@@ -327,7 +354,10 @@ export const InspirationService = {
         ...(postIds !== undefined && {
           posts: {
             deleteMany: {},
-            create: postIds.map((pid: string, i: number) => ({ postId: pid, sortOrder: i })),
+            create: postIds.map((pid: string, i: number) => ({
+              inspirationPostId: pid, // FIXED: was 'postId'
+              sortOrder: i
+            })),
           },
         }),
       },
@@ -350,7 +380,6 @@ export const InspirationService = {
 
     if (existing) {
       await prisma.inspirationBookmark.delete({ where: { id: existing.id } });
-      // Decrement counter async
       setImmediate(async () => {
         try {
           await prisma.inspirationPost.update({
@@ -377,7 +406,7 @@ export const InspirationService = {
   // ─── Customer: Get Bookmarks ──────────────────────────────────────────────────
   async getCustomerBookmarks(customerId: string, organizationId: string) {
     const bookmarks = await prisma.inspirationBookmark.findMany({
-      where: { customerId, post: { organizationId, status: 'PUBLISHED' } },
+      where: { customerId, post: { organizationId, status: 'PUBLISHED', deletedAt: null } },
       orderBy: { createdAt: 'desc' },
       include: {
         post: {
@@ -393,4 +422,3 @@ export const InspirationService = {
     return { data: bookmarks.map(b => b.post) };
   },
 };
-

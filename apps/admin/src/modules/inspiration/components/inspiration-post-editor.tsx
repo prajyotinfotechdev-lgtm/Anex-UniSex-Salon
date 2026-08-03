@@ -24,11 +24,7 @@ const postSchema = z.object({
   description: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']),
-  difficulty: z.string().optional().nullable(),
-  hairLength: z.string().optional().nullable(),
-  maintenanceLevel: z.string().optional().nullable(),
   isFeatured: z.boolean().default(false),
-  isTrending: z.boolean().default(false),
   heroMediaId: z.string().uuid('Hero image is required'),
   beforeMediaId: z.string().optional().nullable(),
 });
@@ -55,11 +51,7 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
       description: '',
       category: 'HAIRCUT',
       status: 'DRAFT',
-      difficulty: '',
-      hairLength: '',
-      maintenanceLevel: '',
       isFeatured: false,
-      isTrending: false,
       heroMediaId: '',
       beforeMediaId: '',
     },
@@ -73,11 +65,7 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
         description: post.description || '',
         category: post.category,
         status: post.status as any,
-        difficulty: post.difficulty || '',
-        hairLength: post.hairLength || '',
-        maintenanceLevel: post.maintenanceLevel || '',
         isFeatured: post.isFeatured,
-        isTrending: post.isTrending,
         heroMediaId: post.heroMediaId,
         beforeMediaId: post.beforeMediaId || '',
       });
@@ -86,12 +74,8 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
 
   const onSubmit = async (values: PostFormValues) => {
     try {
-      // Clean up empty strings to null for optional enums
       const cleanValues = {
         ...values,
-        difficulty: values.difficulty || undefined,
-        hairLength: values.hairLength || undefined,
-        maintenanceLevel: values.maintenanceLevel || undefined,
         beforeMediaId: values.beforeMediaId || undefined,
         slug: values.slug || undefined,
       };
@@ -188,8 +172,12 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
                               <SelectItem value="BEARD">Beard</SelectItem>
                               <SelectItem value="HAIR_SPA">Hair Spa</SelectItem>
                               <SelectItem value="BRIDAL">Bridal</SelectItem>
+                              <SelectItem value="OCCASION">Occasion</SelectItem>
+                              <SelectItem value="STUDENT">Student</SelectItem>
+                              <SelectItem value="KIDS">Kids</SelectItem>
                               <SelectItem value="TRANSFORMATION">Transformation</SelectItem>
                               <SelectItem value="TRENDING">Trending</SelectItem>
+                              <SelectItem value="STAFF_PICKS">Staff Picks</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -222,78 +210,6 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Classification</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-3 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="hairLength"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Hair Length</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || ''}>
-                            <FormControl>
-                              <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Any</SelectItem>
-                              <SelectItem value="SHORT">Short</SelectItem>
-                              <SelectItem value="MEDIUM">Medium</SelectItem>
-                              <SelectItem value="LONG">Long</SelectItem>
-                              <SelectItem value="EXTRA_LONG">Extra Long</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="difficulty"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Difficulty</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || ''}>
-                            <FormControl>
-                              <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Any</SelectItem>
-                              <SelectItem value="LOW">Low</SelectItem>
-                              <SelectItem value="MEDIUM">Medium</SelectItem>
-                              <SelectItem value="HIGH">High</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="maintenanceLevel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Maintenance</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value || ''}>
-                            <FormControl>
-                              <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="">Any</SelectItem>
-                              <SelectItem value="LOW">Low</SelectItem>
-                              <SelectItem value="MEDIUM">Medium</SelectItem>
-                              <SelectItem value="HIGH">High</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </CardContent>
               </Card>
             </div>
 
@@ -336,47 +252,6 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Visibility</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="isFeatured"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Featured Look</FormLabel>
-                          <p className="text-xs text-muted-foreground">Show in the top featured carousel.</p>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="isTrending"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Trending</FormLabel>
-                          <p className="text-xs text-muted-foreground">Highlight as a trending style.</p>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
                 </CardContent>
               </Card>
             </div>

@@ -25,10 +25,10 @@ export interface MediaAsset {
 export const useMediaStudio = () => {
   const queryClient = useQueryClient();
 
-  const getAssets = useQuery({
-    queryKey: ['media-assets'],
+  const getAssets = (params?: Record<string, any>) => useQuery({
+    queryKey: ['media-assets', params],
     queryFn: async () => {
-      const res = await api.get('/media');
+      const res = await api.get('/media', { params });
       return res.data;
     },
   });

@@ -13,8 +13,8 @@ export function InspirationFeed() {
 
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
 
-  const posts = feedData?.data?.posts || [];
-  const featuredPosts = feedData?.data?.featured || [];
+  const posts = Array.isArray(feedData?.data) ? feedData.data : [];
+  const featuredPosts = posts.filter((p: any) => p.isFeatured);
   const collections = collectionsData?.data || [];
 
   const handleBookmark = async (e: React.MouseEvent, postId: string) => {

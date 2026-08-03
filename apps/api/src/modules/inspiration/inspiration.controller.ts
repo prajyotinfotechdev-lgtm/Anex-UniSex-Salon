@@ -120,7 +120,7 @@ export const InspirationController = {
 export const InspirationPublicController = {
   async listPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      const organizationId = (req as any).organizationId;
+      const organizationId = (req as any).publicOrganizationId || (req as any).organizationId;
       const params = { ...(req.query as any), status: 'PUBLISHED' };
       const result = await InspirationService.listPosts(organizationId, params);
 
@@ -136,7 +136,7 @@ export const InspirationPublicController = {
 
   async getPost(req: Request, res: Response, next: NextFunction) {
     try {
-      const organizationId = (req as any).organizationId;
+      const organizationId = (req as any).publicOrganizationId || (req as any).organizationId;
       const post = await InspirationService.getPost(organizationId, (req.params.slug as string));
 
       if (post.status !== 'PUBLISHED') throw new NotFoundError('Post not found');
@@ -151,7 +151,7 @@ export const InspirationPublicController = {
 
   async listCollections(req: Request, res: Response, next: NextFunction) {
     try {
-      const organizationId = (req as any).organizationId;
+      const organizationId = (req as any).publicOrganizationId || (req as any).organizationId;
       const collections = await InspirationService.listCollections(organizationId);
       const published = collections.filter((c: any) => c.status === 'PUBLISHED');
       res.json({ success: true, data: published });
@@ -160,7 +160,7 @@ export const InspirationPublicController = {
 
   async getCollection(req: Request, res: Response, next: NextFunction) {
     try {
-      const organizationId = (req as any).organizationId;
+      const organizationId = (req as any).publicOrganizationId || (req as any).organizationId;
       const collections = await InspirationService.listCollections(organizationId);
       const col = collections.find((c: any) => c.slug === (req.params.slug as string));
       if (!col) throw new NotFoundError('Collection not found');
@@ -170,7 +170,7 @@ export const InspirationPublicController = {
 
   async getStylistPortfolio(req: Request, res: Response, next: NextFunction) {
     try {
-      const organizationId = (req as any).organizationId;
+      const organizationId = (req as any).publicOrganizationId || (req as any).organizationId;
       const result = await InspirationService.listPosts(organizationId, {
         employeeId: (req.params.employeeId as string),
         status: 'PUBLISHED' as any,
@@ -182,7 +182,7 @@ export const InspirationPublicController = {
 
   async trackEvent(req: Request, res: Response, next: NextFunction) {
     try {
-      const organizationId = (req as any).organizationId;
+      const organizationId = (req as any).publicOrganizationId || (req as any).organizationId;
       const post = await InspirationService.getPost(organizationId, (req.params.id as string));
       const customerId = getCustomerId(req);
       InspirationService.trackEvent(post.id, customerId, req.body.eventType, req.body.metadata);

@@ -19,6 +19,7 @@ export function getFullApiUrl(endpoint: string): string {
 const getHeaders = () => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'x-organization-id': process.env.NEXT_PUBLIC_ORGANIZATION_ID || '10fdbe22-4c40-4bd6-8266-9a3c49f9ed8b',
   };
   
   if (typeof window !== 'undefined') {

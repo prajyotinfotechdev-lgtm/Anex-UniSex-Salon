@@ -24,6 +24,22 @@ enum Gender {
   PREFER_NOT_TO_SAY
 }
 
+enum ConsultationType {
+  HAIR
+  SKIN
+  BEARD
+  MEDICAL
+  NAIL
+  SPA
+  BRIDAL
+}
+
+enum RequirementType {
+  CONSULTATION
+  PATCH_TEST
+  CONSENT_FORM
+}
+
 enum DayOfWeek {
   MONDAY
   TUESDAY
@@ -267,18 +283,43 @@ enum PaymentGateway {
 // ==========================================
 
 model Organization {
-  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String
+  id                 String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String
+  legalBusinessName  String?
+  gstNumber          String?
+  panNumber          String?
+  registrationNumber String?
+  ownerName          String?
+  website            String?
+  version            Int     @default(1)
+
   currencyCode String    @default("INR")
   countryCode  String    @default("IN")
   locale       String    @default("en-IN")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
-  isActive     Boolean   @default(true)
+  dateFormat   String    @default("DD/MM/YYYY")
+  timeFormat   String    @default("12h")
+  weekStartDay DayOfWeek @default(MONDAY)
 
-  branches              Branch[]
-  businessSettings      BusinessSetting[]
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  zipCode      String?
+  country      String?
+  latitude     Float?
+  longitude    Float?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  isActive  Boolean   @default(true)
+
+  branches       Branch[]
+  branding       BrandingConfiguration?
+  invoiceConfig  InvoiceConfiguration?
+  modules        OrganizationModule[]
+  settingHistory OrganizationSettingHistory[]
+
   roles                 Role[]
   employees             Employee[]
   customers             Customer[]
@@ -301,19 +342,33 @@ model Organization {
 }
 
 model Branch {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String    @db.Uuid
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String  @db.Uuid
+  branchCode     String? @unique
   name           String
   address        String?
   phone          String?
-  timeZone       String    @default("UTC")
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
-  isActive       Boolean   @default(true)
+  email          String?
+  managerId      String? @db.Uuid
+  timeZone       String  @default("UTC")
+  isDefault      Boolean @default(false)
+  version        Int     @default(1)
 
-  organization       Organization        @relation(fields: [organizationId], references: [id])
-  branchSettings     BranchSetting[]
+  posCounters Int @default(1)
+  cashDrawers Int @default(1)
+  rooms       Int @default(0)
+  chairs      Int @default(0)
+
+  preferredByCustomers Customer[] @relation("CustomerPreferredBranch")
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  deletedAt            DateTime?
+  isActive             Boolean    @default(true)
+
+  organization Organization        @relation(fields: [organizationId], references: [id])
+  workingHours BranchWorkingHour[]
+  holidays     Holiday[]
+
   employeeBranches   EmployeeBranch[]
   serviceBranches    ServiceBranch[]
   appointments       Appointment[]
@@ -331,32 +386,98 @@ model Branch {
   @@index([organizationId])
 }
 
-model BusinessSetting {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String   @db.Uuid
-  key            String
-  value          Json
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+// ==========================================
+// DOMAIN 18: SETTINGS & CONFIGURATION
+// ==========================================
+
+model BrandingConfiguration {
+  id              String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId  String  @unique @db.Uuid
+  designTokens    Json    @default("{}")
+  customerAppLogo String?
+  adminLogo       String?
 
   organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@unique([organizationId, key])
-  @@index([organizationId])
 }
 
-model BranchSetting {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  branchId  String   @db.Uuid
-  key       String
-  value     Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model InvoiceConfiguration {
+  id                 String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId     String  @unique @db.Uuid
+  invoicePrefix      String  @default("INV-")
+  receiptPrefix      String  @default("REC-")
+  creditNotePrefix   String  @default("CN-")
+  numberFormat       String  @default("{prefix}{YYYY}{MM}{sequence}")
+  financialYearReset Boolean @default(true)
+  footerText         String?
+  terms              String?
+  showQrCode         Boolean @default(true)
+  gstLayout          Boolean @default(true)
+  printTemplate      String  @default("standard_a4")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Module {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key              String  @unique
+  name             String
+  category         String
+  enabledByDefault Boolean @default(false)
+
+  organizationModules OrganizationModule[]
+}
+
+model OrganizationModule {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String  @db.Uuid
+  moduleId       String  @db.Uuid
+  enabled        Boolean @default(false)
+  plan           String  @default("BASIC")
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  module       Module       @relation(fields: [moduleId], references: [id])
+
+  @@unique([organizationId, moduleId])
+}
+
+model OrganizationSettingHistory {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId String   @db.Uuid
+  module         String
+  field          String
+  oldValue       Json?
+  newValue       Json
+  changedBy      String   @db.Uuid
+  changedAt      DateTime @default(now())
+  reason         String?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model BranchWorkingHour {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId  String    @db.Uuid
+  dayOfWeek DayOfWeek
+  isOpen    Boolean   @default(true)
+  openTime  DateTime? @db.Time
+  closeTime DateTime? @db.Time
 
   branch Branch @relation(fields: [branchId], references: [id])
 
-  @@unique([branchId, key])
-  @@index([branchId])
+  @@unique([branchId, dayOfWeek])
+}
+
+model Holiday {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branchId  String    @db.Uuid
+  date      DateTime  @db.Date
+  title     String
+  recurring Boolean   @default(false)
+  fullDay   Boolean   @default(true)
+  startTime DateTime? @db.Time
+  endTime   DateTime? @db.Time
+
+  branch Branch @relation(fields: [branchId], references: [id])
 }
 
 // ==========================================
@@ -438,26 +559,28 @@ model UserPermission {
 // ==========================================
 
 model Employee {
-  id                    String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId        String      @db.Uuid
-  userId                String?     @unique @db.Uuid
-  roleId                String      @db.Uuid
+  id                    String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId        String               @db.Uuid
+  userId                String?              @unique @db.Uuid
+  roleId                String               @db.Uuid
   firstName             String
   lastName              String
   email                 String?
   phone                 String?
   profileImageUrl       String?
-  profileImageId        String?     @db.Uuid
-  profileImage          MediaAsset? @relation("EmployeeProfileImage", fields: [profileImageId], references: [id])
+  profileImageId        String?              @db.Uuid
+  profileImage          MediaAsset?          @relation("EmployeeProfileImage", fields: [profileImageId], references: [id])
   bio                   String?
-  dateOfJoining         DateTime?   @db.Date
+  dateOfJoining         DateTime?            @db.Date
   emergencyContactName  String?
   emergencyContactPhone String?
   calendarColor         String?
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  preferredByCustomers  Customer[]           @relation("CustomerPreferredEmployee")
+  consultationRecords   ConsultationRecord[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
   deletedAt             DateTime?
-  isActive              Boolean     @default(true)
+  isActive              Boolean              @default(true)
 
   organization Organization @relation(fields: [organizationId], references: [id])
   user         User?        @relation(fields: [userId], references: [id])
@@ -602,10 +725,22 @@ model Customer {
   zipCode        String?
   country        String?
   notes          String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
-  isActive       Boolean   @default(true)
+
+  anniversary         DateTime? @db.Date
+  preferredBranchId   String?   @db.Uuid
+  preferredEmployeeId String?   @db.Uuid
+  acceptsMarketing    Boolean   @default(true)
+  acceptsSMS          Boolean   @default(true)
+  acceptsWhatsApp     Boolean   @default(true)
+  acceptsEmail        Boolean   @default(true)
+
+  preferredBranch     Branch?              @relation("CustomerPreferredBranch", fields: [preferredBranchId], references: [id])
+  preferredEmployee   Employee?            @relation("CustomerPreferredEmployee", fields: [preferredEmployeeId], references: [id])
+  consultationRecords ConsultationRecord[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+  isActive            Boolean              @default(true)
 
   organization         Organization          @relation(fields: [organizationId], references: [id])
   phones               CustomerPhone[]
@@ -904,28 +1039,32 @@ model ServiceCategory {
 }
 
 model Service {
-  id                   String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId       String      @db.Uuid
-  serviceCategoryId    String      @db.Uuid
+  id                   String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizationId       String               @db.Uuid
+  serviceCategoryId    String               @db.Uuid
   name                 String
   description          String?
   pricingType          PricingType
-  basePrice            Decimal     @db.Decimal(10, 2)
+  basePrice            Decimal              @db.Decimal(10, 2)
   durationMinutes      Int
   processingMinutes    Int?
   cleanupMinutes       Int?
-  beforeBufferMinutes  Int         @default(0)
-  afterBufferMinutes   Int         @default(0)
+  beforeBufferMinutes  Int                  @default(0)
+  afterBufferMinutes   Int                  @default(0)
   color                String?
-  requiresConsultation Boolean     @default(false)
-  requiresPatchTest    Boolean     @default(false)
-  createdAt            DateTime    @default(now())
-  updatedAt            DateTime    @updatedAt
+  requiresConsultation Boolean              @default(false)
+  requiresPatchTest    Boolean              @default(false)
+  taxCategoryId        String?              @db.Uuid
+  isTaxInclusive       Boolean              @default(false)
+  requirements         ServiceRequirement[]
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
   deletedAt            DateTime?
-  isActive             Boolean     @default(true)
+  isActive             Boolean              @default(true)
 
   organization    Organization    @relation(fields: [organizationId], references: [id])
   serviceCategory ServiceCategory @relation(fields: [serviceCategoryId], references: [id])
+  taxCategory     TaxCategory?    @relation(fields: [taxCategoryId], references: [id])
 
   serviceBranches    ServiceBranch[]
   employeeServices   EmployeeService[]
@@ -979,13 +1118,14 @@ model Appointment {
   deletedAt           DateTime?
   isActive            Boolean           @default(true)
 
-  branch            Branch               @relation(fields: [branchId], references: [id])
-  customer          Customer?            @relation(fields: [customerId], references: [id])
-  createdByEmployee Employee?            @relation("AppointmentCreatedBy", fields: [createdByEmployeeId], references: [id])
-  updatedByEmployee Employee?            @relation("AppointmentUpdatedBy", fields: [updatedByEmployeeId], references: [id])
-  items             AppointmentItem[]
-  invoices          Invoice[]
-  histories         AppointmentHistory[]
+  branch             Branch               @relation(fields: [branchId], references: [id])
+  customer           Customer?            @relation(fields: [customerId], references: [id])
+  createdByEmployee  Employee?            @relation("AppointmentCreatedBy", fields: [createdByEmployeeId], references: [id])
+  updatedByEmployee  Employee?            @relation("AppointmentUpdatedBy", fields: [updatedByEmployeeId], references: [id])
+  items              AppointmentItem[]
+  invoices           Invoice[]
+  histories          AppointmentHistory[]
+  ConsultationRecord ConsultationRecord[]
 
   @@index([branchId])
   @@index([customerId])
@@ -1155,10 +1295,12 @@ model TaxCategory {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
   isActive       Boolean   @default(true)
+  isDefault      Boolean   @default(false)
 
   organization Organization @relation(fields: [organizationId], references: [id])
   taxRates     TaxRate[]
   products     Product[]
+  services     Service[]
 
   @@unique([organizationId, name])
   @@index([organizationId])
@@ -1170,10 +1312,11 @@ model TaxRate {
   name          String
   rate          Decimal  @db.Decimal(5, 2)
   type          TaxType  @default(PERCENTAGE)
+  priority      Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  taxCategory TaxCategory @relation(fields: [taxCategoryId], references: [id])
+  taxCategory TaxCategory @relation(fields: [taxCategoryId], references: [id], onDelete: Cascade)
   taxRules    TaxRule[]
 
   @@index([taxCategoryId])
@@ -1408,6 +1551,7 @@ model Product {
   unitOfMeasure     String?
   reorderQuantity   Int?
   maximumStock      Int?
+  isTaxInclusive    Boolean   @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   deletedAt         DateTime?
@@ -1689,12 +1833,12 @@ model InspirationPost {
   title            String
   slug             String
   description      String?
-  status           String    @default("DRAFT")
+  status           String   @default("DRAFT")
   category         String?
-  revenueGenerated Decimal?  @db.Decimal(10, 2)
-  bookmarkCount    Int       @default(0)
+  revenueGenerated Decimal? @db.Decimal(10, 2)
+  bookmarkCount    Int      @default(0)
   tags             String[]
-  isFeatured       Boolean   @default(false)
+  isFeatured       Boolean  @default(false)
 
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
@@ -1808,4 +1952,72 @@ model CustomerPairingSession {
   isConsumed  Boolean  @default(false)
   expiresAt   DateTime
   createdAt   DateTime @default(now())
+}
+
+model ServiceRequirement {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  serviceId        String            @db.Uuid
+  type             RequirementType
+  consultationType ConsultationType? // Required if type is CONSULTATION
+  validityDays     Int? // How long is the requirement valid for (e.g. 90 days)
+  isRequired       Boolean           @default(true)
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+}
+
+// DOMAIN: CONSULTATION ENGINE (Phase 1)
+model ConsultationRecord {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId    String           @db.Uuid
+  appointmentId String?          @db.Uuid
+  employeeId    String?          @db.Uuid
+  type          ConsultationType
+  date          DateTime         @default(now())
+
+  customer    Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  appointment Appointment? @relation(fields: [appointmentId], references: [id])
+  employee    Employee?    @relation(fields: [employeeId], references: [id])
+
+  hairConsultation    HairConsultation?
+  skinConsultation    SkinConsultation?
+  medicalConsultation MedicalConsultation?
+
+  @@index([customerId])
+  @@index([appointmentId])
+}
+
+model HairConsultation {
+  id               String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  consultationId   String  @unique @db.Uuid
+  hairLength       String?
+  hairType         String?
+  chemicalHistory  String?
+  hairDensity      String?
+  currentCondition String?
+  notes            String?
+
+  consultation ConsultationRecord @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+}
+
+model SkinConsultation {
+  id             String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  consultationId String  @unique @db.Uuid
+  skinType       String?
+  sensitivity    String?
+  skinConcerns   String?
+  notes          String?
+
+  consultation ConsultationRecord @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+}
+
+model MedicalConsultation {
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  consultationId    String  @unique @db.Uuid
+  allergies         String?
+  contraindications String?
+  medicalNotes      String?
+
+  consultation ConsultationRecord @relation(fields: [consultationId], references: [id], onDelete: Cascade)
 }

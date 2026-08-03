@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { useUIStore } from '../store/uiStore';
+import { BookingWorkspaceShell } from '@/modules/appointment-booking/components/workspace/BookingWorkspaceShell';
 import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
@@ -28,6 +29,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
       </div>
+
+      <BookingWorkspaceShell />
     </div>
   );
 }

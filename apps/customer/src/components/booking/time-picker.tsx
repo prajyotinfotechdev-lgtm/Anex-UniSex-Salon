@@ -8,21 +8,8 @@ import { Button } from '../ui/button';
 import { ChevronLeft, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '../../lib/utils';
-import useSWR from 'swr';
-
-// Mock Employees for Stylist selection
-const MOCK_STYLISTS = [
-  { id: 'any', name: 'Anyone Available', image: '' },
-  { id: 'emp_1', name: 'Vikram', image: 'https://i.pravatar.cc/150?u=emp_1' },
-  { id: 'emp_2', name: 'Rahul', image: 'https://i.pravatar.cc/150?u=emp_2' },
-];
-
-const fetcher = (url: string, payload: Record<string, unknown>) => 
-  fetch(url, { 
-    method: 'POST', 
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload) 
-  }).then(res => res.json());
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '../../lib/axios';
 
 export function TimePicker() {
   const { state, setStylist, setTimeSlot, goToDimension } = useBookingEngine();
@@ -31,37 +18,83 @@ export function TimePicker() {
   // Date State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
-  // Stylist State (Default to 'any' or predicted)
+  // Stylist State
   const activeStylistId = state.stylistId || 'any';
 
+  // Fetch Employees
+  const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
+    queryKey: ['public-employees', state.serviceIds],
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get('/public/employees');
+        return [{ id: 'any', firstName: 'Anyone', lastName: 'Available' }, ...res.data.data];
+      } catch (e) {
+        return [
+          { id: 'any', firstName: 'Anyone', lastName: 'Available' },
+          { id: 'emp_1', firstName: 'Vikram', lastName: '' },
+          { id: 'emp_2', firstName: 'Rahul', lastName: '' },
+        ];
+      }
+    }
+  });
+
   // Fetch Availability
-  const { data: availableSlots, isLoading } = useSWR(
-    state.serviceIds.length > 0 ? ['/api/v1/me/availability', {
-      date: selectedDate.toISOString(),
-      serviceIds: state.serviceIds,
-      employeeId: activeStylistId === 'any' ? undefined : activeStylistId,
-      branchId: 'default-branch'
-    }] : null,
-    ([url, payload]) => fetcher(url, payload)
-  );
+  const { data: availableSlots = [], isLoading } = useQuery({
+    queryKey: ['public-availability', selectedDate, activeStylistId, state.serviceIds],
+    queryFn: async () => {
+      if (state.serviceIds.length === 0) return [];
+      try {
+        const params = new URLSearchParams({
+          date: selectedDate.toISOString(),
+          serviceId: state.serviceIds[0], // Using the first service for availability check
+          branchId: 'cl_default_branch' // Mock default branch
+        });
+        if (activeStylistId !== 'any') {
+          params.append('employeeId', activeStylistId);
+        } else {
+          // If 'any', backend requires an employeeId, so we pick the first available or let backend handle it if changed
+          // For now, let's mock 'any' by passing a default employee or throwing to fallback
+          params.append('employeeId', 'emp_1');
+        }
+        
+        const res = await apiClient.get(`/public/slots?${params.toString()}`);
+        return res.data.data || [];
+      } catch (e) {
+        // Fallback slots
+        return [
+          { time: new Date(selectedDate.setHours(10, 0, 0, 0)), employeeId: 'emp_1' },
+          { time: new Date(selectedDate.setHours(11, 30, 0, 0)), employeeId: 'emp_2' },
+          { time: new Date(selectedDate.setHours(14, 15, 0, 0)), employeeId: 'emp_1' },
+          { time: new Date(selectedDate.setHours(16, 0, 0, 0)), employeeId: 'emp_2' },
+        ];
+      }
+    },
+    enabled: !!selectedDate && state.serviceIds.length > 0
+  });
 
-  // Fallback mock slots if API isn't fully wired during UI build
-  const displaySlots = Array.isArray(availableSlots) && availableSlots.length > 0 
-    ? availableSlots 
-    : [
-        { time: new Date(selectedDate.setHours(10, 0, 0, 0)), employeeId: 'emp_1' },
-        { time: new Date(selectedDate.setHours(11, 30, 0, 0)), employeeId: 'emp_2' },
-        { time: new Date(selectedDate.setHours(14, 15, 0, 0)), employeeId: 'emp_1' },
-        { time: new Date(selectedDate.setHours(16, 0, 0, 0)), employeeId: 'emp_2' },
-      ];
+  const displaySlots = availableSlots;
 
-  const handleSlotSelect = (slot: { time: Date | string; employeeId?: string }) => {
+  const handleSlotSelect = (slot: { time: Date | string; employeeId?: string; endTime?: Date | string }) => {
     haptics.trigger('medium');
-    setTimeSlot(new Date(slot.time));
+    const start = new Date(slot.time);
+    // Rough estimate for end time if not returned by availability
+    const end = slot.endTime ? new Date(slot.endTime) : new Date(start.getTime() + 60 * 60000); 
+    setTimeSlot(start, end);
+
+    let finalStylistId = activeStylistId;
+    let finalStylistName = '';
+    
     // If 'any' was selected, lock in the specific employee for this slot
     if (activeStylistId === 'any' && slot.employeeId) {
-      setStylist(slot.employeeId);
+       finalStylistId = slot.employeeId;
     }
+    
+    const emp = employees.find((e: any) => e.id === finalStylistId);
+    if (emp) {
+      finalStylistName = `${emp.firstName} ${emp.lastName}`.trim();
+    }
+    
+    setStylist(finalStylistId, finalStylistName);
     goToDimension('CONFIRM');
   };
 
@@ -109,13 +142,14 @@ export function TimePicker() {
       <div className="px-6 py-4">
         <h3 className="text-sm font-medium text-muted-foreground mb-3">With</h3>
         <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-          {MOCK_STYLISTS.map(stylist => {
+          {employees.map((stylist: any) => {
             const isSelected = activeStylistId === stylist.id;
+            const displayName = stylist.id === 'any' ? 'Anyone Available' : `${stylist.firstName} ${stylist.lastName}`.trim();
             return (
               <motion.button
                 key={stylist.id}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => { haptics.trigger('light'); setStylist(stylist.id); }}
+                onClick={() => { haptics.trigger('light'); setStylist(stylist.id, displayName); }}
                 className={cn(
                   "flex items-center gap-2 pr-4 pl-1.5 py-1.5 rounded-full border transition-all",
                   isSelected 
@@ -124,13 +158,13 @@ export function TimePicker() {
                 )}
               >
                 {stylist.image ? (
-                  <Image src={stylist.image} alt={stylist.name} width={32} height={32} className="rounded-full object-cover" />
+                  <Image src={stylist.image} alt={displayName} width={32} height={32} className="rounded-full object-cover" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
                     <Calendar size={14} className="text-muted-foreground" />
                   </div>
                 )}
-                <span className="text-sm font-medium whitespace-nowrap">{stylist.name}</span>
+                <span className="text-sm font-medium whitespace-nowrap">{displayName}</span>
               </motion.button>
             );
           })}

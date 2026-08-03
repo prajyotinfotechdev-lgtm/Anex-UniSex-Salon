@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes';
 import { CommandPalette } from '../components/CommandPalette';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '../store/authStore';
+import { useBookingStore } from '@/modules/appointment-booking/store/booking.store';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -37,9 +38,16 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <Button onClick={() => useBookingStore.getState().openWorkspace()} className="hidden md:flex gap-2">
+          <span className="font-semibold">+ New Booking</span>
+          <kbd className="hidden lg:inline-flex h-5 items-center gap-1 rounded border bg-primary-foreground/20 px-1.5 font-mono text-[10px] font-medium text-primary-foreground">
+            Ctrl N
+          </kbd>
+        </Button>
+
         <Button 
           variant="outline" 
-          className="w-64 justify-start text-muted-foreground bg-muted/50 hidden md:flex"
+          className="w-48 lg:w-64 justify-start text-muted-foreground bg-muted/50 hidden md:flex"
           onClick={() => setOpenCommand(true)}
         >
           <Search className="mr-2 h-4 w-4" />

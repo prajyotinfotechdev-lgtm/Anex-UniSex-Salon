@@ -62,7 +62,7 @@ export interface InspirationCollection {
 export const useGetPost = (id: string) => useQuery({
   queryKey: ['inspiration-post', id],
   queryFn: async () => {
-    const res = await api.get(`/api/v1/inspiration/${id}`);
+    const res = await api.get(`/inspiration/${id}`);
     return res.data;
   },
   enabled: !!id,
@@ -74,7 +74,7 @@ export const useInspiration = () => {
   const getPosts = useQuery({
     queryKey: ['inspiration-posts'],
     queryFn: async () => {
-      const res = await api.get('/api/v1/inspiration');
+      const res = await api.get('/inspiration');
       return res.data;
     },
   });
@@ -83,14 +83,14 @@ export const useInspiration = () => {
   const getAnalytics = useQuery({
     queryKey: ['inspiration-analytics'],
     queryFn: async () => {
-      const res = await api.get('/api/v1/inspiration/analytics');
+      const res = await api.get('/inspiration/analytics');
       return res.data;
     },
   });
 
   const createPost = useMutation({
     mutationFn: async (data: any) => {
-      const res = await api.post('/api/v1/inspiration', data);
+      const res = await api.post('/inspiration', data);
       return res.data;
     },
     onSuccess: () => {
@@ -101,7 +101,7 @@ export const useInspiration = () => {
 
   const updatePost = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const res = await api.put(`/api/v1/inspiration/${id}`, data);
+      const res = await api.put(`/inspiration/${id}`, data);
       return res.data;
     },
     onSuccess: (_, { id }) => {
@@ -112,7 +112,7 @@ export const useInspiration = () => {
 
   const publishPost = useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.post(`/api/v1/inspiration/${id}/publish`);
+      const res = await api.post(`/inspiration/${id}/publish`);
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inspiration-posts'] }),
@@ -120,7 +120,7 @@ export const useInspiration = () => {
 
   const archivePost = useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.post(`/api/v1/inspiration/${id}/archive`);
+      const res = await api.post(`/inspiration/${id}/archive`);
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inspiration-posts'] }),
@@ -128,7 +128,7 @@ export const useInspiration = () => {
 
   const deletePost = useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.delete(`/api/v1/inspiration/${id}`);
+      const res = await api.delete(`/inspiration/${id}`);
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inspiration-posts'] }),
@@ -137,14 +137,14 @@ export const useInspiration = () => {
   const getCollections = useQuery({
     queryKey: ['inspiration-collections'],
     queryFn: async () => {
-      const res = await api.get('/api/v1/inspiration/collections');
+      const res = await api.get('/inspiration/collections');
       return res.data;
     },
   });
 
   const createCollection = useMutation({
     mutationFn: async (data: any) => {
-      const res = await api.post('/api/v1/inspiration/collections', data);
+      const res = await api.post('/inspiration/collections', data);
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inspiration-collections'] }),
@@ -152,7 +152,7 @@ export const useInspiration = () => {
 
   const updateCollection = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const res = await api.put(`/api/v1/inspiration/collections/${id}`, data);
+      const res = await api.put(`/inspiration/collections/${id}`, data);
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inspiration-collections'] }),
@@ -160,7 +160,7 @@ export const useInspiration = () => {
 
   const deleteCollection = useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.delete(`/api/v1/inspiration/collections/${id}`);
+      const res = await api.delete(`/inspiration/collections/${id}`);
       return res.data;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['inspiration-collections'] }),

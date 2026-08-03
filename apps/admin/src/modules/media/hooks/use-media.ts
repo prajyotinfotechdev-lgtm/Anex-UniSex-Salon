@@ -28,14 +28,14 @@ export const useMediaStudio = () => {
   const getAssets = useQuery({
     queryKey: ['media-assets'],
     queryFn: async () => {
-      const res = await api.get('/api/v1/media');
+      const res = await api.get('/media');
       return res.data;
     },
   });
 
   const uploadAsset = useMutation({
     mutationFn: async (data: FormData) => {
-      const res = await api.post('/api/v1/media/upload', data, {
+      const res = await api.post('/media/upload', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return res.data;
@@ -47,7 +47,7 @@ export const useMediaStudio = () => {
 
   const updateAsset = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const res = await api.put(`/api/v1/media/${id}`, data);
+      const res = await api.put(`/media/${id}`, data);
       return res.data;
     },
     onSuccess: () => {
@@ -57,7 +57,7 @@ export const useMediaStudio = () => {
 
   const deleteAsset = useMutation({
     mutationFn: async (id: string) => {
-      const res = await api.delete(`/api/v1/media/${id}`);
+      const res = await api.delete(`/media/${id}`);
       return res.data;
     },
     onSuccess: () => {

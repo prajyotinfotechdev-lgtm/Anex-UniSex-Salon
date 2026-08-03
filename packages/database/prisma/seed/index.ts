@@ -6,7 +6,7 @@ import path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
 import { seedPermissions } from './permissions.seed';
 import { seedRoles } from './roles.seed';
-import { seedBusinessSettings } from './business-settings.seed';
+import { seedOrganizationSettings } from './organization-settings.seed';
 import { seedTaxCategories } from './tax-categories.seed';
 import { seedNotificationTemplates } from './notification-templates.seed';
 
@@ -52,7 +52,7 @@ async function main() {
     const systemAdminRole = await seedRoles(prisma, organization.id);
 
     // 5. Settings & Config
-    await seedBusinessSettings(prisma, organization.id);
+    await seedOrganizationSettings(prisma, organization.id);
     await seedTaxCategories(prisma, organization.id);
     await seedNotificationTemplates(prisma, organization.id);
 

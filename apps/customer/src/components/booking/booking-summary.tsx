@@ -8,48 +8,58 @@ import { ChevronLeft, Scissors, Clock } from 'lucide-react';
 import { SwipeToConfirm } from './swipe-to-confirm';
 import useSWRMutation from 'swr/mutation';
 
-// Mock Services for Phase 7.3
-const MOCK_SERVICES = [
-  { id: 'srv_1', name: 'Signature Haircut', duration: 45, price: 800 },
-  { id: 'srv_2', name: 'Beard Sculpting', duration: 30, price: 400 },
-  { id: 'srv_3', name: 'Premium Balayage', duration: 120, price: 4500 },
-  { id: 'srv_4', name: 'Deep Tissue Massage', duration: 60, price: 1500 },
-];
-
-const bookAppointment = async (url: string, { arg }: { arg: Record<string, unknown> }) => {
-  return fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(arg)
-  }).then(res => res.json());
-};
+import { useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '../../lib/axios';
 
 export function BookingSummary() {
-  const { state, goToDimension } = useBookingEngine();
+  const { state, setDraftId, setMissingRequirements, goToDimension } = useBookingEngine();
   const haptics = useHaptics();
+  const queryClient = useQueryClient();
   
-  const { trigger } = useSWRMutation('/api/v1/me/appointments', bookAppointment);
-
-  const selectedServices = state.serviceIds.map(id => MOCK_SERVICES.find(s => s.id === id)).filter(Boolean);
-  const totalPrice = selectedServices.reduce((acc, s) => acc + (s ? s.price : 0), 0);
-
+  // Retrieve cached services to calculate price/name
+  const services: any[] = queryClient.getQueryData(['public-services']) || [];
+  const selectedServices = state.serviceIds.map(id => services.find((s: any) => s.id === id) || { name: 'Service', basePrice: 0 });
+  const totalPrice = selectedServices.reduce((acc, s) => acc + Number(s.basePrice || 0), 0);
 
   const handleConfirm = async () => {
     try {
-      // Execute the booking API call
-      await trigger({
-        date: state.timeSlot?.toISOString(),
-        items: state.serviceIds.map(id => ({
-          serviceId: id,
-          employeeId: state.stylistId,
-        }))
+      // 1. Create Draft
+      const startRes = await apiClient.post('/booking/start', {
+        customerId: state.customerId,
+        branchId: 'cl_default_branch'
       });
-      // Move to success dimension
+      const draftId = startRes.data.data.id || startRes.data.data.draftId || startRes.data.data.appointmentId;
+      setDraftId(draftId);
+
+      // 2. Check Requirements
+      const reqRes = await apiClient.post(`/booking/requirements/${state.customerId}`, { 
+        serviceIds: state.serviceIds 
+      });
+      
+      if (reqRes.data.data && reqRes.data.data.length > 0) {
+        setMissingRequirements(reqRes.data.data);
+        goToDimension('REQUIREMENTS');
+        return;
+      }
+
+      // 3. Confirm immediately if no requirements
+      const items = state.serviceIds.map(id => ({
+        serviceId: id,
+        employeeId: state.stylistId !== 'any' ? state.stylistId : null,
+        startTime: state.timeSlot?.toISOString(),
+        endTime: state.endTime?.toISOString()
+      }));
+
+      await apiClient.post('/booking/confirm', { 
+        appointmentId: draftId,
+        items
+      });
       goToDimension('DELIGHT');
     } catch (err) {
       console.error(err);
       haptics.trigger('heavy');
-      // Handle error gracefully
+      // Let the error bubble or be handled by the UI
+      throw err;
     }
   };
 

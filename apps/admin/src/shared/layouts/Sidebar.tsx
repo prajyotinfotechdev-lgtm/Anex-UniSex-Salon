@@ -17,6 +17,7 @@ import {
   Menu,
   Image as ImageIcon,
   Sparkles,
+  Settings,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ const MENU_ITEMS = [
   { name: 'Invoices', href: '/invoices', icon: CreditCard },
   { name: 'Media Studio', href: '/media', icon: ImageIcon },
   { name: 'Inspiration', href: '/inspiration', icon: Sparkles },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function Sidebar() {

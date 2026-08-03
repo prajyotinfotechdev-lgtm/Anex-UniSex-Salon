@@ -1,12 +1,16 @@
 import { Router } from 'express';
 import healthRoutes from './health/health.routes';
 import { authRoutes } from '../../modules/auth';
+import { settingsRoutes } from '../../modules/settings/settings.routes';
+import { taxRoutes } from '../../modules/tax';
+import { branchRoutes } from '../../modules/branch';
 import { organizationRoutes } from '../../modules/organization';
 import { employeeRoutes } from '../../modules/employee';
 import { customerRoutes } from '../../modules/customer';
 import { serviceRoutes } from '../../modules/service';
 import { appointmentRoutes } from '../../modules/appointment';
 import { appointmentOperationsRoutes } from '../../modules/appointment-operations';
+import { appointmentBookingRoutes } from '../../modules/appointment-booking/appointment-booking.routes';
 import { schedulingRoutes } from '../../modules/scheduling';
 import { billingRoutes } from '../../modules/billing';
 import { reportsRoutes } from '../../modules/reports';
@@ -22,10 +26,14 @@ const router = Router();
 
 router.use('/', healthRoutes); // Mounts /health, /ready, etc.
 router.use('/auth', authRoutes);
+router.use('/settings/taxes', taxRoutes);
+router.use('/settings', settingsRoutes);
+router.use('/branches', branchRoutes);
 router.use('/organization', organizationRoutes);
 router.use('/employees', employeeRoutes);
 router.use('/customers', customerRoutes);
 router.use('/services', serviceRoutes);
+router.use('/booking', appointmentBookingRoutes);
 router.use('/appointments', appointmentRoutes);
 router.use('/appointments', appointmentOperationsRoutes);
 router.use('/scheduling', schedulingRoutes);

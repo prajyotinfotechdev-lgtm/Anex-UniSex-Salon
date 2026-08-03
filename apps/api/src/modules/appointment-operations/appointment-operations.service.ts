@@ -80,7 +80,14 @@ export class AppointmentOperationsService extends BaseService {
   }
 
   async complete(organizationId: string, appointmentId: string, actorUserId: string) {
-    return this.transitionStatus(organizationId, appointmentId, actorUserId, AppointmentStatus.COMPLETED);
+    const appointment = await this.transitionStatus(organizationId, appointmentId, actorUserId, AppointmentStatus.COMPLETED);
+    
+    // Trigger Learning Loop in the background
+    import('../customer-insight/customer-insight.service').then(({ CustomerInsightService }) => {
+      CustomerInsightService.processRecommendationLearningLoop(appointmentId).catch(console.error);
+    });
+
+    return appointment;
   }
 
   async cancel(organizationId: string, appointmentId: string, actorUserId: string, data: CancelAppointmentRequestDto) {

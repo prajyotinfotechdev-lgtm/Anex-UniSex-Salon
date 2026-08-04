@@ -346,10 +346,10 @@ export class CustomerMeService {
       where: { id: customerId },
       data: {
         ...(data.firstName && { firstName: data.firstName }),
-        ...(data.lastName && { lastName: data.lastName }),
-        ...(data.email !== undefined && { email: data.email }),
-        ...(data.gender !== undefined && { gender: data.gender as any }),
-      }
+        ...(data.lastName !== undefined && { lastName: data.lastName }),
+        ...(data.email !== undefined && { email: data.email || null }),
+        ...(data.gender !== undefined && { gender: data.gender ? (data.gender as any) : null }),
+      },
     });
 
     return {

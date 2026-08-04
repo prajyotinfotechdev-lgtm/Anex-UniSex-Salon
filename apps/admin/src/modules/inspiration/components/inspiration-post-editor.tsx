@@ -249,9 +249,6 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
                   />
                 </CardContent>
               </Card>
-
-                </CardContent>
-              </Card>
             </div>
           </div>
 

@@ -79,7 +79,7 @@ export class MediaContentEngine {
             bytes: cloudinaryResult.bytes,
             width: cloudinaryResult.width,
             height: cloudinaryResult.height,
-            folder: cloudinaryResult.folder,
+            folder: folderModule,
             // Core asset status can be PUBLISHED or PENDING based on the context's intention
             status: isPublished ? AssetStatus.PUBLISHED : AssetStatus.PENDING,
             url: cloudinaryResult.url,

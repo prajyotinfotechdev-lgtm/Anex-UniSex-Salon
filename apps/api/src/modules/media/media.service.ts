@@ -43,7 +43,7 @@ export class MediaService {
         bytes: result.bytes,
         width: result.width,
         height: result.height,
-        folder: result.folder,
+        folder: params.module,
         caption: params.caption,
         tags: params.tags || [],
         isFeatured: params.isFeatured || false,

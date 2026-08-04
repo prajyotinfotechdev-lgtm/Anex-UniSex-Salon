@@ -139,7 +139,7 @@ export function InspirationStudio() {
               <div className="relative aspect-[4/5] bg-muted w-full overflow-hidden">
                 {post.heroMedia ? (
                   <img 
-                    src={post.heroMedia.secureUrl} 
+                    src={post.heroMedia.secureUrl || post.heroMedia.url} 
                     alt={post.title} 
                     className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                   />

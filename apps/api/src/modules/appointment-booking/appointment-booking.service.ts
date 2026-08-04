@@ -27,7 +27,7 @@ export class AppointmentBookingService {
         organizationId,
         customerId: data.customerId,
         branchId: data.branchId,
-        status: AppointmentStatus.DRAFT,
+        status: AppointmentStatus.PENDING,
         expiresAt: { gt: new Date() }
       },
       include: { items: true }
@@ -40,7 +40,7 @@ export class AppointmentBookingService {
           organizationId,
           branchId: data.branchId,
           customerId: data.customerId,
-          status: AppointmentStatus.DRAFT,
+          status: AppointmentStatus.PENDING,
           date: new Date(), // temporary
           expiresAt: addHours(new Date(), 1)
         },
@@ -70,7 +70,7 @@ export class AppointmentBookingService {
    */
   async confirmBooking(organizationId: string, actorUserId: string, data: ConfirmBookingInput) {
     const draft = await prisma.appointment.findFirst({
-      where: { id: data.appointmentId, organizationId, status: AppointmentStatus.DRAFT }
+      where: { id: data.appointmentId, organizationId, status: AppointmentStatus.PENDING }
     });
 
     if (!draft) {

@@ -49,7 +49,7 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
     try {
       // Probe: call onboard with phone only to check if user exists
       const deviceId = getOrCreateDeviceId();
-      const res = await fetch(getFullApiUrl('/api/v1/customer-auth/onboard'), {
+      const res = await fetch(getFullApiUrl('/api/v1/customer/onboard'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -116,7 +116,7 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
 
     setIsLoading(true);
     try {
-      const res = await fetch(getFullApiUrl('/api/v1/customer-auth/onboard'), {
+      const res = await fetch(getFullApiUrl('/api/v1/customer/onboard'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

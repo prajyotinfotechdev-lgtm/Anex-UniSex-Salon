@@ -14,8 +14,17 @@ export const useServices = (params?: ServiceListParams) => {
   return useQuery({
     queryKey: serviceKeys.list(JSON.stringify(params)),
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<Service>>('/services', { params });
-      return data.data;
+      const { data: responseData } = await apiClient.get<any>('/services', { params });
+      const payload = responseData.data || {};
+      return {
+        data: payload.data || [],
+        meta: {
+          total: payload.total || 0,
+          page: payload.page || 1,
+          limit: payload.limit || 10,
+          totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+        }
+      } as PaginatedResponse<Service>;
     },
   });
 };

@@ -9,8 +9,17 @@ export function useInvoices(params?: InvoiceListParams) {
   return useQuery({
     queryKey: ['invoices', params],
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<Invoice>>('/billing/invoices', { params });
-      return data.data;
+      const { data: responseData } = await apiClient.get<any>('/billing/invoices', { params });
+      const payload = responseData.data || {};
+      return {
+        data: payload.data || [],
+        meta: {
+          total: payload.total || 0,
+          page: payload.page || 1,
+          limit: payload.limit || 10,
+          totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+        }
+      } as PaginatedResponse<Invoice>;
     },
   });
 }
@@ -68,8 +77,17 @@ export function usePayments(params?: PaymentListParams) {
   return useQuery({
     queryKey: ['payments', params],
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<Payment>>('/billing/payments', { params });
-      return data.data;
+      const { data: responseData } = await apiClient.get<any>('/billing/payments', { params });
+      const payload = responseData.data || {};
+      return {
+        data: payload.data || [],
+        meta: {
+          total: payload.total || 0,
+          page: payload.page || 1,
+          limit: payload.limit || 10,
+          totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+        }
+      } as PaginatedResponse<Payment>;
     },
   });
 }

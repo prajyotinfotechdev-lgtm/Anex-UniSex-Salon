@@ -3,8 +3,17 @@ import { Customer, CustomerFormValues, CustomerListResponse, CustomerSearchParam
 
 export class CustomersApi {
   static async search(params?: CustomerSearchParams): Promise<CustomerListResponse> {
-    const { data } = await apiClient.get<CustomerListResponse>('/customers', { params });
-    return (data as any).data;
+    const { data: responseData } = await apiClient.get<any>('/customers', { params });
+    const payload = responseData.data || {};
+    return {
+      data: payload.data || [],
+      meta: {
+        total: payload.total || 0,
+        page: payload.page || 1,
+        limit: payload.limit || 10,
+        totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+      }
+    } as unknown as CustomerListResponse;
   }
 
   static async getById(id: string): Promise<Customer> {

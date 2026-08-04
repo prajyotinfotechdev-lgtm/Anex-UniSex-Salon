@@ -14,8 +14,17 @@ export const useServiceCategories = (params?: { page?: number; limit?: number; s
   return useQuery({
     queryKey: serviceCategoryKeys.list(JSON.stringify(params)),
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<ServiceCategory>>('/service-categories', { params });
-      return data.data;
+      const { data: responseData } = await apiClient.get<any>('/service-categories', { params });
+      const payload = responseData.data || {};
+      return {
+        data: payload.data || payload.categories || [],
+        meta: {
+          total: payload.total || 0,
+          page: payload.page || 1,
+          limit: payload.limit || 10,
+          totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+        }
+      } as PaginatedResponse<ServiceCategory>;
     },
   });
 };

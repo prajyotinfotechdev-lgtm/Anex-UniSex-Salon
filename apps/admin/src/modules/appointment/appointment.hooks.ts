@@ -18,8 +18,17 @@ export function useBranches() {
   return useQuery({
     queryKey: ['branches'],
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<{ id: string; name: string }>>('/organization/branches');
-      return data.data;
+      const { data: responseData } = await apiClient.get<any>('/organization/branches');
+      const payload = responseData.data || {};
+      return {
+        data: payload.data || payload.branches || (Array.isArray(payload) ? payload : []),
+        meta: {
+          total: payload.total || 0,
+          page: payload.page || 1,
+          limit: payload.limit || 10,
+          totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+        }
+      } as PaginatedResponse<{ id: string; name: string }>;
     },
   });
 }
@@ -28,8 +37,17 @@ export function useAppointments(params?: any) {
   return useQuery({
     queryKey: ['appointments', params],
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<Appointment>>('/appointments', { params });
-      return data.data;
+      const { data: responseData } = await apiClient.get<any>('/appointments', { params });
+      const payload = responseData.data || {};
+      return {
+        data: payload.data || [],
+        meta: {
+          total: payload.total || 0,
+          page: payload.page || 1,
+          limit: payload.limit || 10,
+          totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+        }
+      } as PaginatedResponse<Appointment>;
     },
   });
 }

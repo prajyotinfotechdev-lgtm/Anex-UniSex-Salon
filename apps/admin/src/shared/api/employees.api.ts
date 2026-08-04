@@ -3,8 +3,17 @@ import { EmployeeListResponse, Employee, EmployeeSearchParams, EmployeeFormValue
 
 export const employeesApi = {
   list: async (params?: EmployeeSearchParams): Promise<EmployeeListResponse> => {
-    const response = await apiClient.get<EmployeeListResponse>('/employees', { params });
-    return (response.data as any).data;
+    const { data: responseData } = await apiClient.get<any>('/employees', { params });
+    const payload = responseData.data || {};
+    return {
+      data: payload.data || [],
+      meta: {
+        total: payload.total || 0,
+        page: payload.page || 1,
+        limit: payload.limit || 10,
+        totalPages: Math.ceil((payload.total || 0) / (payload.limit || 10)) || 1
+      }
+    } as unknown as EmployeeListResponse;
   },
 
   get: async (id: string): Promise<{ data: Employee }> => {

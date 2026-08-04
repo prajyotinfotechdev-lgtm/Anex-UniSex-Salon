@@ -20,6 +20,7 @@ export interface PublicInspirationPost {
   galleryItems: { id: string; media: { url: string; secureUrl: string } }[];
   isBookmarked: boolean;
   bookmarkCount: number;
+  isFeatured?: boolean;
 }
 
 export interface PublicInspirationCollection {

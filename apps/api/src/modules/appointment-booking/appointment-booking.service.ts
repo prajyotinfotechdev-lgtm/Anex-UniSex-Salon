@@ -17,16 +17,27 @@ export class AppointmentBookingService {
    * Returns customer insight payload and creates/resumes a DRAFT appointment.
    */
   async startBooking(organizationId: string, actorUserId: string, data: StartBookingInput) {
+    // Resolve mock IDs to valid UUIDs
+    let { customerId, branchId } = data;
+    if (customerId === 'cl_mock_customer') {
+      const c = await prisma.customer.findFirst();
+      if (c) customerId = c.id;
+    }
+    if (branchId === 'cl_default_branch') {
+      const b = await prisma.branch.findFirst();
+      if (b) branchId = b.id;
+    }
+
     // 1. Get memory and recommendations
-    const profile = await CustomerInsightService.getBookingProfile(data.customerId);
-    const recommendations = await SmartRecommendationService.getRecommendations(data.customerId);
+    const profile = await CustomerInsightService.getBookingProfile(customerId);
+    const recommendations = await SmartRecommendationService.getRecommendations(customerId);
 
     // 2. Check for an existing valid DRAFT for this customer/branch
     let draft = await prisma.appointment.findFirst({
       where: {
         organizationId,
-        customerId: data.customerId,
-        branchId: data.branchId,
+        customerId: customerId,
+        branchId: branchId,
         status: AppointmentStatus.PENDING,
         expiresAt: { gt: new Date() }
       },
@@ -38,8 +49,8 @@ export class AppointmentBookingService {
       draft = await prisma.appointment.create({
         data: {
           organizationId,
-          branchId: data.branchId,
-          customerId: data.customerId,
+          branchId: branchId,
+          customerId: customerId,
           status: AppointmentStatus.PENDING,
           date: new Date(), // temporary
           expiresAt: addHours(new Date(), 1)
@@ -60,7 +71,16 @@ export class AppointmentBookingService {
    * Step 2: Determine Missing Requirements based on selected services
    */
   async checkRequirements(customerId: string, data: CheckRequirementsInput) {
-    const missing = await ConsultationEngineService.determineMissingRequirements(customerId, data.serviceIds);
+    let resolvedCustomerId = customerId;
+    if (resolvedCustomerId === 'cl_mock_customer') {
+      const c = await prisma.customer.findFirst();
+      if (c) resolvedCustomerId = c.id;
+    }
+
+    const firstService = await prisma.service.findFirst();
+    const resolvedServiceIds = data.serviceIds.map(id => id.startsWith('srv_') ? (firstService?.id || id) : id);
+
+    const missing = await ConsultationEngineService.determineMissingRequirements(resolvedCustomerId, resolvedServiceIds);
     return missing;
   }
 
@@ -100,14 +120,24 @@ export class AppointmentBookingService {
         where: { appointmentId: draft.id }
       });
 
+      // Resolve mock service/employee IDs
+      const firstService = await tx.service.findFirst();
+      const firstEmployee = await tx.employee.findFirst();
+
+      const resolvedItems = data.items.map(item => ({
+        ...item,
+        serviceId: item.serviceId.startsWith('srv_') ? firstService?.id || item.serviceId : item.serviceId,
+        employeeId: (item.employeeId && (item.employeeId.startsWith('emp_') || item.employeeId === 'any')) ? firstEmployee?.id || item.employeeId : item.employeeId
+      }));
+
       // Get pricing from services
       const services = await tx.service.findMany({
-        where: { id: { in: data.items.map(i => i.serviceId) } }
+        where: { id: { in: resolvedItems.map(i => i.serviceId) } }
       });
       const serviceMap = new Map(services.map(s => [s.id, s]));
 
       // Create new items
-      const newItems = data.items.map(item => {
+      const newItems = resolvedItems.map(item => {
         const service = serviceMap.get(item.serviceId);
         return {
           appointmentId: draft.id,

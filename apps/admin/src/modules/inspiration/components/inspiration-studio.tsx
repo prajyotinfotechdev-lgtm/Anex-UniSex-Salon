@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useInspiration, InspirationPost } from '../hooks/use-inspiration';
+import { MediaSelector } from '@/modules/media/components/media-selector';
 import { 
   Plus, Search, Edit, Eye, Filter, Trash2, 
   TrendingUp, BarChart3, Image as ImageIcon, Heart, Share2, Calendar
@@ -58,9 +59,10 @@ export function InspirationStudio() {
           <Link href="/inspiration/collections">
             <Button variant="outline">Manage Collections</Button>
           </Link>
-          <Link href="/inspiration/new">
-            <Button><Plus className="mr-2 h-4 w-4" /> Create Post</Button>
-          </Link>
+          <MediaSelector 
+            module="inspiration" 
+            trigger={<Button><Plus className="mr-2 h-4 w-4" /> Create Post</Button>} 
+          />
         </div>
       </div>
 

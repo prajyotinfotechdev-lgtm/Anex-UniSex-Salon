@@ -1,22 +1,13 @@
 import { Prisma } from '@prisma/client';
 import { ContextHandler } from '../context.types';
 import { ValidationError } from '../../../../errors/AppErrors';
+import { SchemaService } from '../../../schema/schema.service';
 
 export class InspirationContextHandler implements ContextHandler {
   name = 'INSPIRATION';
 
   getMetadataSchema() {
-    return {
-      type: 'object',
-      properties: {
-        title: { type: 'string', required: true },
-        description: { type: 'string', required: false },
-        category: { type: 'string', required: false },
-        serviceId: { type: 'string', required: false },
-        employeeId: { type: 'string', required: false },
-        status: { type: 'string', enum: ['DRAFT', 'PUBLISHED'], default: 'DRAFT' },
-      },
-    };
+    return SchemaService.getModelMetadata('InspirationPost');
   }
 
   validateMetadata(metadata: any): void {

@@ -4,10 +4,10 @@ import { Image as ImageIcon, UploadCloud, CheckCircle2, X, LayoutDashboard, Scis
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { MediaUploadWizard } from './media-upload-wizard';
+import { DynamicMediaUploadWizard } from './dynamic-upload-wizard';
 
 interface MediaSelectorProps {
-  onSelect: (asset: MediaAsset) => void;
+  onSelect?: (asset: MediaAsset) => void;
   selectedAssetId?: string | null;
   module?: string; // If provided, limits selector to this folder and forces uploads to it. If not, shows all folders.
   trigger?: React.ReactNode;
@@ -153,7 +153,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = ({
                           <div 
                             key={asset.id}
                             onClick={() => {
-                              onSelect(asset);
+                              if (onSelect) onSelect(asset);
                               setIsOpen(false);
                             }}
                             className={cn(
@@ -188,7 +188,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = ({
         )}
       </AnimatePresence>
 
-      <MediaUploadWizard 
+      <DynamicMediaUploadWizard 
         isOpen={!!uploadFile}
         onClose={() => setUploadFile(null)}
         file={uploadFile}

@@ -33,6 +33,16 @@ export const useMediaStudio = () => {
     },
   });
 
+  const getContextSchema = (contextType: string) => useQuery({
+    queryKey: ['context-schema', contextType],
+    queryFn: async () => {
+      if (!contextType) return null;
+      const res = await api.get(`/media/contexts/${contextType}/schema`);
+      return res.data;
+    },
+    enabled: !!contextType,
+  });
+
   const uploadAsset = useMutation({
     mutationFn: async (data: FormData) => {
       const res = await api.post('/media/upload', data, {
@@ -82,6 +92,7 @@ export const useMediaStudio = () => {
 
   return {
     getAssets,
+    getContextSchema,
     uploadAsset,
     uploadContextualAsset,
     updateAsset,

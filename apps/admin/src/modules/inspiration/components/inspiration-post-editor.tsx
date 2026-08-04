@@ -80,13 +80,13 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
         slug: values.slug || undefined,
       };
 
-      if (isEditing) {
-        await updatePost.mutateAsync({ id: postId, data: cleanValues });
-        toast.success('Post updated successfully');
-      } else {
-        await createPost.mutateAsync(cleanValues);
-        toast.success('Post created successfully');
+      if (!isEditing) {
+        toast.error('Creating posts here is deprecated. Use the Inspiration Studio Upload button instead.');
+        return;
       }
+
+      await updatePost.mutateAsync({ id: postId, data: cleanValues });
+      toast.success('Post updated successfully');
       router.push('/inspiration');
     } catch (error) {
       toast.error('Failed to save post');

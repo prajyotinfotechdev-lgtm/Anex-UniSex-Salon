@@ -107,6 +107,25 @@ export const mediaController = {
   },
 
   /**
+   * Get schema for a specific context
+   */
+  getContextSchema: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { contextType } = req.params;
+      const handler = mediaContentEngine.getContext(contextType);
+      
+      const schema = handler.getMetadataSchema();
+      
+      res.status(200).json({
+        success: true,
+        data: schema,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
    * List assets
    */
   listAssets: async (req: Request, res: Response, next: NextFunction) => {

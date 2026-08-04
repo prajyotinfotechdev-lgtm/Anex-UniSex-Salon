@@ -28,6 +28,11 @@ router.post(
 );
 
 router.get(
+  '/contexts/:contextType/schema',
+  mediaController.getContextSchema
+);
+
+router.get(
   '/',
   mediaController.listAssets
 );

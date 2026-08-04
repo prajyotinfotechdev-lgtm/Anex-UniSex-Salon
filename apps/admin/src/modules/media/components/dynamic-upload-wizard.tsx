@@ -10,21 +10,6 @@ import { useMediaStudio } from '../hooks/use-media';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-// ─── Category values must match Prisma InspirationCategoryEnum exactly ────────
-const INSPIRATION_CATEGORIES = [
-  { value: 'HAIRCUT',      label: 'Haircut'        },
-  { value: 'HAIR_COLOUR',  label: 'Hair Colour'    },
-  { value: 'BEARD',        label: 'Beard'          },
-  { value: 'HAIR_SPA',     label: 'Hair Spa'       },
-  { value: 'BRIDAL',       label: 'Bridal'         },
-  { value: 'OCCASION',     label: 'Occasion'       },
-  { value: 'STUDENT',      label: 'Student'        },
-  { value: 'KIDS',         label: 'Kids'           },
-  { value: 'TRANSFORMATION', label: 'Transformation' },
-  { value: 'TRENDING',     label: 'Trending'       },
-  { value: 'STAFF_PICKS',  label: 'Staff Picks'    },
-];
-
 // ─── Context Options ──────────────────────────────────────────────────────────
 const CONTEXT_OPTIONS = [
   {
@@ -51,7 +36,7 @@ const CONTEXT_OPTIONS = [
 ];
 
 // ─── Props ────────────────────────────────────────────────────────────────────
-interface MediaUploadWizardProps {
+interface DynamicMediaUploadWizardProps {
   isOpen: boolean;
   onClose: () => void;
   file: File | null;
@@ -62,16 +47,20 @@ interface MediaUploadWizardProps {
 // ─── Wizard Steps ─────────────────────────────────────────────────────────────
 type WizardStep = 'context' | 'metadata' | 'uploading' | 'success';
 
-export const MediaUploadWizard: React.FC<MediaUploadWizardProps> = ({
+export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> = ({
   isOpen, onClose, file, defaultContext, onSuccess
 }) => {
-  const { uploadContextualAsset } = useMediaStudio();
+  const { uploadContextualAsset, getContextSchema } = useMediaStudio();
 
   const [step, setStep] = useState<WizardStep>(defaultContext ? 'metadata' : 'context');
   const [contextType, setContextType] = useState<string>(defaultContext?.toUpperCase() || '');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<Record<string, any>>({ status: 'PUBLISHED' });
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Fetch schema dynamically
+  const { data: schemaResponse, isLoading: isLoadingSchema } = getContextSchema(contextType);
+  const schema = schemaResponse?.data;
 
   // Generate local preview URL
   useEffect(() => {
@@ -100,13 +89,15 @@ export const MediaUploadWizard: React.FC<MediaUploadWizardProps> = ({
   }, []);
 
   const validateMetadata = (): boolean => {
-    if (contextType === 'INSPIRATION') {
-      if (!metadata.title?.trim()) {
-        setValidationError('Title is required for Inspiration posts.');
-        return false;
-      }
-      if (!metadata.category) {
-        setValidationError('Category is required for Inspiration posts.');
+    if (!schema?.fields) return true;
+
+    for (const field of schema.fields) {
+      // Skip system fields
+      const isSystemField = ['id', 'organizationId', 'createdAt', 'updatedAt', 'deletedAt', 'publishedAt', 'heroMediaId', 'beforeMediaId', 'slug'].includes(field.name);
+      if (isSystemField) continue;
+
+      if (field.isRequired && !field.hasDefaultValue && !metadata[field.name]) {
+        setValidationError(`${field.name} is a required field.`);
         return false;
       }
     }
@@ -140,6 +131,131 @@ export const MediaUploadWizard: React.FC<MediaUploadWizardProps> = ({
   };
 
   if (!isOpen || !file) return null;
+
+  // Render Dynamic Fields
+  const renderDynamicFields = () => {
+    if (isLoadingSchema) {
+      return <div className="text-zinc-500 text-sm py-4 animate-pulse">Loading form structure from database schema...</div>;
+    }
+
+    if (!schema?.fields || schema.fields.length === 0) {
+      return (
+        <div className="text-center py-8 text-zinc-500">
+          <p>No extra details required for this context.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-5">
+        {schema.fields.map((field: any) => {
+          // Ignore system/generated fields
+          const isSystemField = ['id', 'organizationId', 'createdAt', 'updatedAt', 'deletedAt', 'publishedAt', 'heroMediaId', 'beforeMediaId', 'slug', 'revenueGenerated', 'bookmarkCount'].includes(field.name);
+          const isRelationId = field.name.endsWith('Id'); // Skip relational fields for simple dynamic form
+          
+          if (isSystemField || isRelationId) return null;
+
+          const isRequired = field.isRequired && !field.hasDefaultValue;
+
+          // Booleans
+          if (field.type === 'Boolean') {
+            return (
+              <div key={field.name}>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div
+                    onClick={() => handleMetadataChange(field.name, !metadata[field.name])}
+                    className={cn(
+                      "w-10 h-6 rounded-full transition-colors relative",
+                      metadata[field.name] ? 'bg-white' : 'bg-zinc-700'
+                    )}
+                  >
+                    <div className={cn(
+                      "absolute top-1 w-4 h-4 rounded-full bg-black transition-transform",
+                      metadata[field.name] ? 'translate-x-5' : 'translate-x-1'
+                    )} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-white font-medium capitalize">{field.name.replace(/([A-Z])/g, ' $1').trim()}</p>
+                  </div>
+                </label>
+              </div>
+            );
+          }
+
+          // Lists (Tags)
+          if (field.isList && field.type === 'String') {
+             // Basic comma-separated string mapping to array (UI can be improved later)
+             return (
+              <div key={field.name}>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
+                  {field.name} {isRequired && <span className="text-red-500">*</span>}
+                </label>
+                <input
+                  type="text"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
+                  placeholder="Comma separated values..."
+                  value={metadata[field.name]?.join(', ') || ''}
+                  onChange={e => handleMetadataChange(field.name, e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                />
+              </div>
+            );
+          }
+
+          // Enums / Selects
+          if (field.enumValues && field.enumValues.length > 0) {
+            return (
+              <div key={field.name}>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
+                  {field.name} {isRequired && <span className="text-red-500">*</span>}
+                </label>
+                <select
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 transition-colors"
+                  value={metadata[field.name] || ''}
+                  onChange={e => handleMetadataChange(field.name, e.target.value)}
+                >
+                  <option value="">Select {field.name}…</option>
+                  {field.enumValues.map((val: string) => (
+                    <option key={val} value={val}>{val.replace(/_/g, ' ')}</option>
+                  ))}
+                </select>
+              </div>
+            );
+          }
+
+          // Textarea for descriptions
+          if (field.name.toLowerCase().includes('description') || field.name.toLowerCase().includes('content')) {
+            return (
+              <div key={field.name}>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
+                  {field.name} {isRequired && <span className="text-red-500">*</span>}
+                </label>
+                <textarea
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white placeholder-zinc-600 h-20 resize-none focus:outline-none focus:border-zinc-500 transition-colors"
+                  value={metadata[field.name] || ''}
+                  onChange={e => handleMetadataChange(field.name, e.target.value)}
+                />
+              </div>
+            );
+          }
+
+          // Default Text Input
+          return (
+            <div key={field.name}>
+              <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
+                {field.name} {isRequired && <span className="text-red-500">*</span>}
+              </label>
+              <input
+                type="text"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
+                value={metadata[field.name] || ''}
+                onChange={e => handleMetadataChange(field.name, e.target.value)}
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <AnimatePresence>
@@ -196,13 +312,13 @@ export const MediaUploadWizard: React.FC<MediaUploadWizardProps> = ({
                 <div>
                   <h2 className="text-white font-semibold text-lg">
                     {step === 'context' && 'Where should this go?'}
-                    {step === 'metadata' && 'Add Details'}
+                    {step === 'metadata' && 'Add Details (Dynamic)'}
                     {step === 'uploading' && 'Publishing…'}
                     {step === 'success' && 'Published!'}
                   </h2>
                   <p className="text-zinc-500 text-xs mt-0.5">
                     {step === 'context' && 'Choose where this image will be used'}
-                    {step === 'metadata' && `Creating ${CONTEXT_OPTIONS.find(c => c.id === contextType)?.label || 'content'}`}
+                    {step === 'metadata' && `Generated from Prisma Schema for ${CONTEXT_OPTIONS.find(c => c.id === contextType)?.label || 'content'}`}
                     {step === 'uploading' && 'Uploading to Cloudinary & saving to database…'}
                     {step === 'success' && 'Your content is live'}
                   </p>
@@ -252,7 +368,7 @@ export const MediaUploadWizard: React.FC<MediaUploadWizardProps> = ({
                     </motion.div>
                   )}
 
-                  {/* Step 2: Metadata Form */}
+                  {/* Step 2: Dynamic Metadata Form */}
                   {step === 'metadata' && (
                     <motion.div
                       key="metadata"
@@ -261,112 +377,7 @@ export const MediaUploadWizard: React.FC<MediaUploadWizardProps> = ({
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-5"
                     >
-                      {/* Inspiration Form */}
-                      {contextType === 'INSPIRATION' && (
-                        <>
-                          <div>
-                            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
-                              Title <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors"
-                              placeholder="e.g. Balayage Summer Transformation"
-                              value={metadata.title || ''}
-                              onChange={e => handleMetadataChange('title', e.target.value)}
-                              autoFocus
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
-                              Category <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-zinc-500 transition-colors"
-                              value={metadata.category || ''}
-                              onChange={e => handleMetadataChange('category', e.target.value)}
-                            >
-                              <option value="">Select category…</option>
-                              {INSPIRATION_CATEGORIES.map(cat => (
-                                <option key={cat.value} value={cat.value}>{cat.label}</option>
-                              ))}
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
-                              Description
-                            </label>
-                            <textarea
-                              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-sm text-white placeholder-zinc-600 h-20 resize-none focus:outline-none focus:border-zinc-500 transition-colors"
-                              placeholder="Describe the look, technique, or vibe…"
-                              value={metadata.description || ''}
-                              onChange={e => handleMetadataChange('description', e.target.value)}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2">
-                              Visibility
-                            </label>
-                            <div className="flex gap-3">
-                              {[{ v: 'PUBLISHED', label: 'Published', desc: 'Live in customer feed' }, { v: 'DRAFT', label: 'Draft', desc: 'Hidden from customers' }].map(opt => (
-                                <button
-                                  key={opt.v}
-                                  type="button"
-                                  onClick={() => handleMetadataChange('status', opt.v)}
-                                  className={cn(
-                                    "flex-1 p-3 rounded-xl border text-left transition-all duration-200",
-                                    metadata.status === opt.v
-                                      ? 'border-white/40 bg-white/10 text-white'
-                                      : 'border-zinc-800 text-zinc-500 hover:border-zinc-600'
-                                  )}
-                                >
-                                  <p className="text-sm font-semibold">{opt.label}</p>
-                                  <p className="text-xs mt-0.5 opacity-70">{opt.desc}</p>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="flex items-center gap-3 cursor-pointer">
-                              <div
-                                onClick={() => handleMetadataChange('isFeatured', !metadata.isFeatured)}
-                                className={cn(
-                                  "w-10 h-6 rounded-full transition-colors relative",
-                                  metadata.isFeatured ? 'bg-white' : 'bg-zinc-700'
-                                )}
-                              >
-                                <div className={cn(
-                                  "absolute top-1 w-4 h-4 rounded-full bg-black transition-transform",
-                                  metadata.isFeatured ? 'translate-x-5' : 'translate-x-1'
-                                )} />
-                              </div>
-                              <div>
-                                <p className="text-sm text-white font-medium">Featured Look</p>
-                                <p className="text-xs text-zinc-500">Displays in the hero banner at top of the feed</p>
-                              </div>
-                            </label>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Employee/Service Context (Generic caption) */}
-                      {(contextType === 'EMPLOYEES' || contextType === 'SERVICES') && (
-                        <div className="text-center py-8">
-                          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
-                            <UploadCloud className="w-8 h-8 text-zinc-400" />
-                          </div>
-                          <p className="text-white font-medium mb-2">Ready to upload</p>
-                          <p className="text-zinc-500 text-sm">
-                            This image will be saved as a {contextType === 'EMPLOYEES' ? 'general employee photo' : 'service image'}.
-                            You can link it to a specific record from the{' '}
-                            {contextType === 'EMPLOYEES' ? 'Employees' : 'Services'} section.
-                          </p>
-                        </div>
-                      )}
+                      {renderDynamicFields()}
 
                       {/* Validation Error */}
                       {validationError && (
@@ -430,7 +441,6 @@ export const MediaUploadWizard: React.FC<MediaUploadWizardProps> = ({
                         </button>
                         <button
                           onClick={handleUpload}
-                          disabled={contextType === 'INSPIRATION' && (!metadata.title?.trim() || !metadata.category)}
                           className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold bg-white text-black rounded-xl hover:bg-zinc-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <UploadCloud className="w-4 h-4" />

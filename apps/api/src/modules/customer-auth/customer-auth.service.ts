@@ -303,4 +303,85 @@ export class CustomerAuthService {
       transferredAt: new Date()
     };
   }
+
+  /**
+   * Onboard a customer from the PWA.
+   * - If the phone already exists, we re-register the device and return a token (returning user).
+   * - If the phone does not exist, we create the customer with provided profile data.
+   * In both cases we return: { isNewCustomer, deviceToken, customer: { id, firstName, lastName, phone } }
+   */
+  static async onboardCustomer(data: {
+    phone: string;
+    organizationId: string;
+    deviceId: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string | null;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER' | null;
+    deviceName?: string;
+    platform?: string;
+    browser?: string;
+  }) {
+    const existingCustomer = await prisma.customer.findFirst({
+      where: {
+        primaryPhone: data.phone,
+        organizationId: data.organizationId,
+      }
+    });
+
+    let customer;
+    let isNewCustomer = false;
+
+    if (existingCustomer) {
+      customer = existingCustomer;
+    } else {
+      // Create brand-new customer with real profile data
+      isNewCustomer = true;
+      customer = await prisma.customer.create({
+        data: {
+          organizationId: data.organizationId,
+          primaryPhone: data.phone,
+          firstName: data.firstName || 'Guest',
+          lastName: data.lastName || '',
+          email: data.email || null,
+          gender: data.gender ? (data.gender as any) : null,
+          isActive: true,
+        }
+      });
+    }
+
+    // Revoke any old devices for this customer (ensures single active session per customer)
+    await prisma.customerDevice.updateMany({
+      where: { customerId: customer.id, isRevoked: false },
+      data: { isRevoked: true }
+    });
+
+    // Create fresh device entry
+    const rawToken = this.generateSecureToken();
+    const tokenHash = this.hashToken(rawToken);
+
+    await prisma.customerDevice.create({
+      data: {
+        customerId: customer.id,
+        deviceId: data.deviceId,
+        tokenHash,
+        deviceName: data.deviceName,
+        platform: data.platform,
+        browser: data.browser,
+      }
+    });
+
+    return {
+      isNewCustomer,
+      deviceToken: rawToken,
+      customer: {
+        id: customer.id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        primaryPhone: customer.primaryPhone,
+        email: customer.email,
+        gender: customer.gender,
+      }
+    };
+  }
 }

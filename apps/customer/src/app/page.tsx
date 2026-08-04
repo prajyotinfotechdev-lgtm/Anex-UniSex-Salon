@@ -1,14 +1,16 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Moon, Sun, Bell } from "lucide-react";
+import { Moon, Sun, Bell, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboard } from "@/hooks/use-dashboard";
+import { useCustomerProfile } from "@/components/providers/CustomerProfileContext";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { OnboardingCard } from "@/components/onboarding/onboarding-card";
 
 // Dashboard Components
 import { StatusHub } from "@/components/dashboard/status-hub";
@@ -18,8 +20,19 @@ import { ContextualRecommendations } from "@/components/dashboard/contextual-rec
 export default function HomePage() {
   const { theme, setTheme } = useTheme();
   const { data, isLoading, error } = useDashboard();
+  const { profile, isGuest, isLoading: profileLoading } = useCustomerProfile();
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [timeGreeting, setTimeGreeting] = useState("Hello");
+
+  // Show onboarding after profile context finishes loading and user is still a guest
+  useEffect(() => {
+    if (!profileLoading && isGuest) {
+      // Tiny delay so the splash screen finishes first
+      const t = setTimeout(() => setShowOnboarding(true), 400);
+      return () => clearTimeout(t);
+    }
+  }, [profileLoading, isGuest]);
 
   useEffect(() => {
     if (error) {
@@ -67,12 +80,22 @@ export default function HomePage() {
 
   if (!data) return null;
 
-  // Split greeting if possible, or use the dynamic one
-  const nameParts = data.greeting.split(',');
-  const firstName = nameParts.length > 1 ? nameParts[1].trim() : data.greeting;
+  // Priority: live profile name > API greeting name > fallback
+  const displayName = profile
+    ? profile.firstName
+    : (() => {
+        const nameParts = data.greeting.split(',');
+        return nameParts.length > 1 ? nameParts[1].trim() : data.greeting;
+      })();
 
   return (
     <div className="flex-1 pb-32">
+      {/* Premium Onboarding Card */}
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingCard onClose={() => setShowOnboarding(false)} />
+        )}
+      </AnimatePresence>
       {/* 1. Dynamic Sticky Header */}
       <motion.div 
         className={cn(
@@ -89,7 +112,7 @@ export default function HomePage() {
             {timeGreeting},
           </h1>
           <h2 className="text-2xl md:text-3xl font-serif font-medium text-white tracking-tight">
-            {firstName}
+            {displayName}
           </h2>
         </motion.div>
         
@@ -105,6 +128,18 @@ export default function HomePage() {
               <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-black" />
             )}
           </Button>
+          {isGuest && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full h-11 w-11 bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary"
+              onClick={() => setShowOnboarding(true)}
+              haptic="medium"
+              title="Create your profile"
+            >
+              <UserPlus className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

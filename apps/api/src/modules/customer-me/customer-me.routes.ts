@@ -18,7 +18,8 @@ import {
   revokeDeviceHandler,
   getAvailabilityHandler,
   getBookingPredictionsHandler,
-  createCustomerAppointmentHandler
+  createCustomerAppointmentHandler,
+  updateProfileHandler
 } from './customer-me.controller';
 
 const router = Router();
@@ -31,6 +32,7 @@ router.get('/dashboard', getDashboardHandler);
 
 // Profile
 router.get('/', getProfileHandler);
+router.put('/profile', updateProfileHandler);
 
 // Booking Engine
 router.post('/availability', getAvailabilityHandler);

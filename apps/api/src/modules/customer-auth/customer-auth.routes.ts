@@ -6,7 +6,8 @@ import {
   sessionResolutionSchema,
   refreshSessionSchema,
   pairingRequestSchema,
-  pairingResultSchema
+  pairingResultSchema,
+  onboardCustomerSchema
 } from './customer-auth.validator';
 import {
   registerDeviceHandler,
@@ -15,7 +16,8 @@ import {
   refreshSessionHandler,
   signOutHandler,
   requestPairingHandler,
-  pollPairingResultHandler
+  pollPairingResultHandler,
+  onboardCustomerHandler
 } from './customer-auth.controller';
 import { requireCustomerDevice } from '../../auth/customer-auth.middleware';
 import rateLimit from 'express-rate-limit';
@@ -42,5 +44,8 @@ router.post('/sign-out', requireCustomerDevice, signOutHandler);
 // Device Transfer (Pairing)
 router.post('/pairing/request', validate(pairingRequestSchema), requestPairingHandler);
 router.get('/pairing/:id/result', validate(pairingResultSchema), pollPairingResultHandler);
+
+// PWA Onboarding — find-or-create customer and register device in one step
+router.post('/onboard', validate(onboardCustomerSchema), onboardCustomerHandler);
 
 export const customerAuthRoutes = router;

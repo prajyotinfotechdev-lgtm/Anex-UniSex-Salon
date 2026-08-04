@@ -101,3 +101,37 @@ export const pollPairingResultHandler = async (req: Request, res: Response, next
     next(error);
   }
 };
+
+export const onboardCustomerHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {
+      phone,
+      organizationId,
+      deviceId,
+      firstName,
+      lastName,
+      email,
+      gender,
+      deviceName,
+      platform,
+      browser,
+    } = req.body;
+
+    const result = await CustomerAuthService.onboardCustomer({
+      phone,
+      organizationId,
+      deviceId,
+      firstName,
+      lastName,
+      email,
+      gender,
+      deviceName,
+      platform,
+      browser,
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

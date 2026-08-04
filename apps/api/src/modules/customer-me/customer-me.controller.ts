@@ -154,3 +154,12 @@ export const createCustomerAppointmentHandler = async (req: Request, res: Respon
     res.status(201).json(data);
   } catch (error) { next(error); }
 };
+
+export const updateProfileHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { firstName, lastName, email, gender } = req.body;
+    const customerId = (req as any).customer.customerId;
+    const data = await CustomerMeService.updateProfile(customerId, { firstName, lastName, email, gender });
+    res.status(200).json(data);
+  } catch (error) { next(error); }
+};

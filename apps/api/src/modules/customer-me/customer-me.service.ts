@@ -332,4 +332,33 @@ export class CustomerMeService {
       data: { isRevoked: true }
     });
   }
+
+  static async updateProfile(customerId: string, data: {
+    firstName?: string;
+    lastName?: string;
+    email?: string | null;
+    gender?: string | null;
+  }) {
+    const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+    if (!customer) throw new NotFoundError('Customer not found');
+
+    const updated = await prisma.customer.update({
+      where: { id: customerId },
+      data: {
+        ...(data.firstName && { firstName: data.firstName }),
+        ...(data.lastName && { lastName: data.lastName }),
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.gender !== undefined && { gender: data.gender as any }),
+      }
+    });
+
+    return {
+      id: updated.id,
+      firstName: updated.firstName,
+      lastName: updated.lastName,
+      primaryPhone: updated.primaryPhone,
+      email: updated.email,
+      gender: updated.gender,
+    };
+  }
 }

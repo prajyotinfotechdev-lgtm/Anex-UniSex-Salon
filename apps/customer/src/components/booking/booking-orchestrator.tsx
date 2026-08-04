@@ -7,6 +7,7 @@ import { TimePicker } from './time-picker';
 import { BookingSummary } from './booking-summary';
 import { ConfirmationDelight } from './confirmation-delight';
 import { Button } from '../ui/button';
+import { useCustomerProfile } from '../providers/CustomerProfileContext';
 
 type BookingDimension = 'HOME' | 'SERVICE' | 'TIME' | 'REQUIREMENTS' | 'CONFIRM' | 'DELIGHT';
 
@@ -39,10 +40,11 @@ interface BookingContextType {
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
 export function BookingProvider({ children }: { children: React.ReactNode }) {
+  const { profile } = useCustomerProfile();
   const [state, setState] = useState<BookingState>({
     currentDimension: 'HOME',
     serviceIds: [],
-    customerId: 'cl_mock_customer', // Mocking auth
+    customerId: profile?.id || 'guest',
   });
 
   const goToDimension = (dim: BookingDimension) => setState(s => ({ ...s, currentDimension: dim }));
@@ -65,7 +67,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     }));
   };
 
-  const reset = () => setState({ currentDimension: 'HOME', serviceIds: [], customerId: 'cl_mock_customer' });
+  const reset = () => setState({ currentDimension: 'HOME', serviceIds: [], customerId: profile?.id || 'guest' });
 
   return (
     <BookingContext.Provider value={{

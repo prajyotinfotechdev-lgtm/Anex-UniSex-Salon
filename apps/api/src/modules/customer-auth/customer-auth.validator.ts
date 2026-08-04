@@ -52,3 +52,18 @@ export const pairingResultSchema = z.object({
     id: z.string().uuid('Valid pairing ID is required')
   })
 });
+
+export const onboardCustomerSchema = z.object({
+  body: z.object({
+    phone: z.string().min(10, 'Valid phone number is required'),
+    organizationId: z.string().uuid('Valid organization ID is required'),
+    deviceId: z.string().uuid('Valid device ID is required'),
+    firstName: z.string().min(1, 'First name is required').trim().optional(),
+    lastName: z.string().min(1, 'Last name is required').trim().optional(),
+    email: z.string().email('Invalid email').trim().toLowerCase().optional().nullable(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional().nullable(),
+    deviceName: z.string().optional(),
+    platform: z.string().optional(),
+    browser: z.string().optional(),
+  })
+});

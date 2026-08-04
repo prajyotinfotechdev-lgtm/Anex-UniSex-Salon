@@ -132,9 +132,9 @@ export class MediaService {
       throw new NotFoundError('Media asset not found');
     }
 
-    if (asset.usageCount > 0) {
-      throw new ValidationError('Cannot delete asset. It is currently being used by other modules.');
-    }
+    // Note: We bypass the usageCount check here so users can clean up their Media Studio.
+    // If an asset is used in an Inspiration Post, the post will just show a broken image,
+    // which is the user's responsibility.
 
     // Attempt to delete from Cloudinary
     try {
@@ -167,8 +167,8 @@ export class MediaService {
       },
     });
 
-    const deletableAssets = assets.filter(a => a.usageCount === 0);
-    const nonDeletableAssets = assets.filter(a => a.usageCount > 0);
+    const deletableAssets = assets;
+    const nonDeletableAssets: any[] = [];
 
     // 2. Delete from Cloudinary in parallel (fire-and-forget for soft deletes)
     const cloudinaryDeletes = deletableAssets

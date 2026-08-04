@@ -5,9 +5,9 @@ import { prisma } from './database/prisma.client';
 
 const PORT = parseInt(env.PORT, 10);
 
-const server = app.listen(PORT, () => {
-  logger.info(`🚀 API running on http://localhost:${PORT}`);
-  logger.info(`📚 Swagger docs at http://localhost:${PORT}/api-docs`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  logger.info(`🚀 API running on http://0.0.0.0:${PORT}`);
+  logger.info(`📚 Swagger docs at http://0.0.0.0:${PORT}/api-docs`);
 });
 
 // Graceful Shutdown Handler

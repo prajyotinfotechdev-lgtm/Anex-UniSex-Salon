@@ -52,8 +52,21 @@ export const MediaStudio = () => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // Open wizard for the first file selected
-    setUploadFile(files[0]);
+    if (files.length === 1) {
+      // Open wizard for the first file selected
+      setUploadFile(files[0]);
+    } else {
+      // Bulk upload directly
+      const uploadPromises = Array.from(files).map(file => 
+        uploadAsset.mutateAsync({ file, folder: activeFolder === 'all' ? 'general' : activeFolder })
+      );
+      
+      toast.promise(Promise.all(uploadPromises), {
+        loading: `Uploading ${files.length} files...`,
+        success: 'All files uploaded successfully',
+        error: 'Failed to upload some files',
+      });
+    }
     
     // Clear input so same file can be selected again
     if (fileInputRef.current) {

@@ -27,7 +27,7 @@ export function TimePicker() {
     queryFn: async () => {
       try {
         const res = await apiClient.get('/public/employees');
-        return [{ id: 'any', firstName: 'Anyone', lastName: 'Available' }, ...res.data.data];
+        return [{ id: 'any', firstName: 'Anyone', lastName: 'Available' }, ...res.data];
       } catch (e) {
         return [
           { id: 'any', firstName: 'Anyone', lastName: 'Available' },
@@ -58,7 +58,7 @@ export function TimePicker() {
         }
         
         const res = await apiClient.get(`/public/slots?${params.toString()}`);
-        return res.data.data || [];
+        return res.data || [];
       } catch (e) {
         // Fallback slots
         return [

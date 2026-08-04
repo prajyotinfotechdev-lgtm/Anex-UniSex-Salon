@@ -22,7 +22,7 @@ export function ServiceSelector() {
       // Mock base API call if real endpoint doesn't exist yet, but wire it up structurally
       try {
         const res = await apiClient.get('/public/services');
-        return res.data.data || [];
+        return res.data || [];
       } catch (e) {
         // Fallback for UI if API is not fully running locally in Customer App context yet
         return [

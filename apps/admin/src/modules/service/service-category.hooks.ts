@@ -11,10 +11,15 @@ export const serviceCategoryKeys = {
 };
 
 export const useServiceCategories = (params?: { page?: number; limit?: number; search?: string; isActive?: boolean }) => {
+  const queryParams = {
+    ...params,
+    isActive: params?.isActive !== undefined ? String(params.isActive) : undefined,
+  };
+
   return useQuery({
-    queryKey: serviceCategoryKeys.list(JSON.stringify(params)),
+    queryKey: serviceCategoryKeys.list(JSON.stringify(queryParams)),
     queryFn: async () => {
-      const { data: responseData } = await apiClient.get<any>('/service-categories', { params });
+      const { data: responseData } = await apiClient.get<any>('/service-categories', { params: queryParams });
       const payload = responseData.data || {};
       return {
         data: payload.data || payload.categories || [],
@@ -26,5 +31,33 @@ export const useServiceCategories = (params?: { page?: number; limit?: number; s
         }
       } as PaginatedResponse<ServiceCategory>;
     },
+  });
+};
+
+export const useCreateServiceCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<ServiceCategory>) => apiClient.post('/service-categories', data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: serviceCategoryKeys.all }),
+  });
+};
+
+export const useUpdateServiceCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & Partial<ServiceCategory>) => 
+      apiClient.patch(`/service-categories/${id}`, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: serviceCategoryKeys.all });
+      queryClient.invalidateQueries({ queryKey: serviceCategoryKeys.detail(variables.id) });
+    },
+  });
+};
+
+export const useDeleteServiceCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient.delete(`/service-categories/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: serviceCategoryKeys.all }),
   });
 };

@@ -9,6 +9,7 @@ import { seedRoles } from './roles.seed';
 import { seedOrganizationSettings } from './organization-settings.seed';
 import { seedTaxCategories } from './tax-categories.seed';
 import { seedNotificationTemplates } from './notification-templates.seed';
+import { seedServiceCategories } from './service-categories.seed';
 
 const prisma = new PrismaClient();
 
@@ -55,6 +56,7 @@ async function main() {
     await seedOrganizationSettings(prisma, organization.id);
     await seedTaxCategories(prisma, organization.id);
     await seedNotificationTemplates(prisma, organization.id);
+    await seedServiceCategories(prisma, organization.id);
 
     // 6. Admin User & Employee
     const adminEmail = 'admin@anex.local';

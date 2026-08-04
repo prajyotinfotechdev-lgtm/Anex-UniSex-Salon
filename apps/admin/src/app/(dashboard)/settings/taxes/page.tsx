@@ -6,8 +6,8 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Percent, CheckCircle2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { Switch } from '@/components/ui/switch';
 import { TaxApi, TaxCategory } from '@/modules/tax/tax.api';
-
 export default function TaxesPage() {
   const [categories, setCategories] = useState<TaxCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +29,15 @@ export default function TaxesPage() {
 
   const calculateTotalRate = (category: TaxCategory) => {
     return category.taxRates.reduce((sum, rate) => sum + Number(rate.rate), 0);
+  };
+
+  const handleToggleActive = async (id: string, currentStatus: boolean) => {
+    try {
+      await TaxApi.updateCategory(id, { isActive: !currentStatus });
+      setCategories(categories.map(c => c.id === id ? { ...c, isActive: !currentStatus } : c));
+    } catch (error) {
+      console.error('Failed to update tax status:', error);
+    }
   };
 
   if (loading) {
@@ -81,9 +90,13 @@ export default function TaxesPage() {
                       <CardDescription className="mt-1">{category.description}</CardDescription>
                     )}
                   </div>
-                  {!category.isActive && (
-                    <Badge variant="outline" className="text-muted-foreground">Inactive</Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground mr-1">Active</span>
+                    <Switch 
+                      checked={category.isActive} 
+                      onCheckedChange={() => handleToggleActive(category.id, category.isActive)} 
+                    />
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>

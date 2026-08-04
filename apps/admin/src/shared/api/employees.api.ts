@@ -4,7 +4,7 @@ import { EmployeeListResponse, Employee, EmployeeSearchParams, EmployeeFormValue
 export const employeesApi = {
   list: async (params?: EmployeeSearchParams): Promise<EmployeeListResponse> => {
     const response = await apiClient.get<EmployeeListResponse>('/employees', { params });
-    return response.data;
+    return (response.data as any).data;
   },
 
   get: async (id: string): Promise<{ data: Employee }> => {

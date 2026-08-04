@@ -4,7 +4,7 @@ import { Customer, CustomerFormValues, CustomerListResponse, CustomerSearchParam
 export class CustomersApi {
   static async search(params?: CustomerSearchParams): Promise<CustomerListResponse> {
     const { data } = await apiClient.get<CustomerListResponse>('/customers', { params });
-    return data;
+    return (data as any).data;
   }
 
   static async getById(id: string): Promise<Customer> {

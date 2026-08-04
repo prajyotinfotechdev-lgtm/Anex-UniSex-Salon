@@ -15,7 +15,7 @@ export const useServiceCategories = (params?: { page?: number; limit?: number; s
     queryKey: serviceCategoryKeys.list(JSON.stringify(params)),
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<ServiceCategory>>('/service-categories', { params });
-      return data;
+      return data.data;
     },
   });
 };

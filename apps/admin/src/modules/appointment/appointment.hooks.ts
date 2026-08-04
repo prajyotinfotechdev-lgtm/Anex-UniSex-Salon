@@ -19,7 +19,7 @@ export function useBranches() {
     queryKey: ['branches'],
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<{ id: string; name: string }>>('/organization/branches');
-      return data;
+      return data.data;
     },
   });
 }
@@ -29,7 +29,7 @@ export function useAppointments(params?: any) {
     queryKey: ['appointments', params],
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<Appointment>>('/appointments', { params });
-      return data;
+      return data.data;
     },
   });
 }

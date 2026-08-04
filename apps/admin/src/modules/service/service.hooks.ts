@@ -15,7 +15,7 @@ export const useServices = (params?: ServiceListParams) => {
     queryKey: serviceKeys.list(JSON.stringify(params)),
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<Service>>('/services', { params });
-      return data;
+      return data.data;
     },
   });
 };

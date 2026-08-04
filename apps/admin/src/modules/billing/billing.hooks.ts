@@ -10,7 +10,7 @@ export function useInvoices(params?: InvoiceListParams) {
     queryKey: ['invoices', params],
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<Invoice>>('/billing/invoices', { params });
-      return data;
+      return data.data;
     },
   });
 }
@@ -69,7 +69,7 @@ export function usePayments(params?: PaymentListParams) {
     queryKey: ['payments', params],
     queryFn: async () => {
       const { data } = await apiClient.get<PaginatedResponse<Payment>>('/billing/payments', { params });
-      return data;
+      return data.data;
     },
   });
 }

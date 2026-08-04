@@ -5,6 +5,7 @@ import { BottomNav } from "@/components/layout/bottom-nav";
 import { Toaster } from "@/components/ui/toaster";
 import { GlobalBookingWrapper } from "@/components/layout/global-booking-wrapper";
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
+import { SplashScreen } from "@/components/ui/splash-screen";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -62,7 +63,9 @@ export default function RootLayout({
             <GlobalBookingWrapper>
               {/* Main App Container with Safe Area Adjustments */}
               <main className="flex-1 flex flex-col w-full max-w-md mx-auto relative overflow-x-hidden bg-background shadow-2xl pb-[calc(env(safe-area-inset-bottom)+80px)] pt-[env(safe-area-inset-top)] min-h-screen">
-                {children}
+                <SplashScreen>
+                  {children}
+                </SplashScreen>
               </main>
               <BottomNav />
             </GlobalBookingWrapper>

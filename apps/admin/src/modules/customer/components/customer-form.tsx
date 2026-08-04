@@ -48,7 +48,7 @@ export function CustomerForm({ initialData }: CustomerFormProps) {
       country: initialData.country || '',
       notes: initialData.notes || '',
       isActive: initialData.isActive,
-      tags: initialData.tags?.map(t => t.id as string) || [],
+      tags: initialData.tags?.map(t => (t as any).tagId as string) || [],
     } : {
       firstName: '',
       lastName: '',

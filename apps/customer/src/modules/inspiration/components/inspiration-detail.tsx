@@ -6,6 +6,7 @@ import {
   useCustomerInspirationPost,
   useCustomerBookmarks,
   useCustomerInspirationAnalytics,
+  useCustomerInspirationFeed,
 } from '../hooks/use-inspiration';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +15,7 @@ import {
   Scissors, Clock, X, ChevronLeft, ChevronRight, ZoomIn, Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface InspirationDetailProps {
   idOrSlug: string;
@@ -123,7 +125,11 @@ function Lightbox({
 // ─── Main Detail ──────────────────────────────────────────────────────────────
 export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
   const router = useRouter();
+  
+  // Use enabled so that if idOrSlug is undefined (e.g. from async params before resolution), it does not fetch yet.
   const { data: postData, isLoading } = useCustomerInspirationPost(idOrSlug);
+  const { data: feedData } = useCustomerInspirationFeed();
+  
   const { toggleBookmark } = useCustomerBookmarks();
   const { trackEvent } = useCustomerInspirationAnalytics();
   const galleryRef = useRef<HTMLDivElement>(null);
@@ -135,6 +141,7 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
 
   const post = postData?.data;
 
+  // Track View
   useEffect(() => {
     if (post) trackEvent.mutate({ postId: post.id, eventType: 'view' });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -219,164 +226,150 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
     );
   }
 
+  // Get suggested looks (exclude current)
+  const suggestedLooks = feedData?.data?.filter((p: any) => p.id !== post.id).slice(0, 6) || [];
+
   return (
     <div className="min-h-screen bg-black text-white pb-32 selection:bg-white/20">
 
-      {/* ─── Gallery ─── */}
-      <div className="relative w-full bg-zinc-950 overflow-hidden">
-        {/* Scrollable horizontal gallery */}
-        <div
-          ref={galleryRef}
-          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
-          style={{ scrollSnapType: 'x mandatory' }}
-          onScroll={(e) => {
-            const el = e.currentTarget;
-            const index = Math.round(el.scrollLeft / el.offsetWidth);
-            setGalleryIndex(index);
-          }}
+      {/* ─── Nav Header ─── */}
+      <div className="sticky top-0 left-0 right-0 z-40 px-4 py-3 flex justify-between items-center bg-black/80 backdrop-blur-xl border-b border-white/5">
+        <button
+          onClick={() => router.back()}
+          className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
         >
-          {allImages.map((img, index) => (
-            <div
-              key={index}
-              className="w-full shrink-0 snap-center relative"
-              style={{ scrollSnapAlign: 'center' }}
-            >
-              <div
-                className="relative w-full aspect-[3/4] cursor-zoom-in"
-                onClick={() => openLightbox(index)}
-              >
-                <motion.img
-                  layoutId={`gallery-image-${index}`}
-                  src={img.secureUrl || img.url}
-                  alt={`${post.title} - ${index + 1}`}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                {/* Before label */}
-                {img.label === 'Before' && (
-                  <div className="absolute top-4 left-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold border border-white/10">
-                    Before
-                  </div>
-                )}
-                {/* Tap to fullscreen hint */}
-                <div className="absolute bottom-4 right-4 bg-black/40 backdrop-blur p-2 rounded-full opacity-60">
-                  <ZoomIn className="w-4 h-4 text-white" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Gallery dots */}
-        {allImages.length > 1 && (
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
-            {allImages.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => scrollToGallery(i)}
-                className={cn(
-                  "rounded-full transition-all duration-200",
-                  i === galleryIndex ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/30 hover:bg-white/50'
-                )}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Top nav bar */}
-        <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </button>
+        <div className="font-serif text-lg tracking-wide text-white/90">Lookbook</div>
+        <div className="flex gap-2">
           <button
-            onClick={() => router.back()}
-            className="w-10 h-10 rounded-full bg-black/30 backdrop-blur border border-white/10 flex items-center justify-center hover:bg-black/50 transition-colors pointer-events-auto"
+            onClick={handleShare}
+            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            {shared ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
           </button>
-          <div className="flex gap-2 pointer-events-auto">
-            <button
-              onClick={handleShare}
-              className="w-10 h-10 rounded-full bg-black/30 backdrop-blur border border-white/10 flex items-center justify-center hover:bg-black/50 transition-colors"
-            >
-              {shared ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
-            </button>
-            <button
-              onClick={handleBookmark}
-              className={cn(
-                "w-10 h-10 rounded-full backdrop-blur border flex items-center justify-center transition-all",
-                post.isBookmarked
-                  ? 'bg-red-500/80 border-red-400/40'
-                  : 'bg-black/30 border-white/10 hover:bg-black/50'
-              )}
-            >
-              <Heart className={cn("w-4 h-4", post.isBookmarked && 'fill-current')} />
-            </button>
+          <button
+            onClick={handleBookmark}
+            className={cn(
+              "w-10 h-10 rounded-full border flex items-center justify-center transition-all",
+              post.isBookmarked
+                ? 'bg-red-500/80 border-red-400/40'
+                : 'bg-white/5 border-white/10 hover:bg-white/10'
+            )}
+          >
+            <Heart className={cn("w-4 h-4", post.isBookmarked && 'fill-current')} />
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Hero Image Section ─── */}
+      <div className="relative w-full max-w-2xl mx-auto mt-4 px-4">
+        {/* Background Blur for aesthetics */}
+        <div className="absolute inset-0 -z-10 blur-3xl opacity-30 pointer-events-none scale-105">
+          <img src={allImages[0].secureUrl || allImages[0].url} alt="" className="w-full h-full object-cover rounded-3xl" />
+        </div>
+        
+        <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+          <motion.img
+            layoutId={`gallery-image-0`}
+            src={allImages[0].secureUrl || allImages[0].url}
+            alt={post.title}
+            className="absolute inset-0 w-full h-full object-cover cursor-zoom-in hover:scale-[1.02] transition-transform duration-500"
+            onClick={() => openLightbox(0)}
+          />
+          <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md p-2.5 rounded-full text-white pointer-events-none shadow-lg">
+            <ZoomIn className="w-4 h-4" />
           </div>
         </div>
       </div>
 
-      {/* ─── Content ─── */}
-      <div className="px-5 pt-7">
+      {/* ─── Additional Gallery ─── */}
+      {allImages.length > 1 && (
+        <div className="mt-4 px-4 max-w-2xl mx-auto flex gap-3 overflow-x-auto hide-scrollbar snap-x snap-mandatory pb-2">
+          {allImages.slice(1).map((img, i) => (
+            <div key={i + 1} className="shrink-0 snap-center relative">
+              <button
+                onClick={() => openLightbox(i + 1)}
+                className="relative w-24 h-24 rounded-2xl overflow-hidden ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-zoom-in"
+              >
+                <img src={img.secureUrl || img.url} alt="" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/20 hover:bg-transparent transition-colors" />
+              </button>
+              {img.label && (
+                <div className="absolute -top-2 -right-2 bg-zinc-800 text-[10px] px-2 py-0.5 rounded-full font-bold shadow-lg border border-zinc-700 z-10">
+                  {img.label}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
-        {/* Category + metadata */}
-        <div className="flex items-center gap-2 flex-wrap mb-3">
-          <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">
+      {/* ─── Info Section ─── */}
+      <div className="px-5 pt-8 max-w-2xl mx-auto">
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 bg-white/5 px-3 py-1 rounded-full">
             {post.category?.replace(/_/g, ' ')}
           </span>
           {post.isFeatured && (
-            <>
-              <span className="text-zinc-700">·</span>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-violet-400">Featured</span>
-            </>
+            <span className="text-[11px] font-bold uppercase tracking-widest text-violet-300 bg-violet-900/40 px-3 py-1 rounded-full ring-1 ring-violet-500/50">
+              Featured
+            </span>
           )}
           {post.bookmarkCount > 0 && (
-            <>
-              <span className="text-zinc-700">·</span>
-              <span className="text-[11px] text-zinc-500 flex items-center gap-1">
-                <Heart className="w-3 h-3 inline fill-current text-red-400" />
-                {post.bookmarkCount.toLocaleString()}
-              </span>
-            </>
+            <span className="text-[11px] font-medium text-zinc-400 flex items-center gap-1 ml-auto">
+              <Heart className="w-3.5 h-3.5 fill-current text-red-500/70" />
+              {post.bookmarkCount.toLocaleString()}
+            </span>
           )}
         </div>
 
-        <h1 className="text-3xl font-serif leading-tight mb-3">{post.title}</h1>
+        <h1 className="text-3xl md:text-4xl font-serif leading-tight mb-4">{post.title}</h1>
 
         {post.description && (
-          <p className="text-zinc-400 text-base font-light leading-relaxed mb-7">
+          <p className="text-zinc-400 text-[15px] font-light leading-relaxed mb-8">
             {post.description}
           </p>
         )}
 
-        {/* Service card */}
-        {post.service && (
-          <div className="bg-zinc-900/80 border border-white/6 rounded-2xl p-5 mb-6">
-            <h3 className="text-base font-semibold mb-4 text-white">Get This Look</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center shrink-0">
-                    <Scissors className="w-3.5 h-3.5 text-zinc-400" />
+        {/* ─── Premium Service Card ─── */}
+        {(post.service || post.employee) && (
+          <div className="relative bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white/10 rounded-3xl p-6 mb-10 overflow-hidden shadow-2xl">
+            {/* Subtle glow effect */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+            
+            <h3 className="text-[13px] font-bold uppercase tracking-widest text-zinc-500 mb-5">
+              Service Details
+            </h3>
+            
+            <div className="space-y-4">
+              {post.service && (
+                <div className="flex items-center justify-between bg-black/30 p-4 rounded-2xl border border-white/5">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                      <Scissors className="w-4 h-4 text-zinc-300" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-[15px] text-white leading-tight mb-0.5">{post.service.name}</p>
+                      {post.service.durationMinutes && (
+                        <p className="text-xs text-zinc-500 flex items-center gap-1">
+                          <Clock className="w-3 h-3" /> {post.service.durationMinutes} mins
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <p className="font-medium text-sm text-white">{post.service.name}</p>
-                </div>
-                <p className="font-serif text-white">₹{Number(post.service.basePrice).toLocaleString('en-IN')}</p>
-              </div>
-
-              {post.service.durationMinutes && (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center shrink-0">
-                    <Clock className="w-3.5 h-3.5 text-zinc-400" />
-                  </div>
-                  <p className="text-sm text-zinc-400">{post.service.durationMinutes} minutes</p>
+                  <p className="font-serif text-lg font-medium text-white">₹{Number(post.service.basePrice).toLocaleString('en-IN')}</p>
                 </div>
               )}
 
               {post.employee && (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center shrink-0">
-                    <User className="w-3.5 h-3.5 text-zinc-400" />
+                <div className="flex items-center gap-3.5 p-2">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center shrink-0 shadow-lg ring-2 ring-white/10">
+                    <span className="text-white font-bold text-sm">{post.employee.firstName[0]}</span>
                   </div>
                   <div>
-                    <p className="text-[11px] text-zinc-600 uppercase tracking-wider">Styled by</p>
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold mb-0.5">Styled By</p>
+                    <p className="text-[15px] font-medium text-white">
                       {post.employee.firstName} {post.employee.lastName}
                     </p>
                   </div>
@@ -386,30 +379,40 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
           </div>
         )}
 
-        {/* Gallery thumbnails (if multiple images) */}
-        {allImages.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto hide-scrollbar mb-6 pb-1">
-            {allImages.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => { scrollToGallery(i); openLightbox(i); }}
-                className={cn(
-                  "shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all",
-                  i === galleryIndex ? 'border-white' : 'border-transparent opacity-50 hover:opacity-80'
-                )}
-              >
-                <img src={img.secureUrl || img.url} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
+        {/* ─── Suggested Looks ─── */}
+        {suggestedLooks.length > 0 && (
+          <div className="mt-12 mb-8">
+            <h3 className="text-xl font-serif mb-6 text-white/90">More Inspiration</h3>
+            <div className="columns-2 gap-3 space-y-3">
+              {suggestedLooks.map((item: any) => (
+                <Link 
+                  href={`/inspiration/${item.slug || item.id}`} 
+                  key={item.id}
+                  className="block break-inside-avoid relative rounded-2xl overflow-hidden group cursor-pointer ring-1 ring-white/10"
+                >
+                  <img
+                    src={item.heroMedia?.secureUrl || item.heroMedia?.url}
+                    alt={item.title}
+                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+                    <p className="text-white text-xs font-semibold leading-tight line-clamp-2">
+                      {item.title}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
       {/* ─── Floating CTA ─── */}
-      <div className="fixed bottom-0 left-0 right-0 p-5 pt-10 bg-gradient-to-t from-black via-black/95 to-transparent z-50">
+      <div className="fixed bottom-0 left-0 right-0 p-5 pt-12 bg-gradient-to-t from-black via-black/95 to-transparent z-40 max-w-2xl mx-auto">
         <button
           onClick={handleBook}
-          className="w-full bg-white text-black py-4 rounded-2xl font-semibold text-base flex items-center justify-center gap-2 hover:bg-zinc-100 active:scale-[0.98] transition-all shadow-xl"
+          className="w-full bg-white text-black py-4 rounded-full font-bold text-[15px] flex items-center justify-center gap-2.5 hover:bg-zinc-200 active:scale-[0.98] transition-all shadow-2xl ring-4 ring-white/10"
         >
           <Calendar className="w-5 h-5" />
           Book This Look

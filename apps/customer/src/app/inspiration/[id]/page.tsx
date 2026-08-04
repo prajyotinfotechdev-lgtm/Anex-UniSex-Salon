@@ -4,6 +4,7 @@ export const metadata = {
   title: 'Inspiration | Anex',
 };
 
-export default function InspirationDetailPage({ params }: { params: { id: string } }) {
+export default async function InspirationDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   return <InspirationDetail idOrSlug={params.id} />;
 }

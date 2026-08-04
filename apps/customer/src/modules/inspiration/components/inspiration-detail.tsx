@@ -48,16 +48,15 @@ function Lightbox({
   }, [onClose, onPrev, onNext]);
 
   return (
-    <AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center"
+      onClick={onClose}
+    >
+      {/* Image */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[999] bg-black/95 flex items-center justify-center"
-        onClick={onClose}
-      >
-        {/* Image */}
-        <motion.div
           key={activeIndex}
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -114,7 +113,6 @@ function Lightbox({
           </>
         )}
       </motion.div>
-    </AnimatePresence>
   );
 }
 
@@ -282,14 +280,14 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
         )}
 
         {/* Top nav bar */}
-        <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/60 to-transparent">
+        <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 rounded-full bg-black/30 backdrop-blur border border-white/10 flex items-center justify-center hover:bg-black/50 transition-colors"
+            className="w-10 h-10 rounded-full bg-black/30 backdrop-blur border border-white/10 flex items-center justify-center hover:bg-black/50 transition-colors pointer-events-auto"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pointer-events-auto">
             <button
               onClick={handleShare}
               className="w-10 h-10 rounded-full bg-black/30 backdrop-blur border border-white/10 flex items-center justify-center hover:bg-black/50 transition-colors"
@@ -416,15 +414,17 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
       </div>
 
       {/* ─── Lightbox ─── */}
-      {lightboxOpen && (
-        <Lightbox
-          images={allImages as any}
-          activeIndex={lightboxIndex}
-          onClose={() => setLightboxOpen(false)}
-          onPrev={() => setLightboxIndex(i => (i - 1 + allImages.length) % allImages.length)}
-          onNext={() => setLightboxIndex(i => (i + 1) % allImages.length)}
-        />
-      )}
+      <AnimatePresence>
+        {lightboxOpen && (
+          <Lightbox
+            images={allImages as any}
+            activeIndex={lightboxIndex}
+            onClose={() => setLightboxOpen(false)}
+            onPrev={() => setLightboxIndex(i => (i - 1 + allImages.length) % allImages.length)}
+            onNext={() => setLightboxIndex(i => (i + 1) % allImages.length)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

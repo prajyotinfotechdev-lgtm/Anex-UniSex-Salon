@@ -209,8 +209,6 @@ export function InspirationPostEditor({ postId }: InspirationPostEditorProps) {
                   </div>
                 </CardContent>
               </Card>
-
-              </Card>
             </div>
 
             <div className="space-y-6">

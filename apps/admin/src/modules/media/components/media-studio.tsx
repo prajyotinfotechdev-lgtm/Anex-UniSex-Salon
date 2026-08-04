@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { MediaUploadWizard } from './media-upload-wizard';
+import { DynamicMediaUploadWizard } from './dynamic-upload-wizard';
 
 const FOLDERS = [
   { id: 'all', name: 'All Media', icon: LayoutDashboard },
@@ -310,7 +310,7 @@ export const MediaStudio = () => {
         )}
       </AnimatePresence>
 
-      <MediaUploadWizard 
+      <DynamicMediaUploadWizard 
         isOpen={!!uploadFile}
         onClose={() => setUploadFile(null)}
         file={uploadFile}

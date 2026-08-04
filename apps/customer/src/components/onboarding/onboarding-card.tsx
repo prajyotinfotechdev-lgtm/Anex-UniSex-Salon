@@ -10,7 +10,7 @@ import { getFullApiUrl } from '@/lib/api';
 
 const ORG_ID = process.env.NEXT_PUBLIC_ORGANIZATION_ID || '10fdbe22-4c40-4bd6-8266-9a3c49f9ed8b';
 
-type Step = 'PHONE' | 'PROFILE' | 'WELCOME_BACK';
+type Step = 'PHONE' | 'PROFILE' | 'CONFIRM_IDENTITY' | 'WELCOME_BACK';
 
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
@@ -29,6 +29,7 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
   const [gender, setGender] = useState<'MALE' | 'FEMALE' | 'OTHER' | ''>('');
   const [isLoading, setIsLoading] = useState(false);
   const [welcomeBackName, setWelcomeBackName] = useState('');
+  const [pendingProfile, setPendingProfile] = useState<any>(null);
 
   const goToStep = (nextStep: Step, dir = 1) => {
     setDirection(dir);
@@ -47,7 +48,6 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
     setIsLoading(true);
     try {
       // Probe: call onboard with phone only to check if user exists
-      // We send without firstName/lastName so backend can tell us
       const deviceId = getOrCreateDeviceId();
       const res = await fetch(getFullApiUrl('/api/v1/customer-auth/onboard'), {
         method: 'POST',
@@ -66,7 +66,7 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
       }
 
       if (!data.isNewCustomer) {
-        // Returning user - skip profile form
+        // Returning user - ask for confirmation first
         const profile = {
           id: data.customer.id,
           firstName: data.customer.firstName,
@@ -76,13 +76,9 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
           gender: data.customer.gender,
           deviceToken: data.deviceToken,
         };
-        saveProfile(profile);
+        setPendingProfile(profile);
         setWelcomeBackName(data.customer.firstName);
-        goToStep('WELCOME_BACK');
-
-        setTimeout(() => {
-          onClose?.();
-        }, 2000);
+        goToStep('CONFIRM_IDENTITY');
       } else {
         // New user - collect profile details
         goToStep('PROFILE');
@@ -91,6 +87,16 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
       toast.error(err.message || 'Could not verify your number. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleConfirmIdentity = () => {
+    if (pendingProfile) {
+      saveProfile(pendingProfile);
+      goToStep('WELCOME_BACK');
+      setTimeout(() => {
+        onClose?.();
+      }, 2000);
     }
   };
 
@@ -349,6 +355,51 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
                     </span>
                   )}
                 </Button>
+              </motion.div>
+            )}
+
+            {/* --- STEP: CONFIRM IDENTITY --- */}
+            {step === 'CONFIRM_IDENTITY' && (
+              <motion.div
+                key="confirm"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                className="flex flex-col flex-1 items-center justify-center text-center gap-6"
+              >
+                <div className="w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center mb-2">
+                  <User className="w-10 h-10 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    Welcome back, {welcomeBackName}!
+                  </h3>
+                  <p className="text-zinc-400 text-sm">
+                    Is this you?
+                  </p>
+                </div>
+                
+                <div className="w-full flex flex-col gap-3 mt-4">
+                  <Button
+                    onClick={handleConfirmIdentity}
+                    className="w-full h-14 rounded-2xl text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+                  >
+                    Yes, log me in
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPendingProfile(null);
+                      goToStep('PHONE', -1);
+                    }}
+                    className="w-full h-14 rounded-2xl text-base font-semibold border-zinc-800 text-white hover:bg-zinc-900"
+                  >
+                    No, this is not me
+                  </Button>
+                </div>
               </motion.div>
             )}
 

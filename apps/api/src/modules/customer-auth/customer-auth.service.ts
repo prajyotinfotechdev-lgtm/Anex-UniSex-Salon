@@ -53,8 +53,18 @@ export class CustomerAuthService {
       const rawToken = this.generateSecureToken();
       const tokenHash = this.hashToken(rawToken);
 
-      await prisma.customerDevice.create({
-        data: {
+      await prisma.customerDevice.upsert({
+        where: { deviceId: data.deviceId },
+        update: {
+          customerId: newCustomer.id,
+          tokenHash,
+          deviceName: data.deviceName,
+          platform: data.platform,
+          browser: data.browser,
+          pushToken: data.pushToken,
+          isRevoked: false
+        },
+        create: {
           customerId: newCustomer.id,
           deviceId: data.deviceId,
           tokenHash,
@@ -118,8 +128,18 @@ export class CustomerAuthService {
     const rawToken = this.generateSecureToken();
     const tokenHash = this.hashToken(rawToken);
 
-    await prisma.customerDevice.create({
-      data: {
+    await prisma.customerDevice.upsert({
+      where: { deviceId: data.deviceId },
+      update: {
+        customerId: customer.id,
+        tokenHash,
+        deviceName: data.deviceName,
+        platform: data.platform,
+        browser: data.browser,
+        pushToken: data.pushToken,
+        isRevoked: false
+      },
+      create: {
         customerId: customer.id,
         deviceId: data.deviceId,
         tokenHash,
@@ -356,12 +376,21 @@ export class CustomerAuthService {
       data: { isRevoked: true }
     });
 
-    // Create fresh device entry
+    // Create or update fresh device entry
     const rawToken = this.generateSecureToken();
     const tokenHash = this.hashToken(rawToken);
 
-    await prisma.customerDevice.create({
-      data: {
+    await prisma.customerDevice.upsert({
+      where: { deviceId: data.deviceId },
+      update: {
+        customerId: customer.id,
+        tokenHash,
+        deviceName: data.deviceName,
+        platform: data.platform,
+        browser: data.browser,
+        isRevoked: false,
+      },
+      create: {
         customerId: customer.id,
         deviceId: data.deviceId,
         tokenHash,

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { GlobalBookingWrapper } from "@/components/layout/global-booking-wrapper";
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
 import { SplashScreen } from "@/components/ui/splash-screen";
+import { PwaInstallPrompt } from "@/components/ui/pwa-install-prompt";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -75,6 +76,7 @@ export default function RootLayout({
             </GlobalBookingWrapper>
           </ReactQueryProvider>
           <Toaster position="top-center" />
+          <PwaInstallPrompt />
         </ThemeProvider>
       </body>
     </html>

@@ -88,11 +88,12 @@ export const InspirationService = {
 
   // ── Get Single Post ─────────────────────────────────────────────────────────
   async getPost(organizationId: string, slugOrId: string) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
     const post = await prisma.inspirationPost.findFirst({
       where: {
         organizationId,
         deletedAt: null,
-        OR: [{ slug: slugOrId }, { id: slugOrId }],
+        OR: isUuid ? [{ id: slugOrId }, { slug: slugOrId }] : [{ slug: slugOrId }],
       },
       include: {
         heroMedia: true,

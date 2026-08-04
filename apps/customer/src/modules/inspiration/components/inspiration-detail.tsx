@@ -56,25 +56,29 @@ function Lightbox({
       onClick={onClose}
     >
       {/* Image */}
-      <motion.div
-          key={activeIndex}
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2 }}
-          className="relative max-h-[90vh] max-w-[90vw] w-full h-full flex items-center justify-center"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <img
+      <div
+        className="relative max-h-[90vh] max-w-[90vw] w-full h-full flex items-center justify-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={activeIndex}
+            layoutId={`gallery-image-${activeIndex}`}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
             src={img.secureUrl || img.url}
             alt={img.label || ''}
             className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
           />
-          {img.label && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur text-white text-xs font-medium px-4 py-2 rounded-full">
-              {img.label}
-            </div>
-          )}
-        </motion.div>
+        </AnimatePresence>
+        {img.label && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur text-white text-xs font-medium px-4 py-2 rounded-full">
+            {img.label}
+          </div>
+        )}
+      </div>
 
         {/* Controls */}
         <button
@@ -241,12 +245,11 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
                 className="relative w-full aspect-[3/4] cursor-zoom-in"
                 onClick={() => openLightbox(index)}
               >
-                <Image
+                <motion.img
+                  layoutId={`gallery-image-${index}`}
                   src={img.secureUrl || img.url}
                   alt={`${post.title} - ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  priority={index === 0}
+                  className="absolute inset-0 w-full h-full object-cover"
                 />
                 {/* Before label */}
                 {img.label === 'Before' && (

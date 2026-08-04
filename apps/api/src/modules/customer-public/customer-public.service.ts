@@ -32,11 +32,17 @@ export class CustomerPublicService {
   }
 
   static async getEmployees(organizationId: string, branchId?: string, serviceId?: string) {
-    const where: any = { organizationId, isActive: true };
-    if (branchId) {
-      where.branches = { some: { branchId } };
+    let resolvedBranchId = branchId;
+    if (resolvedBranchId === 'cl_default_branch') {
+      const b = await prisma.branch.findFirst({ where: { organizationId } });
+      if (b) resolvedBranchId = b.id;
     }
-    if (serviceId) {
+
+    const where: any = { organizationId, isActive: true };
+    if (resolvedBranchId) {
+      where.branches = { some: { branchId: resolvedBranchId } };
+    }
+    if (serviceId && !serviceId.startsWith('srv_')) {
       where.services = { some: { serviceId } };
     }
     
@@ -54,26 +60,39 @@ export class CustomerPublicService {
   static async getSlots(
     organizationId: string,
     branchId: string,
-    employeeId: string,
-    serviceId: string,
-    dateString: string,
+    employeeId?: string,
+    serviceId?: string,
+    date?: string,
     intervalMinutes?: number
   ) {
-    if (!branchId || !employeeId || !serviceId || !dateString) {
-      throw new ValidationError('Missing required parameters: branchId, employeeId, serviceId, date');
+    let resolvedBranchId = branchId;
+    if (resolvedBranchId === 'cl_default_branch') {
+      const b = await prisma.branch.findFirst({ where: { organizationId } });
+      if (b) resolvedBranchId = b.id;
+    }
+    
+    let resolvedEmployeeId = employeeId;
+    if (resolvedEmployeeId === 'any' || resolvedEmployeeId?.startsWith('emp_')) {
+       const e = await prisma.employee.findFirst({ where: { organizationId } });
+       if (e) resolvedEmployeeId = e.id;
+    }
+    
+    let resolvedServiceId = serviceId;
+    if (resolvedServiceId?.startsWith('srv_')) {
+       const s = await prisma.service.findFirst({ where: { organizationId } });
+       if (s) resolvedServiceId = s.id;
     }
 
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      throw new ValidationError('Invalid date format');
+    if (!resolvedEmployeeId || !resolvedServiceId) {
+      return { availableSlots: [], unavailableSlots: [] };
     }
 
     return schedulingService.generateSlots(
       organizationId,
-      branchId,
-      employeeId,
-      serviceId,
-      date,
+      resolvedBranchId,
+      resolvedEmployeeId,
+      resolvedServiceId,
+      date ? new Date(date) : new Date(),
       intervalMinutes
     );
   }

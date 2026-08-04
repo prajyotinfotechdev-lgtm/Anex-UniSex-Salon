@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   title: "Anex Salon",
   description: "India's most premium salon customer experience",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

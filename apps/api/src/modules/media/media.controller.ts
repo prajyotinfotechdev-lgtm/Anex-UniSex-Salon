@@ -192,6 +192,36 @@ export const mediaController = {
   },
 
   /**
+   * Bulk Delete assets
+   */
+  bulkDeleteAssets: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = (req as any).user;
+      if (!user) {
+        res.status(401).json({ success: false, message: 'Unauthorized' });
+        return;
+      }
+      const organizationId = user.organizationId;
+      const { assetIds } = req.body;
+      
+      if (!Array.isArray(assetIds) || assetIds.length === 0) {
+        res.status(400).json({ success: false, message: 'assetIds must be a non-empty array' });
+        return;
+      }
+
+      const result = await mediaService.bulkDeleteAssets(organizationId, assetIds);
+
+      res.status(200).json({
+        success: true,
+        message: 'Bulk delete processed',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
    * Update asset metadata
    */
   updateAssetMetadata: async (req: Request, res: Response, next: NextFunction) => {

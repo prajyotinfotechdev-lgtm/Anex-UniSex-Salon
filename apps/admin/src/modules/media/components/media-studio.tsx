@@ -26,11 +26,12 @@ export const MediaStudio = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { getAssets, uploadAsset, deleteAsset } = useMediaStudio();
+  const { getAssets, uploadAsset, deleteAsset, bulkDeleteMedia } = useMediaStudio();
   
   // Construct query params based on active folder and search
   const queryParams = useMemo(() => {
@@ -68,6 +69,33 @@ export const MediaStudio = () => {
       error: 'Failed to delete asset (it may be in use)',
     });
     setSelectedAsset(null);
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(id);
+      return newSet;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedIds.size} assets?`)) return;
+    
+    toast.promise(bulkDeleteMedia.mutateAsync(Array.from(selectedIds)), {
+      loading: 'Deleting assets...',
+      success: (data) => `Deleted ${data.data?.deletedCount || 0} assets successfully${data.data?.failedCount ? ` (${data.data.failedCount} failed because they are in use)` : ''}`,
+      error: 'Failed to delete assets',
+    });
+    setSelectedIds(new Set());
+  };
+
+  const toggleSelection = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   return (
@@ -85,7 +113,7 @@ export const MediaStudio = () => {
             return (
               <button 
                 key={folder.id}
-                onClick={() => { setActiveFolder(folder.id); setSelectedAsset(null); }}
+                onClick={() => { setActiveFolder(folder.id); setSelectedAsset(null); setSelectedIds(new Set()); }}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
                   isActive 
@@ -146,6 +174,20 @@ export const MediaStudio = () => {
               </button>
             </div>
             
+            <AnimatePresence>
+              {selectedIds.size > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  onClick={handleBulkDelete}
+                  className="flex items-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-medium hover:bg-red-100 transition-all shadow-sm"
+                >
+                  <Trash2 className="w-4 h-4" /> Delete ({selectedIds.size})
+                </motion.button>
+              )}
+            </AnimatePresence>
+
             <button 
               onClick={handleUploadClick}
               className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-all shadow-sm hover:shadow active:scale-95"
@@ -211,10 +253,25 @@ export const MediaStudio = () => {
                       </div>
                     )}
                     {viewMode === 'grid' && (
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
-                         <span className="text-white text-xs font-medium px-4 py-2 bg-black/60 rounded-full">View Details</span>
+                      <div className={cn(
+                        "absolute inset-0 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-[2px]",
+                        selectedIds.has(asset.id) ? "bg-black/20 opacity-100" : "bg-black/40 opacity-0 group-hover:opacity-100"
+                      )}>
+                         <span className="text-white text-xs font-medium px-4 py-2 bg-black/60 rounded-full hover:bg-black/80 transition-colors">View Details</span>
                       </div>
                     )}
+                    
+                    <button 
+                      onClick={(e) => toggleSelection(asset.id, e)}
+                      className={cn(
+                        "absolute top-3 left-3 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all z-10",
+                        selectedIds.has(asset.id) 
+                          ? "bg-black border-black text-white opacity-100 scale-100" 
+                          : "border-white/70 bg-black/20 text-transparent opacity-0 group-hover:opacity-100 hover:bg-black/40 hover:border-white scale-95 hover:scale-100"
+                      )}
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                    </button>
                   </div>
                   
                   <div className={cn("p-4", viewMode === 'list' ? 'flex-1 flex items-center justify-between py-2' : '')}>

@@ -90,6 +90,16 @@ export const useMediaStudio = () => {
     },
   });
 
+  const bulkDeleteMedia = useMutation({
+    mutationFn: async (assetIds: string[]) => {
+      const res = await api.post(`/media/bulk-delete`, { assetIds });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['media-assets'] });
+    },
+  });
+
   return {
     getAssets,
     getContextSchema,
@@ -97,5 +107,6 @@ export const useMediaStudio = () => {
     uploadContextualAsset,
     updateAsset,
     deleteAsset,
+    bulkDeleteMedia,
   };
 };

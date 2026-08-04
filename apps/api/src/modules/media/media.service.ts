@@ -156,6 +156,47 @@ export class MediaService {
   }
 
   /**
+   * Bulk soft delete assets
+   */
+  async bulkDeleteAssets(organizationId: string, assetIds: string[]) {
+    // 1. Fetch all assets that belong to the org and are not in use
+    const assets = await prisma.mediaAsset.findMany({
+      where: {
+        id: { in: assetIds },
+        organizationId: organizationId,
+      },
+    });
+
+    const deletableAssets = assets.filter(a => a.usageCount === 0);
+    const nonDeletableAssets = assets.filter(a => a.usageCount > 0);
+
+    // 2. Delete from Cloudinary in parallel (fire-and-forget for soft deletes)
+    const cloudinaryDeletes = deletableAssets
+      .filter(a => a.providerId)
+      .map(a => cloudinaryService.deleteAsset(a.providerId as string).catch(e => {
+        console.warn('Failed to delete asset from Cloudinary', e);
+      }));
+    
+    await Promise.all(cloudinaryDeletes);
+
+    // 3. Soft delete in DB
+    const deletableIds = deletableAssets.map(a => a.id);
+    await prisma.mediaAsset.updateMany({
+      where: { id: { in: deletableIds } },
+      data: {
+        status: AssetStatus.ARCHIVED,
+        deletedAt: new Date(),
+      },
+    });
+
+    return {
+      deletedCount: deletableIds.length,
+      failedCount: nonDeletableAssets.length,
+      failedIds: nonDeletableAssets.map(a => a.id),
+    };
+  }
+
+  /**
    * Update asset metadata (caption, tags, featured status)
    */
   async updateAssetMetadata(

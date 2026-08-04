@@ -42,6 +42,11 @@ router.put(
   mediaController.updateAssetMetadata
 );
 
+router.post(
+  '/bulk-delete',
+  mediaController.bulkDeleteAssets
+);
+
 router.delete(
   '/:id',
   mediaController.deleteAsset

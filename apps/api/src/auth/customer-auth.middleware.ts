@@ -1,24 +1,50 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyCustomerAccessToken } from './jwt.util';
+import { PrismaClient } from '@prisma/client';
+import crypto from 'crypto';
 
-export const requireCustomerDevice = (req: Request, res: Response, next: NextFunction) => {
+const prisma = new PrismaClient();
+
+export const requireCustomerDevice = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Missing or invalid authorization header' });
+      res.status(401).json({ message: 'Missing or invalid authorization header' });
+      return;
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ message: 'Token not found' });
+      res.status(401).json({ message: 'Token not found' });
+      return;
     }
 
-    const payload = verifyCustomerAccessToken(token);
+    try {
+      // 1. Try to verify as a standard JWT first
+      const payload = verifyCustomerAccessToken(token);
+      (req as any).customer = payload;
+      next();
+    } catch (jwtError) {
+      // 2. Fallback: treat as raw device token (used directly by MVP PWA)
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      const device = await prisma.customerDevice.findFirst({
+        where: { tokenHash, isRevoked: false },
+        include: { customer: true }
+      });
 
-    // Attach customer payload to request
-    (req as any).customer = payload;
-    next();
+      if (device && device.customer) {
+        (req as any).customer = {
+          customerId: device.customer.id,
+          organizationId: device.customer.organizationId,
+          deviceId: device.deviceId,
+          type: 'customer'
+        };
+        next();
+      } else {
+        res.status(401).json({ message: 'Invalid or expired access token' });
+      }
+    }
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid or expired access token' });
+    res.status(401).json({ message: 'Authentication failed' });
   }
 };

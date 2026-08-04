@@ -57,9 +57,12 @@ export const MediaStudio = () => {
       setUploadFile(files[0]);
     } else {
       // Bulk upload directly
-      const uploadPromises = Array.from(files).map(file => 
-        uploadAsset.mutateAsync({ file, folder: activeFolder === 'all' ? 'general' : activeFolder })
-      );
+      const uploadPromises = Array.from(files).map(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', activeFolder === 'all' ? 'general' : activeFolder);
+        return uploadAsset.mutateAsync(formData);
+      });
       
       toast.promise(Promise.all(uploadPromises), {
         loading: `Uploading ${files.length} files...`,

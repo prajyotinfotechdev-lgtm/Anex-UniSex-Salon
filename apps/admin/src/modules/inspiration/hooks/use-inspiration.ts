@@ -18,6 +18,9 @@ export interface InspirationPost {
   branchId?: string | null;
   bookmarkCount: number;    // EXISTS in schema
   revenueGenerated: number; // EXISTS in schema
+  viewCount?: number;
+  bookingsGenerated?: number;
+  isTrending?: boolean;
   createdAt: string;
   publishedAt?: string | null;
   heroMedia?: { id: string; url: string; secureUrl: string; width?: number; height?: number };

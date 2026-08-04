@@ -154,7 +154,6 @@ export function InspirationStudio() {
                   {post.status === 'DRAFT' && <Badge variant="secondary">Draft</Badge>}
                   {post.status === 'ARCHIVED' && <Badge variant="outline" className="bg-background/80">Archived</Badge>}
                   {post.isFeatured && <Badge className="bg-blue-600">Featured</Badge>}
-                  {post.isTrending && <Badge className="bg-orange-500">Trending</Badge>}
                 </div>
               </div>
               

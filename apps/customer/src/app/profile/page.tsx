@@ -159,9 +159,17 @@ export default function ProfilePage() {
         ) : (
           <>
             <h2 className="text-2xl font-bold text-white mb-1">{profile?.firstName} {profile?.lastName}</h2>
-            <p className="text-zinc-500 text-sm flex items-center gap-1.5">
+            <p className="text-zinc-500 text-sm flex items-center gap-1.5 mb-4">
               <Shield className="w-3.5 h-3.5" /> Premium Member
             </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="rounded-full bg-transparent border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 h-8 px-4 text-xs"
+            >
+              Edit Profile
+            </Button>
           </>
         )}
       </motion.div>

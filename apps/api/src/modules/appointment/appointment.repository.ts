@@ -57,7 +57,7 @@ export class AppointmentRepository extends BaseRepository<Appointment, Prisma.Ap
       source,
       dateFrom,
       dateTo,
-      sortBy = 'scheduledDate',
+      sortBy = 'date',
       sortOrder = 'desc',
     } = params;
 

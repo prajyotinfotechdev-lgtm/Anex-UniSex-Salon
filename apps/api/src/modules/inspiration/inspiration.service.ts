@@ -372,7 +372,30 @@ export const InspirationService = {
     return { deleted: true };
   },
 
-  // ─── Customer: Toggle Bookmark ────────────────────────────────────────────────
+  // ─── Customer: Get bookmarked post IDs (for isBookmarked injection) ─────────
+  async getBookmarkedPostIds(customerId: string, postIds: string[]): Promise<string[]> {
+    const bookmarks = await prisma.inspirationBookmark.findMany({
+      where: { customerId, inspirationPostId: { in: postIds } },
+      select: { inspirationPostId: true },
+    });
+    return bookmarks.map(b => b.inspirationPostId);
+  },
+
+  // ─── Increment viewCount (fire-and-forget) ───────────────────────────────────
+  incrementViewCount(postId: string) {
+    setImmediate(async () => {
+      try {
+        await prisma.inspirationPost.update({
+          where: { id: postId },
+          data: { viewCount: { increment: 1 } },
+        });
+      } catch {
+        // viewCount may not exist in all schema versions — silently ignore
+      }
+    });
+  },
+
+  // ─── Customer: Toggle Bookmark ───────────────────────────────────────────────
   async toggleBookmark(customerId: string, postId: string) {
     const existing = await prisma.inspirationBookmark.findUnique({
       where: { inspirationPostId_customerId: { customerId, inspirationPostId: postId } },

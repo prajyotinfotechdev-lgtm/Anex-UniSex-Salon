@@ -7,20 +7,30 @@ export interface PublicInspirationPost {
   slug: string;
   description: string | null;
   category: string;
-  difficulty: string | null;
-  hairLength: string | null;
-  hairType: string | null;
-  maintenanceLevel: string | null;
-  visitFrequencyWeeks: number | null;
+  status?: string;
+  // Optional relation IDs (for booking deep link)
+  serviceId?: string | null;
+  employeeId?: string | null;
+  branchId?: string | null;
+  // Optional extended fields
+  hairLength?: string | null;
+  hairType?: string | null;
+  maintenanceLevel?: string | null;
+  visitFrequencyWeeks?: number | null;
+  // Media
   heroMedia: { url: string; secureUrl: string; width?: number; height?: number };
-  beforeMedia: { url: string; secureUrl: string } | null;
-  employee: { id: string; firstName: string; lastName: string } | null;
-  service: { id: string; name: string; basePrice: number; durationMinutes: number } | null;
-  branch: { id: string; name: string } | null;
-  galleryItems: { id: string; media: { url: string; secureUrl: string } }[];
+  beforeMedia?: { url: string; secureUrl: string } | null;
+  // Relations
+  employee?: { id: string; firstName: string; lastName: string } | null;
+  service?: { id: string; name: string; basePrice: number; durationMinutes: number } | null;
+  branch?: { id: string; name: string } | null;
+  galleryItems?: { id: string; media: { url: string; secureUrl: string } }[];
+  // Customer state
   isBookmarked: boolean;
   bookmarkCount: number;
+  viewCount?: number;
   isFeatured?: boolean;
+  isTrending?: boolean;
 }
 
 export interface PublicInspirationCollection {

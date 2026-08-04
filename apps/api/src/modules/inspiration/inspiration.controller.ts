@@ -124,8 +124,21 @@ export const InspirationPublicController = {
       const params = { ...(req.query as any), status: 'PUBLISHED' };
       const result = await InspirationService.listPosts(organizationId, params);
 
-      // Track impressions async for returned posts
+      // Inject isBookmarked per post for logged-in customers
       const customerId = getCustomerId(req);
+      if (customerId && result.data.length > 0) {
+        const postIds = result.data.map((p: any) => p.id);
+        const bookmarks = await InspirationService.getBookmarkedPostIds(customerId, postIds);
+        const bookmarkedSet = new Set(bookmarks);
+        result.data = result.data.map((post: any) => ({
+          ...post,
+          isBookmarked: bookmarkedSet.has(post.id),
+        }));
+      } else {
+        result.data = result.data.map((post: any) => ({ ...post, isBookmarked: false }));
+      }
+
+      // Track impressions async
       result.data.forEach((post: any) => {
         InspirationService.trackEvent(post.id, customerId, 'IMPRESSION');
       });
@@ -141,20 +154,28 @@ export const InspirationPublicController = {
 
       if (post.status !== 'PUBLISHED') throw new NotFoundError('Post not found');
 
-      // Track detail open async
+      // Inject isBookmarked for the logged-in customer
       const customerId = getCustomerId(req);
-      InspirationService.trackEvent(post.id, customerId, 'DETAIL_OPEN');
+      let isBookmarked = false;
+      if (customerId) {
+        const ids = await InspirationService.getBookmarkedPostIds(customerId, [post.id]);
+        isBookmarked = ids.includes(post.id);
+      }
 
-      res.json({ success: true, data: post });
+      // Track detail view async and increment viewCount
+      InspirationService.trackEvent(post.id, customerId, 'DETAIL_OPEN');
+      InspirationService.incrementViewCount(post.id);
+
+      res.json({ success: true, data: { ...post, isBookmarked } });
     } catch (err) { next(err); }
   },
 
   async listCollections(req: Request, res: Response, next: NextFunction) {
     try {
       const organizationId = (req as any).publicOrganizationId || (req as any).organizationId;
+      // FIX: InspirationCollection has NO status field — return all collections
       const collections = await InspirationService.listCollections(organizationId);
-      const published = collections.filter((c: any) => c.status === 'PUBLISHED');
-      res.json({ success: true, data: published });
+      res.json({ success: true, data: collections });
     } catch (err) { next(err); }
   },
 

@@ -54,7 +54,7 @@ const INSPIRATION_CATEGORIES = [
 interface DynamicMediaUploadWizardProps {
   isOpen: boolean;
   onClose: () => void;
-  file: File | null;
+  files: File[];
   defaultContext?: string;
   onSuccess?: () => void;
 }
@@ -75,7 +75,7 @@ const inputCls = "w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2
 
 // ─── Main Wizard ──────────────────────────────────────────────────────────────
 export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> = ({
-  isOpen, onClose, file, defaultContext, onSuccess
+  isOpen, onClose, files, defaultContext, onSuccess
 }) => {
   const { uploadContextualAsset } = useMediaStudio();
 
@@ -89,13 +89,13 @@ export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> =
   const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (file) {
-      const url = URL.createObjectURL(file);
+    if (files && files.length > 0) {
+      const url = URL.createObjectURL(files[0]);
       setPreviewUrl(url);
       return () => URL.revokeObjectURL(url);
     }
     setPreviewUrl(null);
-  }, [file]);
+  }, [files]);
 
   useEffect(() => {
     if (isOpen) {
@@ -126,17 +126,19 @@ export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> =
   };
 
   const handleUpload = async () => {
-    if (!validate() || !file) return;
+    if (!validate() || !files || files.length === 0) return;
     setStep('uploading');
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('contextType', contextType);
-      formData.append('metadata', JSON.stringify(metadata));
-      await uploadContextualAsset.mutateAsync(formData);
+      for (const f of files) {
+        const formData = new FormData();
+        formData.append('file', f);
+        formData.append('contextType', contextType);
+        formData.append('metadata', JSON.stringify(metadata));
+        await uploadContextualAsset.mutateAsync(formData);
+      }
       setStep('success');
       toast.success(
-        metadata.status === 'PUBLISHED' ? 'Look published to customer feed!' : 'Draft saved.',
+        metadata.status === 'PUBLISHED' ? `Published ${files.length} looks to customer feed!` : `Saved ${files.length} drafts.`,
         { description: `"${metadata.title || 'Media'}" is ready.` }
       );
       onSuccess?.();
@@ -148,7 +150,7 @@ export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> =
     }
   };
 
-  if (!isOpen || !file) return null;
+  if (!isOpen || !files || files.length === 0) return null;
 
   const selectedContext = CONTEXT_OPTIONS.find(c => c.id === contextType);
 
@@ -204,9 +206,9 @@ export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> =
               )}
 
               <div className="text-center relative z-10">
-                <p className="text-white/70 text-xs font-medium truncate max-w-[180px]">{file.name}</p>
-                <p className="text-zinc-600 text-[11px] mt-0.5">
-                  {(file.size / (1024 * 1024)).toFixed(2)} MB · {file.type.split('/')[1]?.toUpperCase()}
+                <p className="text-white text-xs font-medium truncate max-w-[180px]">{files[0].name}</p>
+                <p className="text-zinc-400 text-[11px] mt-0.5">
+                  {(files[0].size / (1024 * 1024)).toFixed(2)} MB · {files[0].type.split('/')[1]?.toUpperCase()}
                 </p>
               </div>
             </div>
@@ -388,6 +390,7 @@ export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> =
                       <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mb-5">
                         <CheckCircle2 className="w-8 h-8 text-emerald-400" />
                       </div>
+                      <h3 className="text-xl font-bold mb-2">Uploading {files.length} File{files.length > 1 ? 's' : ''}...</h3>
                       <h3 className="text-white text-lg font-semibold mb-1.5">
                         {metadata.status === 'PUBLISHED' ? 'Published!' : 'Draft Saved'}
                       </h3>

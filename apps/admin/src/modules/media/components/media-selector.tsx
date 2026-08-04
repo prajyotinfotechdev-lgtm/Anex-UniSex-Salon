@@ -191,7 +191,7 @@ export const MediaSelector: React.FC<MediaSelectorProps> = ({
       <DynamicMediaUploadWizard 
         isOpen={!!uploadFile}
         onClose={() => setUploadFile(null)}
-        file={uploadFile}
+        files={uploadFile ? [uploadFile] : []}
         defaultContext={module ? module.toUpperCase() : (activeFolder === 'all' ? 'GENERAL' : activeFolder.toUpperCase())}
       />
     </>

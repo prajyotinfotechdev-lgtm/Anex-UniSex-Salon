@@ -27,7 +27,7 @@ export const MediaStudio = () => {
   const [search, setSearch] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +41,7 @@ export const MediaStudio = () => {
     return params;
   }, [activeFolder, search]);
 
-  const { data, isLoading } = getAssets(queryParams);
+  const { data, isLoading, refetch } = getAssets(queryParams);
   const assets: MediaAsset[] = data?.data || [];
 
   const handleUploadClick = () => {
@@ -52,24 +52,12 @@ export const MediaStudio = () => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    if (files.length === 1) {
-      // Open wizard for the first file selected
-      setUploadFile(files[0]);
-    } else {
-      // Bulk upload directly
-      const uploadPromises = Array.from(files).map(file => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('folder', activeFolder === 'all' ? 'general' : activeFolder);
-        return uploadAsset.mutateAsync(formData);
-      });
-      
-      toast.promise(Promise.all(uploadPromises), {
-        loading: `Uploading ${files.length} files...`,
-        success: 'All files uploaded successfully',
-        error: 'Failed to upload some files',
-      });
+    if (files.length > 10) {
+      toast.error('You can only upload a maximum of 10 images at a time.');
+      return;
     }
+
+    setUploadFiles(Array.from(files));
     
     // Clear input so same file can be selected again
     if (fileInputRef.current) {
@@ -383,13 +371,21 @@ export const MediaStudio = () => {
         )}
       </AnimatePresence>
 
-      <DynamicMediaUploadWizard 
-        isOpen={!!uploadFile}
-        onClose={() => setUploadFile(null)}
-        file={uploadFile}
-        defaultContext={activeFolder === 'all' ? undefined : activeFolder.toUpperCase()}
-        onSuccess={() => setUploadFile(null)}
-      />
+      {/* Dynamic Upload Wizard */}
+      <AnimatePresence>
+        {uploadFiles.length > 0 && (
+          <DynamicMediaUploadWizard
+            isOpen={uploadFiles.length > 0}
+            files={uploadFiles}
+            defaultContext={activeFolder === 'all' ? undefined : activeFolder.toUpperCase()}
+            onClose={() => setUploadFiles([])}
+            onSuccess={() => {
+              refetch();
+              setUploadFiles([]);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

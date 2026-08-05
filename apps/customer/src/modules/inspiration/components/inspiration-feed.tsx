@@ -30,6 +30,17 @@ function getSafeImageUrl(post: PublicInspirationPost): string | null {
   return post.heroMedia?.secureUrl || post.heroMedia?.url || null;
 }
 
+function getOptimizedImageUrl(url: string | null, width = 600): string {
+  if (!url) return '';
+  if (!url.includes('cloudinary.com')) return url;
+  try {
+    // Inject Cloudinary transformations for auto format (WebP/AVIF), auto quality compression, and width resizing
+    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+  } catch {
+    return url;
+  }
+}
+
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 function PinterestSkeleton() {
   const heights = [280, 360, 240, 320, 400, 260, 340, 300, 380, 220, 360, 280];
@@ -68,10 +79,10 @@ function PinCard({ post, onBookmark }: { post: PublicInspirationPost; onBookmark
     >
       <Link href={`/inspiration/${post.slug || post.id}`} className="block relative">
         <Image
-          src={imageUrl}
+          src={getOptimizedImageUrl(imageUrl, 450)}
           alt={post.title}
-          width={600}
-          height={900}
+          width={450}
+          height={675}
           className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.04] will-change-transform"
           loading="lazy"
         />
@@ -182,7 +193,7 @@ function HeroBanner({ posts, onBookmark }: { posts: PublicInspirationPost[]; onB
           className="absolute inset-0 w-full h-full"
         >
           <Image
-            src={imageUrl}
+            src={getOptimizedImageUrl(imageUrl, 1000)}
             alt={activePost.title}
             fill
             className="object-cover"
@@ -303,7 +314,7 @@ function CollectionsRow({ collections }: { collections: PublicInspirationCollect
             >
               {col.coverImage?.secureUrl ? (
                 <Image
-                  src={col.coverImage.secureUrl}
+                  src={getOptimizedImageUrl(col.coverImage.secureUrl, 300)}
                   alt={col.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-[1.06] will-change-transform"

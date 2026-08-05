@@ -122,6 +122,16 @@ function Lightbox({
   );
 }
 
+function getOptimizedImageUrl(url: string | null, width = 600): string {
+  if (!url) return '';
+  if (!url.includes('cloudinary.com')) return url;
+  try {
+    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+  } catch {
+    return url;
+  }
+}
+
 // ─── Main Detail ──────────────────────────────────────────────────────────────
 export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
   const router = useRouter();
@@ -264,15 +274,15 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
 
       {/* ─── Hero Image Section ─── */}
       <div className="relative w-full max-w-2xl mx-auto mt-4 px-4">
-        {/* Background Blur for aesthetics */}
+        {/* Background Blur for aesthetics — highly optimized 100px width is perfect for blurred backdrops */}
         <div className="absolute inset-0 -z-10 blur-3xl opacity-30 pointer-events-none scale-105">
-          <img src={allImages[0].secureUrl || allImages[0].url} alt="" className="w-full h-full object-cover rounded-3xl" />
+          <img src={getOptimizedImageUrl(allImages[0].secureUrl || allImages[0].url, 100)} alt="" className="w-full h-full object-cover rounded-3xl" />
         </div>
         
         <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10">
           <motion.img
             layoutId={`gallery-image-0`}
-            src={allImages[0].secureUrl || allImages[0].url}
+            src={getOptimizedImageUrl(allImages[0].secureUrl || allImages[0].url, 800)}
             alt={post.title}
             className="absolute inset-0 w-full h-full object-cover cursor-zoom-in hover:scale-[1.02] transition-transform duration-500"
             onClick={() => openLightbox(0)}
@@ -292,7 +302,7 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
                 onClick={() => openLightbox(i + 1)}
                 className="relative w-24 h-24 rounded-2xl overflow-hidden ring-1 ring-white/10 hover:ring-white/30 transition-all cursor-zoom-in"
               >
-                <img src={img.secureUrl || img.url} alt="" className="w-full h-full object-cover" />
+                <img src={getOptimizedImageUrl(img.secureUrl || img.url, 200)} alt="" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/20 hover:bg-transparent transition-colors" />
               </button>
               {img.label && (
@@ -391,7 +401,7 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
                   className="block break-inside-avoid relative rounded-2xl overflow-hidden group cursor-pointer ring-1 ring-white/10"
                 >
                   <img
-                    src={item.heroMedia?.secureUrl || item.heroMedia?.url}
+                    src={getOptimizedImageUrl(item.heroMedia?.secureUrl || item.heroMedia?.url, 400)}
                     alt={item.title}
                     className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"

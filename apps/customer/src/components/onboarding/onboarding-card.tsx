@@ -160,7 +160,7 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-start sm:items-center justify-center p-4 pt-20 sm:p-0">
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -171,11 +171,11 @@ export function OnboardingCard({ onClose }: { onClose?: () => void }) {
 
       {/* Card */}
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
+        initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
+        exit={{ y: -50, opacity: 0 }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="relative w-full sm:max-w-md bg-zinc-950 border border-white/10 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden"
+        className="relative w-full sm:max-w-md bg-zinc-950 border border-white/10 rounded-3xl shadow-2xl overflow-hidden"
       >
         {/* Premium top accent */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />

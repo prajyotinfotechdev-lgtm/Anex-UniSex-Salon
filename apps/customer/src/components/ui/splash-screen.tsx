@@ -8,6 +8,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -17,13 +18,15 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Safety fallback: dismiss splash screen after 3.5 seconds if video fails/loads slowly
-    const fallbackTimer = setTimeout(() => {
+    // Safety fallback: dismiss splash screen after 6 seconds if video hasn't started playing yet
+    timerRef.current = setTimeout(() => {
       handleVideoEnd();
-    }, 3500);
+    }, 6000);
 
     return () => {
-      clearTimeout(fallbackTimer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
     };
   }, []);
 
@@ -32,22 +35,22 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
     sessionStorage.setItem('hasSeenSplash', 'true');
   };
 
-  // Attempt programmatic play to bypass iOS Safari strictness/low power mode issues
+  const handlePlay = () => {
+    // Once the video successfully starts playing, clear the safety timer so it can play to the end
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  // Configure iOS Safari specific properties directly on the DOM element to ensure native autoplay
   useEffect(() => {
     if (isMounted && showSplash && videoRef.current) {
       const video = videoRef.current;
       video.defaultMuted = true;
       video.muted = true;
-      
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.log("Programmatic play deferred or prevented:", error);
-          // Do NOT call handleVideoEnd() here, as iOS/Safari often rejects/aborts the play promise 
-          // initially while loading, which would prematurely skip the splash screen.
-          // The 3.5s safety timeout will handle dismissing if it fails to load entirely.
-        });
-      }
+      video.setAttribute('playsinline', 'true');
+      video.setAttribute('webkit-playsinline', 'true');
     }
   }, [isMounted, showSplash]);
 
@@ -72,6 +75,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
               muted
               playsInline
               preload="auto"
+              onPlay={handlePlay}
               onEnded={handleVideoEnd}
               onError={handleVideoEnd}
               className="w-full h-full object-contain max-w-md"

@@ -2,7 +2,7 @@ services:
   - type: web
     name: anex-api
     env: node
-    buildCommand: pnpm install && pnpm build --filter api
+    buildCommand: pnpm install && pnpm --filter @anex/database generate && pnpm build --filter api
     startCommand: cd apps/api && npm run start
     envVars:
       - key: NODE_ENV
@@ -29,7 +29,7 @@ services:
   - type: web
     name: anex-admin
     env: node
-    buildCommand: pnpm install && pnpm build --filter admin && cp -r apps/admin/public apps/admin/.next/standalone/apps/admin/public && cp -r apps/admin/.next/static apps/admin/.next/standalone/apps/admin/.next/static
+    buildCommand: pnpm install && pnpm --filter @anex/database generate && pnpm build --filter admin && cp -r apps/admin/public apps/admin/.next/standalone/apps/admin/public && cp -r apps/admin/.next/static apps/admin/.next/standalone/apps/admin/.next/static
     startCommand: node apps/admin/.next/standalone/apps/admin/server.js
     envVars:
       - key: NODE_ENV
@@ -42,7 +42,7 @@ services:
   - type: web
     name: anex-customer
     env: node
-    buildCommand: pnpm install && pnpm build --filter customer && cp -r apps/customer/public apps/customer/.next/standalone/apps/customer/public && cp -r apps/customer/.next/static apps/customer/.next/standalone/apps/customer/.next/static
+    buildCommand: pnpm install && pnpm --filter @anex/database generate && pnpm build --filter customer && cp -r apps/customer/public apps/customer/.next/standalone/apps/customer/public && cp -r apps/customer/.next/static apps/customer/.next/standalone/apps/customer/.next/static
     startCommand: node apps/customer/.next/standalone/apps/customer/server.js
     envVars:
       - key: NODE_ENV

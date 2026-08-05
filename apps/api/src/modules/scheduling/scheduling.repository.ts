@@ -59,4 +59,12 @@ export class SchedulingRepository {
       where: { id: serviceId, organizationId, isActive: true, deletedAt: null },
     });
   }
+
+  async getBranchWorkingHours(branchId: string, dayOfWeek: any) {
+    return prisma.branchWorkingHour.findUnique({
+      where: {
+        branchId_dayOfWeek: { branchId, dayOfWeek }
+      }
+    });
+  }
 }

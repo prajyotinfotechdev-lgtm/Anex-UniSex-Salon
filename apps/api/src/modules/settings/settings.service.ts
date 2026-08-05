@@ -205,6 +205,61 @@ export class SettingsService extends BaseService {
   }
 
   // --- CLOSURES & WORKING HOURS ---
+  async getBranchWorkingHours() {
+    const { organizationId } = getTenantContext();
+    const branch = await prisma.branch.findFirst({ where: { organizationId } });
+    if (!branch) throw new NotFoundError('Branch not found');
+
+    return prisma.branchWorkingHour.findMany({
+      where: { branchId: branch.id }
+    });
+  }
+
+  async updateBranchWorkingHours(availabilities: { dayOfWeek: string; isOpen: boolean; openTime?: string | null; closeTime?: string | null }[]) {
+    const { organizationId } = getTenantContext();
+    const branch = await prisma.branch.findFirst({ where: { organizationId } });
+    if (!branch) throw new NotFoundError('Branch not found');
+
+    await prisma.$transaction(
+      availabilities.map(a => {
+        let parsedOpenTime: Date | null = null;
+        let parsedCloseTime: Date | null = null;
+
+        if (a.openTime) {
+          const [hours, minutes] = a.openTime.split(':').map(Number);
+          parsedOpenTime = new Date(1970, 0, 1, hours, minutes, 0);
+        }
+        if (a.closeTime) {
+          const [hours, minutes] = a.closeTime.split(':').map(Number);
+          parsedCloseTime = new Date(1970, 0, 1, hours, minutes, 0);
+        }
+
+        return prisma.branchWorkingHour.upsert({
+          where: {
+            branchId_dayOfWeek: {
+              branchId: branch.id,
+              dayOfWeek: a.dayOfWeek as any
+            }
+          },
+          update: {
+            isOpen: a.isOpen,
+            openTime: parsedOpenTime,
+            closeTime: parsedCloseTime
+          },
+          create: {
+            branchId: branch.id,
+            dayOfWeek: a.dayOfWeek as any,
+            isOpen: a.isOpen,
+            openTime: parsedOpenTime,
+            closeTime: parsedCloseTime
+          }
+        });
+      })
+    );
+
+    return this.getBranchWorkingHours();
+  }
+
   async listClosures() {
     const { organizationId } = getTenantContext();
     const branch = await prisma.branch.findFirst({ where: { organizationId } });

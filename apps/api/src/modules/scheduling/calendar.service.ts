@@ -12,22 +12,45 @@ export class CalendarService {
   async getEmployeeOpenBlocks(branchId: string, employeeId: string, date: Date): Promise<TimeBlock[]> {
     const dayOfWeek = this.getDayOfWeek(date);
     
-    // 1. Get raw availability
-    let availabilities = await this.repo.getEmployeeAvailability(employeeId, dayOfWeek);
-    if (availabilities.length === 0) {
-      availabilities = [
-        {
-          id: 'default',
-          employeeId,
-          dayOfWeek,
-          startTime: '09:00',
-          endTime: '21:00',
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as any
-      ];
+    // 1. Get raw branch availability (universal salon hours)
+    const workingHour = await this.repo.getBranchWorkingHours(branchId, dayOfWeek);
+    
+    // If branch working hour is configured and is closed, return no slots
+    if (workingHour && !workingHour.isOpen) {
+      return [];
     }
+
+    let startTimeStr = '09:00';
+    let endTimeStr = '21:00';
+
+    if (workingHour) {
+      const formatTime = (dateVal: any): string => {
+        if (dateVal instanceof Date) {
+          const hours = String(dateVal.getUTCHours()).padStart(2, '0');
+          const minutes = String(dateVal.getUTCMinutes()).padStart(2, '0');
+          return `${hours}:${minutes}`;
+        }
+        if (typeof dateVal === 'string') {
+          return dateVal.substring(0, 5);
+        }
+        return '09:00';
+      };
+
+      if (workingHour.openTime) {
+        startTimeStr = formatTime(workingHour.openTime);
+      }
+      if (workingHour.closeTime) {
+        endTimeStr = formatTime(workingHour.closeTime);
+      }
+    }
+
+    // Map branch hours to exact TimeBlock on this date
+    let openBlocks: TimeBlock[] = [
+      {
+        startTime: this.applyTimeToDate(date, startTimeStr),
+        endTime: this.applyTimeToDate(date, endTimeStr)
+      }
+    ];
 
     // 2. Get exceptions (branch closures)
     const startOfDay = new Date(date);
@@ -40,12 +63,6 @@ export class CalendarService {
     // If there is a full-day closure, return empty array
     const fullDayClosure = exceptions.find(e => e.isClosed && (!e.startTime || !e.endTime));
     if (fullDayClosure) return [];
-
-    // Map availabilities to exact TimeBlocks on this date
-    let openBlocks: TimeBlock[] = availabilities.map(a => ({
-      startTime: this.applyTimeToDate(date, a.startTime),
-      endTime: this.applyTimeToDate(date, a.endTime),
-    }));
 
     // Subtract partial day closures
     const partialClosures = exceptions.filter(e => e.isClosed && e.startTime && e.endTime);

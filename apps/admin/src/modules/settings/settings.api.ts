@@ -81,6 +81,13 @@ export const SettingsApi = {
   getAuditLogs: () => fetchApi<AuditLog[]>('/settings/audit-logs'),
 
   // Closures & Working Hours
+  getBranchWorkingHours: () => fetchApi<any[]>('/settings/branch-hours'),
+  updateBranchWorkingHours: (availabilities: { dayOfWeek: string; isOpen: boolean; openTime?: string | null; closeTime?: string | null }[]) =>
+    fetchApi<any[]>('/settings/branch-hours', {
+      method: 'PUT',
+      body: JSON.stringify({ availabilities })
+    }),
+
   listClosures: () => fetchApi<any[]>('/settings/closures'),
   createClosure: (data: { date: string; reason?: string; isClosed: boolean; startTime?: string; endTime?: string }) =>
     fetchApi<any>('/settings/closures', {

@@ -70,6 +70,16 @@ export class SettingsController {
   };
 
   // --- CLOSURES & WORKING HOURS ---
+  getBranchWorkingHours = async (req: Request, res: Response) => {
+    const data = await this.service.getBranchWorkingHours();
+    res.json({ success: true, data });
+  };
+
+  updateBranchWorkingHours = async (req: Request, res: Response) => {
+    const data = await this.service.updateBranchWorkingHours(req.body.availabilities);
+    res.json({ success: true, data });
+  };
+
   listClosures = async (req: Request, res: Response) => {
     const data = await this.service.listClosures();
     res.json({ success: true, data });

@@ -67,6 +67,8 @@ router.delete(
 );
 
 // --- CLOSURES & WORKING HOURS ---
+router.get('/branch-hours', controller.getBranchWorkingHours);
+router.put('/branch-hours', controller.updateBranchWorkingHours);
 router.get('/closures', controller.listClosures);
 router.post('/closures', controller.createClosure);
 router.delete('/closures/:id', controller.deleteClosure);

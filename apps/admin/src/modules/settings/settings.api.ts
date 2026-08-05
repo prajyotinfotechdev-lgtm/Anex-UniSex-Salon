@@ -79,4 +79,23 @@ export const SettingsApi = {
 
   // Audit Logs
   getAuditLogs: () => fetchApi<AuditLog[]>('/settings/audit-logs'),
+
+  // Closures & Working Hours
+  listClosures: () => fetchApi<any[]>('/settings/closures'),
+  createClosure: (data: { date: string; reason?: string; isClosed: boolean; startTime?: string; endTime?: string }) =>
+    fetchApi<any>('/settings/closures', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+  deleteClosure: (id: string) =>
+    fetchApi<any>(`/settings/closures/${id}`, {
+      method: 'DELETE'
+    }),
+  getEmployeeAvailability: (employeeId: string) =>
+    fetchApi<any[]>(`/settings/availability/${employeeId}`),
+  updateEmployeeAvailability: (employeeId: string, availabilities: { dayOfWeek: string; startTime: string; endTime: string }[]) =>
+    fetchApi<any[]>(`/settings/availability/${employeeId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ availabilities })
+    }),
 };

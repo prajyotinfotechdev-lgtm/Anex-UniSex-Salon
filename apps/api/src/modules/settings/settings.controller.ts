@@ -69,6 +69,35 @@ export class SettingsController {
     res.json({ success: true, message: 'Tax group deleted' });
   };
 
+  // --- CLOSURES & WORKING HOURS ---
+  listClosures = async (req: Request, res: Response) => {
+    const data = await this.service.listClosures();
+    res.json({ success: true, data });
+  };
+
+  createClosure = async (req: Request, res: Response) => {
+    const data = await this.service.createClosure(req.body);
+    res.json({ success: true, data });
+  };
+
+  deleteClosure = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    await this.service.deleteClosure(id);
+    res.json({ success: true, message: 'Closure exception deleted' });
+  };
+
+  getEmployeeAvailability = async (req: Request, res: Response) => {
+    const { employeeId } = req.params;
+    const data = await this.service.getEmployeeAvailability(employeeId);
+    res.json({ success: true, data });
+  };
+
+  updateEmployeeAvailability = async (req: Request, res: Response) => {
+    const { employeeId } = req.params;
+    const data = await this.service.updateEmployeeAvailability(employeeId, req.body.availabilities);
+    res.json({ success: true, data });
+  };
+
   // --- AUDIT LOGS ---
   getAuditLogs = async (req: Request, res: Response) => {
     const { organizationId } = req.user as any;

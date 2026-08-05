@@ -66,6 +66,13 @@ router.delete(
   controller.deleteTaxGroup
 );
 
+// --- CLOSURES & WORKING HOURS ---
+router.get('/closures', controller.listClosures);
+router.post('/closures', controller.createClosure);
+router.delete('/closures/:id', controller.deleteClosure);
+router.get('/availability/:employeeId', controller.getEmployeeAvailability);
+router.put('/availability/:employeeId', controller.updateEmployeeAvailability);
+
 // --- AUDIT LOGS ---
 router.get('/audit-logs', controller.getAuditLogs);
 

@@ -204,7 +204,93 @@ export class SettingsService extends BaseService {
     // Can optionally emit event here
   }
 
-  // --- AUDIT LOGS ---
+  // --- CLOSURES & WORKING HOURS ---
+  async listClosures() {
+    const { organizationId } = getTenantContext();
+    const branch = await prisma.branch.findFirst({ where: { organizationId } });
+    if (!branch) return [];
+
+    return prisma.calendarException.findMany({
+      where: { branchId: branch.id },
+      orderBy: { date: 'asc' }
+    });
+  }
+
+  async createClosure(data: { date: string; reason?: string; isClosed: boolean; startTime?: string; endTime?: string }) {
+    const { organizationId } = getTenantContext();
+    const branch = await prisma.branch.findFirst({ where: { organizationId } });
+    if (!branch) throw new NotFoundError('Branch not found');
+
+    return prisma.calendarException.create({
+      data: {
+        branchId: branch.id,
+        date: new Date(data.date),
+        isClosed: data.isClosed ?? true,
+        startTime: data.startTime || null,
+        endTime: data.endTime || null,
+        reason: data.reason || null
+      }
+    });
+  }
+
+  async deleteClosure(closureId: string) {
+    const { organizationId } = getTenantContext();
+    const branch = await prisma.branch.findFirst({ where: { organizationId } });
+    if (!branch) throw new NotFoundError('Branch not found');
+
+    const existing = await prisma.calendarException.findFirst({
+      where: { id: closureId, branchId: branch.id }
+    });
+    if (!existing) throw new NotFoundError('Closure exception not found');
+
+    await prisma.calendarException.delete({
+      where: { id: closureId }
+    });
+  }
+
+  async getEmployeeAvailability(employeeId: string) {
+    const { organizationId } = getTenantContext();
+    const employee = await prisma.employee.findFirst({
+      where: { id: employeeId, organizationId }
+    });
+    if (!employee) throw new NotFoundError('Employee not found');
+
+    return prisma.employeeAvailability.findMany({
+      where: { employeeId },
+      orderBy: { dayOfWeek: 'asc' }
+    });
+  }
+
+  async updateEmployeeAvailability(employeeId: string, availabilities: { dayOfWeek: string; startTime: string; endTime: string }[]) {
+    const { organizationId } = getTenantContext();
+    const employee = await prisma.employee.findFirst({
+      where: { id: employeeId, organizationId }
+    });
+    if (!employee) throw new NotFoundError('Employee not found');
+
+    // Delete existing availability for employee to write clean
+    await prisma.employeeAvailability.deleteMany({
+      where: { employeeId }
+    });
+
+    // Create new ones
+    const created = await Promise.all(
+      availabilities.map(a =>
+        prisma.employeeAvailability.create({
+          data: {
+            employeeId,
+            dayOfWeek: a.dayOfWeek as any,
+            startTime: a.startTime,
+            endTime: a.endTime
+          }
+        })
+      )
+    );
+
+    return created;
+  }
+
+  // --- AUDS ---
   async getAuditLogs(organizationId: string) {
     return prisma.auditLog.findMany({
       where: { organizationId },

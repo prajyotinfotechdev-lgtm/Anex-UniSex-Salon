@@ -225,6 +225,7 @@ router.post('/', requirePermission(PERMISSIONS.EMPLOYEE.CREATE), validate(create
  *         description: Conflict
  */
 router.put('/:id', requirePermission(PERMISSIONS.EMPLOYEE.UPDATE), validate(updateEmployeeSchema), updateEmployeeHandler);
+router.patch('/:id', requirePermission(PERMISSIONS.EMPLOYEE.UPDATE), validate(updateEmployeeSchema), updateEmployeeHandler);
 
 /**
  * @swagger

@@ -19,10 +19,6 @@ export class AppointmentBookingService {
   async startBooking(organizationId: string, actorUserId: string, data: StartBookingInput) {
     // Resolve mock IDs to valid UUIDs
     let { customerId, branchId } = data;
-    if (customerId === 'cl_mock_customer') {
-      const c = await prisma.customer.findFirst();
-      if (c) customerId = c.id;
-    }
     if (branchId === 'cl_default_branch') {
       const b = await prisma.branch.findFirst();
       if (b) branchId = b.id;
@@ -30,28 +26,40 @@ export class AppointmentBookingService {
 
     let resolvedOrgId = organizationId;
     if (!resolvedOrgId) {
-      const customer = await prisma.customer.findUnique({ where: { id: customerId } });
-      if (customer) {
-        resolvedOrgId = customer.organizationId;
-      } else {
-        const branch = await prisma.branch.findUnique({ where: { id: branchId } });
-        if (branch) resolvedOrgId = branch.organizationId;
-      }
-    }
-    if (!resolvedOrgId) {
       const firstOrg = await prisma.organization.findFirst();
       if (firstOrg) resolvedOrgId = firstOrg.id;
     }
 
+    // Resolve guest/mock/invalid UUID customerId to a valid customer UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    let resolvedCustomerId = customerId;
+    if (!customerId || !uuidRegex.test(customerId)) {
+      const c = await prisma.customer.findFirst();
+      if (c) {
+        resolvedCustomerId = c.id;
+      } else {
+        const defaultCustomer = await prisma.customer.create({
+          data: {
+            organizationId: resolvedOrgId!,
+            firstName: 'Guest',
+            lastName: 'Customer',
+            email: 'guest@anexsalon.com',
+            phone: '9999999999'
+          }
+        });
+        resolvedCustomerId = defaultCustomer.id;
+      }
+    }
+
     // 1. Get memory and recommendations
-    const profile = await CustomerInsightService.getBookingProfile(customerId);
-    const recommendations = await SmartRecommendationService.getRecommendations(customerId);
+    const profile = await CustomerInsightService.getBookingProfile(resolvedCustomerId);
+    const recommendations = await SmartRecommendationService.getRecommendations(resolvedCustomerId);
 
     // 2. Check for an existing valid DRAFT for this customer/branch
     let draft = await prisma.appointment.findFirst({
       where: {
         organizationId: resolvedOrgId,
-        customerId: customerId,
+        customerId: resolvedCustomerId,
         branchId: branchId,
         status: AppointmentStatus.PENDING,
         expiresAt: { gt: new Date() }
@@ -65,7 +73,7 @@ export class AppointmentBookingService {
         data: {
           organizationId: resolvedOrgId!,
           branchId: branchId,
-          customerId: customerId,
+          customerId: resolvedCustomerId,
           status: AppointmentStatus.PENDING,
           date: new Date(), // temporary
           expiresAt: addHours(new Date(), 1)
@@ -87,7 +95,8 @@ export class AppointmentBookingService {
    */
   async checkRequirements(customerId: string, data: CheckRequirementsInput) {
     let resolvedCustomerId = customerId;
-    if (resolvedCustomerId === 'cl_mock_customer') {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!resolvedCustomerId || !uuidRegex.test(resolvedCustomerId)) {
       const c = await prisma.customer.findFirst();
       if (c) resolvedCustomerId = c.id;
     }
@@ -104,6 +113,11 @@ export class AppointmentBookingService {
    * Validates availability, transitions DRAFT to CONFIRMED, saves consultations
    */
   async confirmBooking(organizationId: string, actorUserId: string, data: ConfirmBookingInput) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!data.appointmentId || !uuidRegex.test(data.appointmentId)) {
+      throw new NotFoundError('Draft appointment not found or expired');
+    }
+
     const draft = await prisma.appointment.findFirst({
       where: { id: data.appointmentId, status: AppointmentStatus.PENDING }
     });

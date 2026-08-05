@@ -7,6 +7,7 @@ import { Button } from '../ui/button';
 import { ChevronLeft, Scissors, Clock } from 'lucide-react';
 import { SwipeToConfirm } from './swipe-to-confirm';
 import useSWRMutation from 'swr/mutation';
+import { toast } from 'sonner';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../lib/axios';
@@ -55,10 +56,11 @@ export function BookingSummary() {
         items
       });
       goToDimension('DELIGHT');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       haptics.trigger('heavy');
-      // Let the error bubble or be handled by the UI
+      const msg = err.response?.data?.message || err.message || 'An error occurred during booking. Please try again.';
+      toast.error(msg);
       throw err;
     }
   };

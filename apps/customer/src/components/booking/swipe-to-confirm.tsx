@@ -6,7 +6,7 @@ import { useHaptics } from '../../hooks/use-haptics';
 import { Check } from 'lucide-react';
 
 interface SwipeToConfirmProps {
-  onConfirm: () => void;
+  onConfirm: () => Promise<void> | void;
   label?: string;
   processingLabel?: string;
 }
@@ -34,15 +34,22 @@ export function SwipeToConfirm({
     }
   };
 
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = async (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.offset.x > maxWidth * 0.75) {
       // Confirmed
       setIsConfirmed(true);
       haptics.trigger('heavy');
-      setTimeout(() => {
+      
+      // Wait for brief transition pause
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      try {
         haptics.trigger('heavy');
-        onConfirm();
-      }, 500); // brief pause to show success state before advancing orchestrator
+        await onConfirm();
+      } catch (err) {
+        setIsConfirmed(false);
+        x.set(0); // Snap back slider
+      }
     } else {
       // Snap back
       haptics.trigger('light');

@@ -58,25 +58,21 @@ export class AppointmentBookingService {
     // 2. Check for an existing valid DRAFT for this customer/branch
     let draft = await prisma.appointment.findFirst({
       where: {
-        organizationId: resolvedOrgId,
         customerId: resolvedCustomerId,
         branchId: branchId,
-        status: AppointmentStatus.PENDING,
-        expiresAt: { gt: new Date() }
+        status: AppointmentStatus.PENDING
       },
       include: { items: true }
     });
 
     if (!draft) {
-      // Create a new DRAFT that expires in 1 hour
+      // Create a new DRAFT
       draft = await prisma.appointment.create({
         data: {
-          organizationId: resolvedOrgId!,
           branchId: branchId,
           customerId: resolvedCustomerId,
           status: AppointmentStatus.PENDING,
-          date: new Date(), // temporary
-          expiresAt: addHours(new Date(), 1)
+          date: new Date() // temporary
         },
         include: { items: true }
       });
@@ -171,16 +167,36 @@ export class AppointmentBookingService {
       });
       const serviceMap = new Map(services.map(s => [s.id, s]));
 
+      // Get employees for snapshot
+      const employees = await tx.employee.findMany({
+        where: { id: { in: resolvedItems.map(i => i.employeeId).filter(Boolean) as string[] } }
+      });
+      const employeeMap = new Map(employees.map(e => [e.id, e]));
+
       // Create new items
       const newItems = resolvedItems.map(item => {
         const service = serviceMap.get(item.serviceId);
+        const employee = item.employeeId ? employeeMap.get(item.employeeId) : null;
+        const empName = employee ? `${employee.firstName} ${employee.lastName}`.trim() : 'Anyone';
+
         return {
           appointmentId: draft.id,
           serviceId: item.serviceId,
-          employeeId: item.employeeId,
+          employeeId: item.employeeId!,
           startTime: new Date(item.startTime),
           endTime: new Date(item.endTime),
           price: service?.basePrice || new Prisma.Decimal(0),
+          snapshottedServiceName: service?.name || 'Service',
+          snapshottedEmployeeName: empName,
+          snapshottedDuration: service?.durationMinutes || 0,
+          snapshottedPrice: service?.basePrice || new Prisma.Decimal(0),
+          snapshotData: {
+            pricingType: service?.pricingType || 'FIXED',
+            originalBasePrice: service?.basePrice || 0,
+            serviceCategory: service?.serviceCategoryId || null,
+            employeeDisplay: empName,
+            timestamp: new Date().toISOString()
+          }
         };
       });
 
@@ -203,12 +219,11 @@ export class AppointmentBookingService {
         where: { id: draft.id },
         data: {
           status: AppointmentStatus.CONFIRMED,
-          date: firstItemDate,
-          expiresAt: null // clear draft expiration
+          date: firstItemDate
         },
-        include: { items: true, consultationRecords: true }
+        include: { items: true, ConsultationRecord: true }
       });
-    });
+    }, { timeout: 25000 });
 
     return confirmedAppointment;
   }

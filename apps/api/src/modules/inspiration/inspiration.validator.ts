@@ -50,6 +50,7 @@ export const listInspirationPostsSchema = z.object({
     serviceId: z.string().uuid().optional(),
     branchId: z.string().uuid().optional(),
     search: z.string().optional(),
+    gender: z.string().optional(),
     cursor: z.string().optional(),
   }),
 });

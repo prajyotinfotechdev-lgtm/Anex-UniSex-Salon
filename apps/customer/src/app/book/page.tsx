@@ -15,6 +15,7 @@ export default function BookPage() {
   const haptics = useHaptics();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedGender, setSelectedGender] = useState("All");
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["public-services"],
@@ -55,12 +56,30 @@ export default function BookPage() {
   // Get unique categories list
   const categories = ["All", ...Array.from(new Set(services.map((s: any) => getCategory(s))))] as string[];
 
-  // Filter services by search and selected category
+  // Filter services by search, selected category and gender keywords
   const filteredServices = services.filter((service: any) => {
     const matchesSearch = service.name.toLowerCase().includes(search.toLowerCase()) || 
                           (service.description && service.description.toLowerCase().includes(search.toLowerCase()));
     const matchesCategory = selectedCategory === "All" || getCategory(service) === selectedCategory;
-    return matchesSearch && matchesCategory;
+
+    let matchesGender = true;
+    if (selectedGender === "Men") {
+      const name = service.name.toLowerCase();
+      const hasMenKeyword = name.includes("men") || name.includes("beard") || name.includes("shave") || name.includes("grooming") || name.includes("boy");
+      const hasWomenKeyword = name.includes("women") || name.includes("girl") || name.includes("bridal") || name.includes("lady") || name.includes("ladies");
+      if (hasWomenKeyword && !hasMenKeyword) {
+        matchesGender = false;
+      }
+    } else if (selectedGender === "Women") {
+      const name = service.name.toLowerCase();
+      const hasWomenKeyword = name.includes("women") || name.includes("girl") || name.includes("bridal") || name.includes("lady") || name.includes("ladies") || name.includes("waxing");
+      const hasMenKeyword = name.includes("men") || name.includes("beard") || name.includes("shave");
+      if (hasMenKeyword && !hasWomenKeyword) {
+        matchesGender = false;
+      }
+    }
+
+    return matchesSearch && matchesCategory && matchesGender;
   });
 
   const hasSelection = state.serviceIds.length > 0;
@@ -90,7 +109,7 @@ export default function BookPage() {
       </div>
 
       {/* Search Bar */}
-      <div className="px-6 pb-4 bg-black">
+      <div className="px-6 pb-4 bg-black flex flex-col gap-3">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
           <input
@@ -100,6 +119,30 @@ export default function BookPage() {
             placeholder="Search hair, spa, facials..."
             className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-2xl pl-12 pr-4 py-3.5 text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all text-sm"
           />
+        </div>
+
+        {/* Gender Selection Tabs */}
+        <div className="flex bg-zinc-900/40 p-1 rounded-2xl border border-zinc-800/50">
+          {["All", "Men", "Women"].map((g) => {
+            const isActive = selectedGender === g;
+            return (
+              <button
+                key={g}
+                onClick={() => {
+                  haptics.trigger("light");
+                  setSelectedGender(g);
+                }}
+                className={cn(
+                  "flex-1 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all",
+                  isActive
+                    ? "bg-primary text-black font-bold shadow-md"
+                    : "text-zinc-400 hover:text-white"
+                )}
+              >
+                {g}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -58,6 +58,7 @@ export class InspirationContextHandler implements ContextHandler {
         employeeId: metadata.employeeId || null,
         status: metadata.status || 'DRAFT',
         publishedAt: metadata.status === 'PUBLISHED' ? new Date() : null,
+        tags: metadata.tags || [],
       },
     });
 

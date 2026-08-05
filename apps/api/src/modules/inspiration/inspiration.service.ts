@@ -43,6 +43,7 @@ export const InspirationService = {
     serviceId?: string;
     branchId?: string;
     search?: string;
+    gender?: string;
     cursor?: string;
   }) {
     const { page = 1, limit = 20, cursor, ...filters } = params;
@@ -55,6 +56,9 @@ export const InspirationService = {
     if (filters.employeeId) where.employeeId = filters.employeeId;
     if (filters.serviceId) where.serviceId = filters.serviceId;
     if (filters.branchId) where.branchId = filters.branchId;
+    if (filters.gender && filters.gender !== 'all' && filters.gender !== 'unisex') {
+      where.tags = { has: filters.gender.toLowerCase() };
+    }
     if (filters.search) {
       where.OR = [
         { title: { contains: filters.search, mode: 'insensitive' } },

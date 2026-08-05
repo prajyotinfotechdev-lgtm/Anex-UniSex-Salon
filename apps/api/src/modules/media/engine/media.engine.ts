@@ -89,6 +89,7 @@ export class MediaContentEngine {
             providerId: cloudinaryResult.public_id,
             // Set usage count to 1 immediately as it will be associated with the domain
             usageCount: 1,
+            tags: metadata.tags || [],
           },
         });
 

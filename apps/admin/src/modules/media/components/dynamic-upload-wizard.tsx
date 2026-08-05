@@ -101,7 +101,7 @@ export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> =
     if (isOpen) {
       setStep(defaultContext ? 'metadata' : 'context');
       setContextType(defaultContext?.toUpperCase() || '');
-      setMetadata({ status: 'PUBLISHED', isFeatured: false });
+      setMetadata({ status: 'PUBLISHED', isFeatured: false, gender: 'UNISEX', tags: ['men', 'women'] });
       setValidationError(null);
     }
   }, [isOpen, defaultContext]);
@@ -285,18 +285,42 @@ export const DynamicMediaUploadWizard: React.FC<DynamicMediaUploadWizardProps> =
                             />
                           </Field>
 
-                          <Field label="Category" required>
-                            <select
-                              className={inputCls}
-                              value={metadata.category || ''}
-                              onChange={e => set('category', e.target.value)}
-                            >
-                              <option value="">Select a category…</option>
-                              {INSPIRATION_CATEGORIES.map(cat => (
-                                <option key={cat.value} value={cat.value}>{cat.label}</option>
-                              ))}
-                            </select>
-                          </Field>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Field label="Category" required>
+                              <select
+                                className={inputCls}
+                                value={metadata.category || ''}
+                                onChange={e => set('category', e.target.value)}
+                              >
+                                <option value="">Select a category…</option>
+                                {INSPIRATION_CATEGORIES.map(cat => (
+                                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                                ))}
+                              </select>
+                            </Field>
+
+                            <Field label="Target Gender">
+                              <select
+                                className={inputCls}
+                                value={metadata.gender || 'UNISEX'}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  set('gender', val);
+                                  if (val === 'MEN') {
+                                    set('tags', ['men']);
+                                  } else if (val === 'WOMEN') {
+                                    set('tags', ['women']);
+                                  } else {
+                                    set('tags', ['men', 'women']);
+                                  }
+                                }}
+                              >
+                                <option value="UNISEX">Unisex / All</option>
+                                <option value="MEN">Men</option>
+                                <option value="WOMEN">Women</option>
+                              </select>
+                            </Field>
+                          </div>
 
                           <Field label="Description">
                             <textarea

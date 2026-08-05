@@ -289,7 +289,8 @@ function CollectionsRow({ collections }: { collections: PublicInspirationCollect
 
 // ─── Main Feed ────────────────────────────────────────────────────────────────
 export function InspirationFeed() {
-  const { data: feedData, isLoading: isLoadingFeed } = useCustomerInspirationFeed();
+  const [selectedGender, setSelectedGender] = useState('ALL');
+  const { data: feedData, isLoading: isLoadingFeed } = useCustomerInspirationFeed(selectedGender);
   const { data: collectionsData, isLoading: isLoadingCollections } = useCustomerInspirationCollections();
   const { toggleBookmark } = useCustomerBookmarks();
   const [activeCategory, setActiveCategory] = useState('ALL');
@@ -351,8 +352,33 @@ export function InspirationFeed() {
         </div>
 
         {/* ─── Sticky filter bar ─── */}
-        <div className="sticky top-0 z-30 bg-[#050505]/90 backdrop-blur-2xl border-b border-white/5">
-          <div className="flex items-center gap-3 px-4 sm:px-6 py-3">
+        <div className="sticky top-0 z-30 bg-[#050505]/90 backdrop-blur-2xl border-b border-white/5 py-3 px-4 sm:px-6 space-y-3">
+          {/* Gender Filter Row */}
+          <div className="flex gap-2">
+            {[
+              { id: 'ALL', label: 'All Styles' },
+              { id: 'MEN', label: 'Men' },
+              { id: 'WOMEN', label: 'Women' }
+            ].map(g => {
+              const isActive = selectedGender === g.id;
+              return (
+                <button
+                  key={g.id}
+                  onClick={() => setSelectedGender(g.id)}
+                  className={cn(
+                    "px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-200 border",
+                    isActive
+                      ? "bg-primary border-primary text-black font-extrabold"
+                      : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
+                  )}
+                >
+                  {g.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-3">
             {/* Category pills */}
             <div className="flex-1 flex gap-1.5 overflow-x-auto hide-scrollbar">
               {CATEGORIES.map(cat => {
@@ -447,9 +473,9 @@ export function InspirationFeed() {
                   ? 'Try a different search term.'
                   : 'Our team is adding fresh looks. Check back soon.'}
               </p>
-              {(activeCategory !== 'ALL' || searchQuery) && (
+              {(activeCategory !== 'ALL' || searchQuery || selectedGender !== 'ALL') && (
                 <button
-                  onClick={() => { setActiveCategory('ALL'); setSearchQuery(''); }}
+                  onClick={() => { setActiveCategory('ALL'); setSearchQuery(''); setSelectedGender('ALL'); }}
                   className="mt-6 px-5 py-2 rounded-full border border-white/15 text-white text-xs font-medium hover:bg-white/10 transition-colors"
                 >
                   Show all looks

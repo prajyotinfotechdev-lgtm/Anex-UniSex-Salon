@@ -42,11 +42,14 @@ export interface PublicInspirationCollection {
   posts: PublicInspirationPost[];
 }
 
-export const useCustomerInspirationFeed = () => {
+export const useCustomerInspirationFeed = (gender?: string) => {
   return useQuery({
-    queryKey: ['inspiration-feed'],
+    queryKey: ['inspiration-feed', gender],
     queryFn: async () => {
-      const res = await api.get('/api/v1/public/inspiration');
+      const url = gender && gender !== 'ALL'
+        ? `/api/v1/public/inspiration?gender=${gender}`
+        : '/api/v1/public/inspiration';
+      const res = await api.get(url);
       return res.data;
     },
   });

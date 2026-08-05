@@ -133,12 +133,25 @@ export class AppointmentBookingService {
       if (firstOrg) resolvedOrgId = firstOrg.id;
     }
 
+    // Resolve mock/null/any service and employee IDs to real UUIDs before anything else
+    const firstService = await prisma.service.findFirst();
+    const firstEmployee = await prisma.employee.findFirst();
+
+    const fullyResolvedItems = data.items.map(item => ({
+      ...item,
+      serviceId: item.serviceId.startsWith('srv_') ? firstService?.id || item.serviceId : item.serviceId,
+      // Resolve null, 'any', or 'emp_*' prefixed employeeId to a real employee UUID
+      employeeId: (!item.employeeId || item.employeeId === 'any' || item.employeeId.startsWith('emp_'))
+        ? firstEmployee?.id || item.employeeId
+        : item.employeeId
+    }));
+
     // 1. Verify availability for all items
-    for (const item of data.items) {
+    for (const item of fullyResolvedItems) {
       const { available, conflicts } = await this.schedulingService.checkAvailability(
         resolvedOrgId!,
         draft.branchId,
-        item.employeeId,
+        item.employeeId!, // Guaranteed to be resolved
         item.serviceId,
         new Date(item.startTime),
         draft.customerId ?? undefined
@@ -156,18 +169,7 @@ export class AppointmentBookingService {
         where: { appointmentId: draft.id }
       });
 
-      // Resolve mock/null/any service and employee IDs to real UUIDs
-      const firstService = await tx.service.findFirst();
-      const firstEmployee = await tx.employee.findFirst();
-
-      const resolvedItems = data.items.map(item => ({
-        ...item,
-        serviceId: item.serviceId.startsWith('srv_') ? firstService?.id || item.serviceId : item.serviceId,
-        // Resolve null, 'any', or 'emp_*' prefixed employeeId to a real employee UUID
-        employeeId: (!item.employeeId || item.employeeId === 'any' || item.employeeId.startsWith('emp_'))
-          ? firstEmployee?.id || item.employeeId
-          : item.employeeId
-      }));
+      const resolvedItems = fullyResolvedItems;
 
       // Get pricing from services
       const services = await tx.service.findMany({

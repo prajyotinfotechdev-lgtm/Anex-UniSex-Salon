@@ -44,9 +44,9 @@ function CarouselItem({ item, containerRef, index }: { item: DiscoverItem, conta
     <Link
       ref={itemRef}
       href={getHref(item)}
-      className="snap-start shrink-0 w-[260px] relative rounded-[2rem] overflow-hidden group cursor-pointer block ring-1 ring-white/10 hover:ring-white/30 transition-all shadow-2xl"
+      className="snap-start shrink-0 w-[260px] relative rounded-[2rem] overflow-hidden group cursor-pointer block ring-1 ring-black/10 dark:ring-white/10 hover:ring-black/30 dark:hover:ring-white/30 transition-all shadow-2xl"
     >
-      <div className="aspect-[4/5] relative bg-zinc-900 overflow-hidden">
+      <div className="aspect-[4/5] relative bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
         {safeUrl ? (
           <motion.div style={{ x, width: "115%", height: "100%", left: "-7.5%", position: "absolute" }}>
             <Image
@@ -96,11 +96,11 @@ export function DiscoverCarousel({ items }: DiscoverCarouselProps) {
     >
       <div className="flex items-end justify-between px-6">
         <div>
-          <h3 className="text-2xl font-serif tracking-tight text-white mb-0.5">Lookbook</h3>
-          <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">Curated Inspiration</p>
+          <h3 className="text-2xl font-serif tracking-tight text-zinc-900 dark:text-white mb-0.5">Lookbook</h3>
+          <p className="text-xs text-zinc-600 dark:text-zinc-500 font-medium tracking-wide uppercase">Curated Inspiration</p>
         </div>
         <Link href="/inspiration">
-          <Button variant="ghost" size="sm" className="h-8 text-zinc-400 hover:text-white px-2" haptic="light">
+          <Button variant="ghost" size="sm" className="h-8 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white px-2" haptic="light">
             Explore <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </Button>
         </Link>

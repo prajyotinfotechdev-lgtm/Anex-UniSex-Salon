@@ -100,7 +100,7 @@ export default function HomePage() {
       <motion.div 
         className={cn(
           "sticky top-0 z-50 px-6 pt-12 pb-4 transition-all duration-300 flex items-center justify-between",
-          scrolled ? "bg-black/80 backdrop-blur-xl border-b border-white/5 shadow-sm" : "bg-transparent"
+          scrolled ? "bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 shadow-sm" : "bg-transparent"
         )}
       >
         <motion.div
@@ -108,10 +108,10 @@ export default function HomePage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-xl md:text-2xl font-light text-zinc-400 tracking-wide">
+          <h1 className="text-xl md:text-2xl font-light text-zinc-500 dark:text-zinc-400 tracking-wide">
             {timeGreeting},
           </h1>
-          <h2 className="text-2xl md:text-3xl font-serif font-medium text-white tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-serif font-medium text-zinc-900 dark:text-white tracking-tight">
             {displayName}
           </h2>
         </motion.div>
@@ -123,10 +123,10 @@ export default function HomePage() {
           transition={{ duration: 0.5 }}
         >
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button variant="ghost" size="icon" className="rounded-full h-11 w-11 relative bg-white/5 border border-white/10 hover:bg-white/10 text-white" haptic="light">
+            <Button variant="ghost" size="icon" className="rounded-full h-11 w-11 relative bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-800 dark:text-white" haptic="light">
               <Bell className="w-4 h-4" />
               {(data.notifications?.unreadCount || 0) > 0 && (
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-black" />
+                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-white dark:ring-black" />
               )}
             </Button>
           </motion.div>
@@ -148,7 +148,7 @@ export default function HomePage() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full h-11 w-11 bg-white/5 border border-white/10 hover:bg-white/10 text-white"
+              className="rounded-full h-11 w-11 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-800 dark:text-white"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               haptic="medium"
             >
@@ -180,7 +180,7 @@ export default function HomePage() {
             <Button 
               key={action} 
               variant="outline" 
-              className="rounded-full whitespace-nowrap bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-zinc-300 transition-all"
+              className="rounded-full whitespace-nowrap bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 hover:border-black/20 dark:hover:border-white/20 text-zinc-700 dark:text-zinc-300 transition-all"
               haptic="light"
             >
               {action}

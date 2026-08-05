@@ -27,25 +27,25 @@ export function ContextualRecommendations({ recommendations }: ContextualRecomme
       className="space-y-4"
     >
       <div className="px-1">
-        <h3 className="text-xl font-serif tracking-tight text-white mb-0.5">Curated For You</h3>
-        <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase">Personalized Recommendations</p>
+        <h3 className="text-xl font-serif tracking-tight text-zinc-900 dark:text-white mb-0.5">Curated For You</h3>
+        <p className="text-xs text-zinc-600 dark:text-zinc-500 font-medium tracking-wide uppercase">Personalized Recommendations</p>
       </div>
       
       <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-6 px-6">
         {recommendations.map((rec, i) => (
           <Card 
             key={i} 
-            className="snap-start shrink-0 w-[280px] border-white/5 bg-gradient-to-br from-zinc-900 to-black hover:border-primary/30 transition-all shadow-xl group rounded-2xl overflow-hidden cursor-pointer"
+            className="snap-start shrink-0 w-[280px] border-black/5 dark:border-white/5 bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-black hover:border-primary/30 transition-all shadow-xl group rounded-2xl overflow-hidden cursor-pointer"
           >
             <CardContent className="p-5 flex flex-col h-full justify-between gap-4">
               <div>
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <Sparkles className="w-4 h-4 text-primary" />
                 </div>
-                <p className="font-medium text-base text-white leading-tight mb-1">
+                <p className="font-medium text-base text-zinc-900 dark:text-white leading-tight mb-1">
                   {rec.title}
                 </p>
-                <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-zinc-600 dark:text-zinc-500 line-clamp-2 leading-relaxed">
                   {rec.subtitle}
                 </p>
               </div>

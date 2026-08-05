@@ -277,19 +277,6 @@ function HeroBanner({ posts, onBookmark }: { posts: PublicInspirationPost[]; onB
   );
 }
 
-      {/* Bookmark count badge */}
-      {post.bookmarkCount > 0 && (
-        <div className="absolute top-8 right-8">
-          <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-full px-4 py-2 flex items-center gap-2">
-            <Heart className="w-3.5 h-3.5 text-red-400 fill-current" />
-            <span className="text-white text-xs font-semibold">{post.bookmarkCount.toLocaleString()}</span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── Collections Row ──────────────────────────────────────────────────────────
 function CollectionsRow({ collections }: { collections: PublicInspirationCollection[] }) {
   if (collections.length === 0) return null;

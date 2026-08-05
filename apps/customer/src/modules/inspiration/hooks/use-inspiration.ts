@@ -31,6 +31,7 @@ export interface PublicInspirationPost {
   viewCount?: number;
   isFeatured?: boolean;
   isTrending?: boolean;
+  tags?: string[];
 }
 
 export interface PublicInspirationCollection {

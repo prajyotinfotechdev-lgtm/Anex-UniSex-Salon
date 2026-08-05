@@ -42,9 +42,10 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch((error) => {
-          console.warn("Autoplay was prevented, skipping splash screen video:", error);
-          // If autoplay fails (e.g. user has low power mode or strict settings), skip to content immediately
-          handleVideoEnd();
+          console.log("Programmatic play deferred or prevented:", error);
+          // Do NOT call handleVideoEnd() here, as iOS/Safari often rejects/aborts the play promise 
+          // initially while loading, which would prematurely skip the splash screen.
+          // The 3.5s safety timeout will handle dismissing if it fails to load entirely.
         });
       }
     }

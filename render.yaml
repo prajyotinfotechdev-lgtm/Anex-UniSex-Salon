@@ -51,3 +51,27 @@ services:
         value: "0.0.0.0"
       - key: NEXT_PUBLIC_API_URL
         sync: false
+
+  - type: cron
+    name: anex-marketing-daily
+    env: node
+    schedule: "0 10 * * *"
+    buildCommand: "echo 'No build needed for cron'"
+    startCommand: "curl -X GET -H \"Authorization: Bearer ${CRON_SECRET}\" ${CUSTOMER_APP_URL}/api/cron/marketing-daily"
+    envVars:
+      - key: CRON_SECRET
+        sync: false
+      - key: CUSTOMER_APP_URL
+        sync: false
+
+  - type: cron
+    name: anex-marketing-weekly
+    env: node
+    schedule: "0 15 * * 5"
+    buildCommand: "echo 'No build needed for cron'"
+    startCommand: "curl -X GET -H \"Authorization: Bearer ${CRON_SECRET}\" ${CUSTOMER_APP_URL}/api/cron/marketing-weekly"
+    envVars:
+      - key: CRON_SECRET
+        sync: false
+      - key: CUSTOMER_APP_URL
+        sync: false

@@ -111,10 +111,10 @@ export class ConsultationEngineService {
   /**
    * Saves a new consultation record. Never overwrites history.
    */
-  static async saveConsultation(data: SaveConsultationInput) {
+  static async saveConsultation(data: SaveConsultationInput, tx: any = prisma) {
     const { customerId, appointmentId, employeeId, type } = data;
 
-    return await prisma.consultationRecord.create({
+    return await tx.consultationRecord.create({
       data: {
         customerId,
         appointmentId,

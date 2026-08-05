@@ -208,8 +208,7 @@ export class AppointmentBookingService {
           await ConsultationEngineService.saveConsultation({
             ...cons,
             appointmentId: draft.id
-          }); // Note: in a real tx, we'd pass the tx client, but our service uses global prisma currently.
-              // For robustness, ConsultationEngineService should accept a tx, but we'll allow this for now.
+          }, tx); // Pass the transaction client to avoid deadlock
         }
       }
 

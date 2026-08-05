@@ -23,7 +23,7 @@ export function ScheduleStep() {
     queryKey: ['employees', currentCartItem?.serviceId],
     queryFn: async () => {
       const res = await axios.get(`/api/v1/employees`);
-      return res.data.data || [];
+      return res.data.data?.data || res.data.data || [];
     },
     enabled: !!currentCartItem
   });

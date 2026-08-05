@@ -30,9 +30,7 @@ export function TimePicker() {
         return [{ id: 'any', firstName: 'Anyone', lastName: 'Available' }, ...res.data];
       } catch (e) {
         return [
-          { id: 'any', firstName: 'Anyone', lastName: 'Available' },
-          { id: 'emp_1', firstName: 'Vikram', lastName: '' },
-          { id: 'emp_2', firstName: 'Rahul', lastName: '' },
+          { id: 'any', firstName: 'Anyone', lastName: 'Available' }
         ];
       }
     }

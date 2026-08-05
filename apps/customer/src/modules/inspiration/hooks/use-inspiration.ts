@@ -48,8 +48,8 @@ export const useCustomerInspirationFeed = (gender?: string) => {
     queryKey: ['inspiration-feed', gender],
     queryFn: async () => {
       const url = gender && gender !== 'ALL'
-        ? `/api/v1/public/inspiration?gender=${gender}`
-        : '/api/v1/public/inspiration';
+        ? `/api/v1/public/inspiration?gender=${gender}&limit=150`
+        : '/api/v1/public/inspiration?limit=150';
       const res = await api.get(url);
       return res.data;
     },

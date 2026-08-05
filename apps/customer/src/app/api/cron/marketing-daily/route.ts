@@ -54,7 +54,7 @@ export async function GET(req: Request) {
 
     // Send notifications in parallel
     await Promise.allSettled(
-      devices.map(async (device) => {
+      devices.map(async (device: any) => {
         try {
           if (!device.pushToken) return;
           const subscription = JSON.parse(device.pushToken);

@@ -4,12 +4,13 @@
   "version": "1.0.0",
   "packageManager": "pnpm@10.15.1",
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
-    "format": "prettier --write ."
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "postinstall": "pnpm --filter @anex/database generate"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.5.7",

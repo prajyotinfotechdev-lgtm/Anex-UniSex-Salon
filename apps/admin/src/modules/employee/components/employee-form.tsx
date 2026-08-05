@@ -81,6 +81,10 @@ export function EmployeeForm({ initialData }: EmployeeFormProps) {
   const onSubmit = async (values: EmployeeFormValues) => {
     // Process values: empty strings should be undefined/null for optional fields if the backend requires
     const processedValues = { ...values };
+
+    if (processedValues.dateOfJoining) {
+      processedValues.dateOfJoining = new Date(processedValues.dateOfJoining).toISOString();
+    }
     
     // Ensure primary branch logic
     if (processedValues.branches && processedValues.branches.length > 0) {

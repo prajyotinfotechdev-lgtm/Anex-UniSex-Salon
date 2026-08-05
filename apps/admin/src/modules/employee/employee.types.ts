@@ -8,7 +8,7 @@ export const employeeFormSchema = z.object({
   roleId: z.string().uuid('Invalid role ID format'),
   bio: z.string().optional().or(z.literal('')),
   profileImageId: z.string().uuid('Invalid UUID format').optional().or(z.literal('')),
-  dateOfJoining: z.string().datetime({ message: 'Must be a valid ISO 8601 date string' }).optional().or(z.literal('')),
+  dateOfJoining: z.string().optional().or(z.literal('')),
   emergencyContactName: z.string().optional().or(z.literal('')),
   emergencyContactPhone: z.string().optional().or(z.literal('')),
   calendarColor: z.string().optional().or(z.literal('')),

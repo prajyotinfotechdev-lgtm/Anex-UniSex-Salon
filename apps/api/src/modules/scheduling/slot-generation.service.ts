@@ -14,7 +14,7 @@ export class SlotGenerationService {
     employeeId: string,
     serviceId: string,
     date: Date,
-    intervalMinutes: number = 15
+    intervalMinutes: number = 30
   ): Promise<{ availableSlots: Date[]; unavailableSlots: Date[] }> {
     
     // 1. Fetch and validate Service

@@ -24,23 +24,11 @@ export class CalendarService {
     let endTimeStr = '21:00';
 
     if (workingHour) {
-      const formatTime = (dateVal: any): string => {
-        if (dateVal instanceof Date) {
-          const hours = String(dateVal.getUTCHours()).padStart(2, '0');
-          const minutes = String(dateVal.getUTCMinutes()).padStart(2, '0');
-          return `${hours}:${minutes}`;
-        }
-        if (typeof dateVal === 'string') {
-          return dateVal.substring(0, 5);
-        }
-        return '09:00';
-      };
-
       if (workingHour.openTime) {
-        startTimeStr = formatTime(workingHour.openTime);
+        startTimeStr = this.formatTime(workingHour.openTime);
       }
       if (workingHour.closeTime) {
-        endTimeStr = formatTime(workingHour.closeTime);
+        endTimeStr = this.formatTime(workingHour.closeTime);
       }
     }
 
@@ -58,14 +46,31 @@ export class CalendarService {
     const endOfDay = new Date(date);
     endOfDay.setUTCHours(23, 59, 59, 999);
     
-    const exceptions = await this.repo.getCalendarExceptions(branchId, startOfDay, endOfDay);
+    const [employeeExceptions, holidays] = await Promise.all([
+      this.repo.getCalendarExceptions(branchId, startOfDay, endOfDay),
+      this.repo.getHolidays(branchId, startOfDay, endOfDay)
+    ]);
     
+    // Normalize both types into a common format for processing
+    const allClosures = [
+      ...employeeExceptions.map(e => ({
+        isClosed: e.isClosed,
+        startTime: e.startTime,
+        endTime: e.endTime
+      })),
+      ...holidays.map(h => ({
+        isClosed: true,
+        startTime: h.fullDay ? null : (h.startTime ? this.formatTime(h.startTime) : null),
+        endTime: h.fullDay ? null : (h.endTime ? this.formatTime(h.endTime) : null)
+      }))
+    ];
     // If there is a full-day closure, return empty array
-    const fullDayClosure = exceptions.find(e => e.isClosed && (!e.startTime || !e.endTime));
+    // If there is a full-day closure, return empty array
+    const fullDayClosure = allClosures.find(e => e.isClosed && (!e.startTime || !e.endTime));
     if (fullDayClosure) return [];
 
     // Subtract partial day closures
-    const partialClosures = exceptions.filter(e => e.isClosed && e.startTime && e.endTime);
+    const partialClosures = allClosures.filter(e => e.isClosed && e.startTime && e.endTime);
     for (const closure of partialClosures) {
       const closureStart = this.applyTimeToDate(date, closure.startTime!);
       const closureEnd = this.applyTimeToDate(date, closure.endTime!);
@@ -113,5 +118,17 @@ export class CalendarService {
     const result = new Date(date);
     result.setHours(hours, minutes, 0, 0);
     return result;
+  }
+
+  private formatTime(dateVal: any): string {
+    if (dateVal instanceof Date) {
+      const hours = String(dateVal.getUTCHours()).padStart(2, '0');
+      const minutes = String(dateVal.getUTCMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    if (typeof dateVal === 'string') {
+      return dateVal.substring(0, 5);
+    }
+    return '09:00';
   }
 }

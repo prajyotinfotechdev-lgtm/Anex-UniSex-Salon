@@ -1,4 +1,4 @@
-import { Prisma, EmployeeAvailability, CalendarException, AppointmentItem, Service, Branch, Employee, Customer } from '@anex/database';
+import { Prisma, EmployeeAvailability, CalendarException, Holiday, AppointmentItem, Service, Branch, Employee, Customer } from '@anex/database';
 import { BaseRepository } from '../../repositories/BaseRepository';
 import { prisma } from '../../database/prisma.client';
 
@@ -11,6 +11,15 @@ export class SchedulingRepository {
 
   async getCalendarExceptions(branchId: string, startDate: Date, endDate: Date): Promise<CalendarException[]> {
     return prisma.calendarException.findMany({
+      where: {
+        branchId,
+        date: { gte: startDate, lte: endDate },
+      },
+    });
+  }
+
+  async getHolidays(branchId: string, startDate: Date, endDate: Date): Promise<Holiday[]> {
+    return prisma.holiday.findMany({
       where: {
         branchId,
         date: { gte: startDate, lte: endDate },

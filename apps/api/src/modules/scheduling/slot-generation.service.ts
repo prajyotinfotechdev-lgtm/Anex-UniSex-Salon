@@ -65,6 +65,11 @@ export class SlotGenerationService {
       let currentSlot = new Date(block.startTime);
       
       while (currentSlot < block.endTime) {
+        // Filter out past slots
+        if (currentSlot.getTime() < Date.now()) {
+          currentSlot = new Date(currentSlot.getTime() + intervalMinutes * 60000);
+          continue;
+        }
         // Calculate the theoretical occupied window if the slot was booked here
         const requestedWindow = TimeBlockCalculator.calculateOccupiedWindow(currentSlot, metrics);
 

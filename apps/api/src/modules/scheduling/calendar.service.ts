@@ -104,14 +104,14 @@ export class CalendarService {
 
   private getDayOfWeek(date: Date): DayOfWeek {
     const days = [DayOfWeek.SUNDAY, DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY];
-    return days[date.getUTCDay()];
+    return days[date.getDay()];
   }
 
   private applyTimeToDate(date: Date, timeString: string): Date {
     // timeString is expected to be "HH:mm" or "HH:mm:ss"
     const [hours, minutes] = timeString.split(':').map(Number);
     const result = new Date(date);
-    result.setUTCHours(hours, minutes, 0, 0);
+    result.setHours(hours, minutes, 0, 0);
     return result;
   }
 }

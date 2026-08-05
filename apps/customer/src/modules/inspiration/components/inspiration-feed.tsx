@@ -147,83 +147,135 @@ function PinCard({ post, onBookmark }: { post: PublicInspirationPost; onBookmark
   );
 }
 
-// ─── Hero Banner ──────────────────────────────────────────────────────────────
-function HeroBanner({ post, onBookmark }: { post: PublicInspirationPost; onBookmark: (e: React.MouseEvent, id: string) => void }) {
+// ─── Hero Banner Slideshow ────────────────────────────────────────────────────────
+function HeroBanner({ posts, onBookmark }: { posts: PublicInspirationPost[]; onBookmark: (e: React.MouseEvent, id: string) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '25%']);
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+  
+  const [current, setCurrent] = useState(0);
 
-  const imageUrl = getSafeImageUrl(post);
+  useEffect(() => {
+    if (posts.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrent(prev => (prev + 1) % posts.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [posts.length]);
+
+  const activePost = posts[current];
+  if (!activePost) return null;
+  const imageUrl = getSafeImageUrl(activePost);
   if (!imageUrl) return null;
 
   return (
-    <div ref={ref} className="relative w-full h-[80vh] overflow-hidden">
-      {/* Parallax image */}
-      <motion.div style={{ y }} className="absolute inset-0 scale-[1.1]">
-        <Image
-          src={imageUrl}
-          alt={post.title}
-          fill
-          className="object-cover"
-          priority
-          quality={90}
-        />
-      </motion.div>
-
-      {/* Gradient layers */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/30" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
-
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 md:p-14">
+    <div ref={ref} className="relative w-full h-[75vh] sm:h-[80vh] overflow-hidden bg-black">
+      {/* Slide Image with Fade-in/out */}
+      <AnimatePresence mode="popLayout">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          key={`slide-img-${activePost.id}`}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1.02 }}
+          exit={{ opacity: 0, scale: 1.05 }}
+          transition={{ duration: 0.9, ease: 'easeInOut' }}
+          style={{ y }}
+          className="absolute inset-0 w-full h-full"
         >
-          <div className="flex items-center gap-3 mb-5">
-            <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-xl border border-white/20 text-white text-[10px] uppercase tracking-[0.2em] font-semibold px-4 py-2 rounded-full">
-              <Sparkles className="w-3 h-3" />
-              Featured Look
-            </span>
-            {post.employee && (
-              <span className="text-white/50 text-xs">by {post.employee.firstName} {post.employee.lastName}</span>
-            )}
-          </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif tracking-tight text-white leading-[1.05] mb-5 max-w-3xl">
-            {post.title}
-          </h1>
-          {post.description && (
-            <p className="text-white/60 text-sm md:text-base max-w-xl mb-8 leading-relaxed font-light">
-              {post.description}
-            </p>
-          )}
-          <div className="flex items-center gap-3 flex-wrap">
-            <Link
-              href={`/inspiration/${post.slug || post.id}`}
-              className="inline-flex items-center gap-2 bg-white text-black font-semibold text-sm px-6 py-3 rounded-full hover:bg-zinc-100 transition-colors shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200"
-            >
-              View This Look <ArrowUpRight className="w-4 h-4" />
-            </Link>
-            {post.service && (
-              <span className="text-white/70 bg-white/10 backdrop-blur-xl border border-white/15 text-sm font-medium px-5 py-3 rounded-full">
-                {post.service.name} · ₹{Number(post.service.basePrice).toLocaleString('en-IN')}
-              </span>
-            )}
-            <button
-              onClick={(e) => onBookmark(e, post.id)}
-              className={cn(
-                "w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all duration-200 hover:scale-110",
-                post.isBookmarked
-                  ? 'bg-red-500/90 border-red-400/40'
-                  : 'bg-white/10 border-white/20 hover:bg-red-500/70 hover:border-red-400/40'
-              )}
-            >
-              <Heart className={cn("w-4 h-4 text-white", post.isBookmarked && 'fill-current')} />
-            </button>
-          </div>
+          <Image
+            src={imageUrl}
+            alt={activePost.title}
+            fill
+            className="object-cover"
+            priority
+            quality={90}
+          />
         </motion.div>
+      </AnimatePresence>
+
+      {/* Luxury Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-[#050505]/40 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/50 via-transparent to-transparent z-10" />
+
+      {/* Content Container */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 md:p-14 z-20">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`slide-content-${activePost.id}`}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.5, ease: [0.215, 0.61, 0.355, 1] }}
+            className="max-w-4xl"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-xl border border-white/20 text-white text-[9px] uppercase tracking-[0.2em] font-semibold px-3 py-1.5 rounded-full">
+                <Sparkles className="w-2.5 h-2.5 text-primary animate-pulse" />
+                Featured Look
+              </span>
+              {activePost.employee && (
+                <span className="text-white/60 text-xs font-light">by {activePost.employee.firstName} {activePost.employee.lastName}</span>
+              )}
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif tracking-tight text-white leading-tight mb-4 max-w-3xl">
+              {activePost.title}
+            </h1>
+
+            {activePost.description && (
+              <p className="text-zinc-300 text-xs sm:text-sm max-w-xl mb-6 leading-relaxed font-light line-clamp-2">
+                {activePost.description}
+              </p>
+            )}
+
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <Link
+                href={`/inspiration/${activePost.slug || activePost.id}`}
+                className="inline-flex items-center gap-2 bg-white text-black font-semibold text-xs px-5 py-3 rounded-full hover:bg-zinc-100 transition-all shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+              >
+                View Details <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+
+              {activePost.service && (
+                <span className="text-white/80 bg-white/10 backdrop-blur-xl border border-white/10 text-xs font-medium px-4.5 py-3 rounded-full">
+                  {activePost.service.name} · ₹{Number(activePost.service.basePrice).toLocaleString('en-IN')}
+                </span>
+              )}
+
+              <button
+                onClick={(e) => onBookmark(e, activePost.id)}
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all duration-200 hover:scale-110",
+                  activePost.isBookmarked
+                    ? 'bg-red-500/90 border-red-400/40 text-white'
+                    : 'bg-white/10 border-white/20 text-white hover:bg-red-500/70'
+                )}
+              >
+                <Heart className={cn("w-3.5 h-3.5", activePost.isBookmarked && 'fill-current')} />
+              </button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
+
+      {/* Slideshow Side Dots */}
+      {posts.length > 1 && (
+        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2.5 z-20">
+          {posts.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={cn(
+                "w-1.5 rounded-full transition-all duration-300",
+                i === current ? 'h-6 bg-white' : 'h-1.5 bg-white/30 hover:bg-white/60'
+              )}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
       {/* Bookmark count badge */}
       {post.bookmarkCount > 0 && (
@@ -300,8 +352,38 @@ export function InspirationFeed() {
   const allPosts: PublicInspirationPost[] = Array.isArray(feedData?.data) ? feedData.data : [];
   
   // Stable mixing for "All Styles" view to intersperse Men & Women looks dynamically
+  // And strict filtering for Men/Women tabs to prevent any leaks
   const posts = useMemo(() => {
-    const validPosts = allPosts.filter(p => getSafeImageUrl(p));
+    let validPosts = allPosts.filter(p => getSafeImageUrl(p));
+
+    if (selectedGender === 'MEN') {
+      validPosts = validPosts.filter(p => {
+        const hasMenTag = p.tags?.includes('men');
+        const hasWomenTag = p.tags?.includes('women');
+        if (hasMenTag && !hasWomenTag) return true;
+        if (hasMenTag && hasWomenTag) return true; // unisex
+        if (p.tags && p.tags.length > 0 && !hasMenTag) return false;
+        
+        // Fallback keyword heuristic if tags are empty
+        const title = p.title.toLowerCase();
+        const hasWomenKeyword = title.includes('women') || title.includes('girl') || title.includes('lady') || title.includes('ladies') || title.includes('female');
+        return !hasWomenKeyword;
+      });
+    } else if (selectedGender === 'WOMEN') {
+      validPosts = validPosts.filter(p => {
+        const hasWomenTag = p.tags?.includes('women');
+        const hasMenTag = p.tags?.includes('men');
+        if (hasWomenTag && !hasMenTag) return true;
+        if (hasWomenTag && hasMenTag) return true; // unisex
+        if (p.tags && p.tags.length > 0 && !hasWomenTag) return false;
+        
+        // Fallback keyword heuristic if tags are empty
+        const title = p.title.toLowerCase();
+        const hasMenKeyword = title.includes('men') || title.includes('beard') || title.includes('shave') || title.includes('guy') || title.includes('boy');
+        return !hasMenKeyword;
+      });
+    }
+
     if (selectedGender === 'ALL') {
       const hashString = (str: string) => {
         let hash = 0;
@@ -316,7 +398,12 @@ export function InspirationFeed() {
     return validPosts;
   }, [allPosts, selectedGender]);
 
-  const featuredPost = posts.find(p => p.isFeatured) || posts[0] || null;
+  // Featured looks slideshow (top 4 looks)
+  const slideshowPosts = useMemo(() => {
+    const featured = posts.filter(p => p.isFeatured);
+    return featured.length > 0 ? featured.slice(0, 4) : posts.slice(0, 4);
+  }, [posts]);
+
   const collections: PublicInspirationCollection[] = collectionsData?.data || [];
 
   const filteredPosts = posts.filter(p => {
@@ -325,10 +412,11 @@ export function InspirationFeed() {
     return matchesCategory && matchesSearch;
   });
 
-  // Exclude hero from the masonry grid to avoid duplication
-  const gridPosts = featuredPost
-    ? filteredPosts.filter(p => p.id !== featuredPost.id)
-    : filteredPosts;
+  // Exclude slideshow posts from the masonry grid to avoid duplication
+  const gridPosts = useMemo(() => {
+    if (filteredPosts.length <= 4) return filteredPosts;
+    return filteredPosts.filter(p => !slideshowPosts.some(sp => sp.id === p.id));
+  }, [filteredPosts, slideshowPosts]);
 
   const handleBookmark = async (e: React.MouseEvent, postId: string) => {
     e.preventDefault();
@@ -341,13 +429,13 @@ export function InspirationFeed() {
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-white/20">
 
-      {/* ─── Hero ─── */}
-      {featuredPost && (
-        <HeroBanner post={featuredPost} onBookmark={handleBookmark} />
+      {/* ─── Hero Slideshow ─── */}
+      {slideshowPosts.length > 0 && (
+        <HeroBanner posts={slideshowPosts} onBookmark={handleBookmark} />
       )}
 
       {/* ─── Page header (when no hero) ─── */}
-      {!featuredPost && (
+      {slideshowPosts.length === 0 && (
         <div className="pt-24 pb-10 px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <h1 className="text-5xl md:text-6xl font-serif tracking-tight mb-3 bg-gradient-to-br from-white to-white/50 bg-clip-text text-transparent">

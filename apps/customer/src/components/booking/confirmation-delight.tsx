@@ -6,10 +6,12 @@ import { CheckCircle2, Calendar, MapPin, X } from 'lucide-react';
 import { useBookingEngine } from './booking-orchestrator';
 import { useHaptics } from '../../hooks/use-haptics';
 import { Button } from '../ui/button';
+import { useRouter } from 'next/navigation';
 
 export function ConfirmationDelight() {
   const { state, reset } = useBookingEngine();
   const haptics = useHaptics();
+  const router = useRouter();
   const [showConfetti, setShowConfetti] = useState(false);
   // We initialize particles lazily so Math.random is only called once.
   // Since showConfetti is false on initial mount (SSR), there's no hydration mismatch.
@@ -25,8 +27,18 @@ export function ConfirmationDelight() {
       setShowConfetti(true);
       haptics.trigger('medium');
     }, 300);
-    return () => clearTimeout(t);
-  }, [haptics]);
+
+    // Redirect to appointments dashboard after 4 seconds
+    const redirectTimer = setTimeout(() => {
+      reset(); // Reset booking state
+      router.push('/appointments');
+    }, 4000);
+
+    return () => {
+      clearTimeout(t);
+      clearTimeout(redirectTimer);
+    };
+  }, [haptics, router, reset]);
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-6 text-center h-full relative overflow-hidden">
@@ -88,9 +100,18 @@ export function ConfirmationDelight() {
       </motion.p>
 
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
+        className="text-sm font-medium text-primary mb-8 animate-pulse"
+      >
+        Redirecting to dashboard...
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
         className="w-full max-w-sm space-y-3"
       >
         <Button variant="default" size="lg" className="w-full gap-2">

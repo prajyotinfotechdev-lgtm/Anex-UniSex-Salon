@@ -65,6 +65,23 @@ export class MediaContentEngine {
 
     // 4. DB Transaction
     try {
+      // Sanitize tags to guarantee string[]
+      let sanitizedTags: string[] = [];
+      if (metadata.tags) {
+        if (Array.isArray(metadata.tags)) {
+          sanitizedTags = metadata.tags.map((t: any) => String(t));
+        } else if (typeof metadata.tags === 'string') {
+          try {
+            sanitizedTags = JSON.parse(metadata.tags);
+            if (!Array.isArray(sanitizedTags)) {
+              sanitizedTags = [String(sanitizedTags)];
+            }
+          } catch {
+            sanitizedTags = metadata.tags.split(',').map((t: string) => t.trim());
+          }
+        }
+      }
+
       const result = await prisma.$transaction(async (tx) => {
         // A. Create Media Asset (Pure Media Data)
         const isPublished = metadata.status === 'PUBLISHED';
@@ -89,7 +106,7 @@ export class MediaContentEngine {
             providerId: cloudinaryResult.public_id,
             // Set usage count to 1 immediately as it will be associated with the domain
             usageCount: 1,
-            tags: metadata.tags || [],
+            tags: sanitizedTags,
           },
         });
 
@@ -97,7 +114,7 @@ export class MediaContentEngine {
         const domainRecordId = await handler.createDomainRecord(
           tx,
           mediaAsset.id,
-          metadata,
+          { ...metadata, tags: sanitizedTags },
           organizationId,
           uploadedById
         );
@@ -107,6 +124,7 @@ export class MediaContentEngine {
 
       return result;
     } catch (error) {
+      console.error('Database transaction failed inside media engine:', error);
       // Rollback: cleanup cloudinary
       if (cloudinaryResult && cloudinaryResult.public_id) {
         await cloudinaryService.deleteAsset(cloudinaryResult.public_id).catch(() => {

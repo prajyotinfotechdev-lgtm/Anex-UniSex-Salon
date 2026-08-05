@@ -9,6 +9,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasStartedPlaying = useRef(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -18,12 +19,23 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Safety fallback: dismiss splash screen after 6 seconds if video hasn't started playing yet
+    // Check if the video has started playing after 1.5 seconds.
+    // If it hasn't (blocked by iOS Low Power Mode, user settings, or slow network),
+    // immediately skip the splash screen so the user doesn't see a play button or frozen frame.
+    const autoplayCheckTimer = setTimeout(() => {
+      if (!hasStartedPlaying.current) {
+        console.log("Autoplay blocked or loading slowly, skipping splash screen.");
+        handleVideoEnd();
+      }
+    }, 1500);
+
+    // Safety fallback: dismiss splash screen after 6 seconds if video gets stuck
     timerRef.current = setTimeout(() => {
       handleVideoEnd();
     }, 6000);
 
     return () => {
+      clearTimeout(autoplayCheckTimer);
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
@@ -36,6 +48,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   };
 
   const handlePlay = () => {
+    hasStartedPlaying.current = true;
     // Once the video successfully starts playing, clear the safety timer so it can play to the end
     if (timerRef.current) {
       clearTimeout(timerRef.current);

@@ -65,7 +65,7 @@ export default function AppointmentsPage() {
   });
 
   const handleCancel = (id: string) => {
-    haptics.trigger("warning");
+    haptics.trigger("medium");
     if (confirm("Are you sure you want to cancel this appointment?")) {
       cancelMutation.mutate(id);
     }

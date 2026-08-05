@@ -13,8 +13,21 @@ export class CalendarService {
     const dayOfWeek = this.getDayOfWeek(date);
     
     // 1. Get raw availability
-    const availabilities = await this.repo.getEmployeeAvailability(employeeId, dayOfWeek);
-    if (availabilities.length === 0) return [];
+    let availabilities = await this.repo.getEmployeeAvailability(employeeId, dayOfWeek);
+    if (availabilities.length === 0) {
+      availabilities = [
+        {
+          id: 'default',
+          employeeId,
+          dayOfWeek,
+          startTime: '09:00',
+          endTime: '21:00',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as any
+      ];
+    }
 
     // 2. Get exceptions (branch closures)
     const startOfDay = new Date(date);

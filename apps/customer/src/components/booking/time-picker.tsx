@@ -58,7 +58,13 @@ export function TimePicker() {
         }
         
         const res = await apiClient.get(`/public/slots?${params.toString()}`);
-        return res.data || [];
+        if (res.data && Array.isArray(res.data.availableSlots)) {
+          return res.data.availableSlots.map((timeStr: string) => ({
+            time: timeStr,
+            employeeId: activeStylistId === 'any' ? undefined : activeStylistId
+          }));
+        }
+        return [];
       } catch (e) {
         // Fallback slots
         return [

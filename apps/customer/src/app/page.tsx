@@ -122,35 +122,41 @@ export default function HomePage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Button variant="ghost" size="icon" className="rounded-full h-11 w-11 relative bg-white/5 border border-white/10 hover:bg-white/10 text-white" haptic="light">
-            <Bell className="w-4 h-4" />
-            {(data.notifications?.unreadCount || 0) > 0 && (
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-black" />
-            )}
-          </Button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button variant="ghost" size="icon" className="rounded-full h-11 w-11 relative bg-white/5 border border-white/10 hover:bg-white/10 text-white" haptic="light">
+              <Bell className="w-4 h-4" />
+              {(data.notifications?.unreadCount || 0) > 0 && (
+                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-black" />
+              )}
+            </Button>
+          </motion.div>
           {isGuest && (
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full h-11 w-11 bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary"
+                onClick={() => setShowOnboarding(true)}
+                haptic="medium"
+                title="Create your profile"
+              >
+                <UserPlus className="w-4 h-4" />
+              </Button>
+            </motion.div>
+          )}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full h-11 w-11 bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary"
-              onClick={() => setShowOnboarding(true)}
+              className="rounded-full h-11 w-11 bg-white/5 border border-white/10 hover:bg-white/10 text-white"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               haptic="medium"
-              title="Create your profile"
             >
-              <UserPlus className="w-4 h-4" />
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full h-11 w-11 bg-white/5 border border-white/10 hover:bg-white/10 text-white"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            haptic="medium"
-          >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          </motion.div>
         </motion.div>
       </motion.div>
 
@@ -162,6 +168,25 @@ export default function HomePage() {
           predictiveBooking={data.predictiveBooking}
           financials={data.financials}
         />
+
+        {/* Quick Actions Scroll Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex gap-3 overflow-x-auto no-scrollbar -mx-6 px-6"
+        >
+          {['Quick Book', 'Gift Cards', 'My Packages', 'Refer a Friend'].map((action, i) => (
+            <Button 
+              key={action} 
+              variant="outline" 
+              className="rounded-full whitespace-nowrap bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 text-zinc-300 transition-all"
+              haptic="light"
+            >
+              {action}
+            </Button>
+          ))}
+        </motion.div>
 
         {/* 3. Contextual Recommendations */}
         <ContextualRecommendations recommendations={data.recommendations} />

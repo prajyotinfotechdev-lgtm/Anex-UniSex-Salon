@@ -19,8 +19,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-[env(safe-area-inset-bottom)]">
-      <div className="w-full max-w-md bg-background/80 backdrop-blur-xl border-t border-white/10 dark:bg-black/60 dark:border-white/5 px-2 py-2 flex items-center justify-between">
+    <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-center pb-[env(safe-area-inset-bottom)] w-[92%] max-w-sm pointer-events-none">
+      <div className="flex items-center justify-between w-full rounded-full bg-[#1e2730]/40 backdrop-blur-3xl border border-white/[0.08] px-3 py-2.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] pointer-events-auto ring-1 ring-white/5">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -29,35 +29,35 @@ export function BottomNav() {
             <Link
               key={item.name}
               href={item.href}
-              className="relative flex flex-col items-center justify-center w-16 h-12"
+              className="relative flex items-center justify-center w-12 h-12 rounded-full group outline-none"
             >
               {isActive && (
                 <motion.div
-                  layoutId="bottom-nav-indicator"
-                  className="absolute inset-0 bg-primary/10 rounded-xl"
+                  layoutId="floating-nav-indicator"
+                  className="absolute inset-0 bg-white/[0.12] rounded-[1.25rem] border border-white/10 shadow-inner"
                   initial={false}
                   transition={{
                     type: "spring",
-                    stiffness: 400,
-                    damping: 30,
+                    stiffness: 300,
+                    damping: 25,
+                    mass: 0.8
                   }}
                 />
               )}
-              <Icon
-                className={cn(
-                  "w-6 h-6 mb-1 transition-colors relative z-10",
-                  isActive ? "text-primary" : "text-muted-foreground"
-                )}
-                strokeWidth={isActive ? 2.5 : 2}
-              />
-              <span
-                className={cn(
-                  "text-[10px] font-medium transition-colors relative z-10",
-                  isActive ? "text-primary" : "text-muted-foreground"
-                )}
+              
+              <motion.div
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.85 }}
+                className="relative z-10"
               >
-                {item.name}
-              </span>
+                <Icon
+                  className={cn(
+                    "w-[22px] h-[22px] transition-all duration-300",
+                    isActive ? "text-white" : "text-white/40 group-hover:text-white/80"
+                  )}
+                  strokeWidth={isActive ? 2 : 1.25}
+                />
+              </motion.div>
             </Link>
           );
         })}

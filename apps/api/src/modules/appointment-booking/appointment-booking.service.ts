@@ -28,6 +28,21 @@ export class AppointmentBookingService {
       if (b) branchId = b.id;
     }
 
+    let resolvedOrgId = organizationId;
+    if (!resolvedOrgId) {
+      const customer = await prisma.customer.findUnique({ where: { id: customerId } });
+      if (customer) {
+        resolvedOrgId = customer.organizationId;
+      } else {
+        const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+        if (branch) resolvedOrgId = branch.organizationId;
+      }
+    }
+    if (!resolvedOrgId) {
+      const firstOrg = await prisma.organization.findFirst();
+      if (firstOrg) resolvedOrgId = firstOrg.id;
+    }
+
     // 1. Get memory and recommendations
     const profile = await CustomerInsightService.getBookingProfile(customerId);
     const recommendations = await SmartRecommendationService.getRecommendations(customerId);
@@ -35,7 +50,7 @@ export class AppointmentBookingService {
     // 2. Check for an existing valid DRAFT for this customer/branch
     let draft = await prisma.appointment.findFirst({
       where: {
-        organizationId,
+        organizationId: resolvedOrgId,
         customerId: customerId,
         branchId: branchId,
         status: AppointmentStatus.PENDING,
@@ -48,7 +63,7 @@ export class AppointmentBookingService {
       // Create a new DRAFT that expires in 1 hour
       draft = await prisma.appointment.create({
         data: {
-          organizationId,
+          organizationId: resolvedOrgId!,
           branchId: branchId,
           customerId: customerId,
           status: AppointmentStatus.PENDING,
@@ -90,17 +105,23 @@ export class AppointmentBookingService {
    */
   async confirmBooking(organizationId: string, actorUserId: string, data: ConfirmBookingInput) {
     const draft = await prisma.appointment.findFirst({
-      where: { id: data.appointmentId, organizationId, status: AppointmentStatus.PENDING }
+      where: { id: data.appointmentId, status: AppointmentStatus.PENDING }
     });
 
     if (!draft) {
       throw new NotFoundError('Draft appointment not found or expired');
     }
 
+    let resolvedOrgId = organizationId || draft.organizationId;
+    if (!resolvedOrgId) {
+      const firstOrg = await prisma.organization.findFirst();
+      if (firstOrg) resolvedOrgId = firstOrg.id;
+    }
+
     // 1. Verify availability for all items
     for (const item of data.items) {
       const { available, conflicts } = await this.schedulingService.checkAvailability(
-        organizationId,
+        resolvedOrgId!,
         draft.branchId,
         item.employeeId,
         item.serviceId,

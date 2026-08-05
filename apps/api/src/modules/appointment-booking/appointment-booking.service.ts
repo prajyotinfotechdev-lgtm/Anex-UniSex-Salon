@@ -122,7 +122,12 @@ export class AppointmentBookingService {
       throw new NotFoundError('Draft appointment not found or expired');
     }
 
-    let resolvedOrgId = organizationId || draft.organizationId;
+    let resolvedOrgId = organizationId;
+    if (!resolvedOrgId) {
+      // Appointment has no organizationId — resolve via Branch
+      const branchWithOrg = await prisma.branch.findUnique({ where: { id: draft.branchId }, include: { organization: true } });
+      resolvedOrgId = branchWithOrg?.organizationId || undefined;
+    }
     if (!resolvedOrgId) {
       const firstOrg = await prisma.organization.findFirst();
       if (firstOrg) resolvedOrgId = firstOrg.id;
@@ -151,14 +156,17 @@ export class AppointmentBookingService {
         where: { appointmentId: draft.id }
       });
 
-      // Resolve mock service/employee IDs
+      // Resolve mock/null/any service and employee IDs to real UUIDs
       const firstService = await tx.service.findFirst();
       const firstEmployee = await tx.employee.findFirst();
 
       const resolvedItems = data.items.map(item => ({
         ...item,
         serviceId: item.serviceId.startsWith('srv_') ? firstService?.id || item.serviceId : item.serviceId,
-        employeeId: (item.employeeId && (item.employeeId.startsWith('emp_') || item.employeeId === 'any')) ? firstEmployee?.id || item.employeeId : item.employeeId
+        // Resolve null, 'any', or 'emp_*' prefixed employeeId to a real employee UUID
+        employeeId: (!item.employeeId || item.employeeId === 'any' || item.employeeId.startsWith('emp_'))
+          ? firstEmployee?.id || item.employeeId
+          : item.employeeId
       }));
 
       // Get pricing from services
@@ -218,7 +226,8 @@ export class AppointmentBookingService {
         where: { id: draft.id },
         data: {
           status: AppointmentStatus.CONFIRMED,
-          date: firstItemDate
+          date: firstItemDate,
+          confirmedAt: new Date()
         },
         include: { items: true, ConsultationRecord: true }
       });

@@ -46,7 +46,8 @@ export function BookingSummary() {
       // 3. Confirm immediately if no requirements
       const items = state.serviceIds.map(id => ({
         serviceId: id,
-        employeeId: state.stylistId !== 'any' ? state.stylistId : null,
+        // Send 'any' instead of null — backend will resolve to first available employee
+        employeeId: (state.stylistId && state.stylistId !== 'any') ? state.stylistId : 'any',
         startTime: state.timeSlot?.toISOString(),
         endTime: state.endTime?.toISOString()
       }));
@@ -55,6 +56,11 @@ export function BookingSummary() {
         appointmentId: draftId,
         items
       });
+
+      // Invalidate both customer and admin appointments cache so dashboards refresh immediately
+      await queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      await queryClient.invalidateQueries({ queryKey: ['customer-appointments'] });
+
       goToDimension('DELIGHT');
     } catch (err: any) {
       console.error(err);
@@ -64,6 +70,7 @@ export function BookingSummary() {
       throw err;
     }
   };
+
 
   return (
     <div className="flex flex-col h-full bg-background relative">

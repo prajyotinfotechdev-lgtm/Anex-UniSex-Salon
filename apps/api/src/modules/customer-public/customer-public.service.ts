@@ -51,8 +51,7 @@ export class CustomerPublicService {
       select: {
         id: true,
         firstName: true,
-        lastName: true,
-        title: true
+        lastName: true
       }
     });
   }

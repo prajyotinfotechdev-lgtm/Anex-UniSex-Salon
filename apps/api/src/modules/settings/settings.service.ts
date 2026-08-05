@@ -226,12 +226,13 @@ export class SettingsService extends BaseService {
         let parsedCloseTime: Date | null = null;
 
         if (a.openTime) {
-          const [hours, minutes] = a.openTime.split(':').map(Number);
-          parsedOpenTime = new Date(1970, 0, 1, hours, minutes, 0);
+          // Normalize to HH:MM format first
+          const time = a.openTime.includes(':') ? a.openTime : '09:00';
+          parsedOpenTime = new Date(`1970-01-01T${time.substring(0, 5)}:00.000Z`);
         }
         if (a.closeTime) {
-          const [hours, minutes] = a.closeTime.split(':').map(Number);
-          parsedCloseTime = new Date(1970, 0, 1, hours, minutes, 0);
+          const time = a.closeTime.includes(':') ? a.closeTime : '21:00';
+          parsedCloseTime = new Date(`1970-01-01T${time.substring(0, 5)}:00.000Z`);
         }
 
         return prisma.branchWorkingHour.upsert({

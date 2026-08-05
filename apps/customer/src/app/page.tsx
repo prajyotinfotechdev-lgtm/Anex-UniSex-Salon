@@ -15,6 +15,7 @@ import { OnboardingCard } from "@/components/onboarding/onboarding-card";
 // Dashboard Components
 import { StatusHub } from "@/components/dashboard/status-hub";
 import { DiscoverCarousel } from "@/components/dashboard/discover-carousel";
+import { NotificationPrompt } from "@/components/dashboard/notification-prompt";
 import { ContextualRecommendations } from "@/components/dashboard/contextual-recommendations";
 
 export default function HomePage() {
@@ -159,6 +160,9 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
       </motion.div>
+
+      {/* Push Notification Prompt */}
+      <NotificationPrompt customerId="mock-customer-id-for-now" />
 
       <div className="px-6 space-y-10 mt-6">
         {/* 2. The Anex Hub (Merged Hero & Identity) */}

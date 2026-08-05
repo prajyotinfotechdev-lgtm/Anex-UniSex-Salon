@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
@@ -298,7 +298,24 @@ export function InspirationFeed() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const allPosts: PublicInspirationPost[] = Array.isArray(feedData?.data) ? feedData.data : [];
-  const posts = allPosts.filter(p => getSafeImageUrl(p));
+  
+  // Stable mixing for "All Styles" view to intersperse Men & Women looks dynamically
+  const posts = useMemo(() => {
+    const validPosts = allPosts.filter(p => getSafeImageUrl(p));
+    if (selectedGender === 'ALL') {
+      const hashString = (str: string) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = (hash << 5) - hash + str.charCodeAt(i);
+          hash |= 0;
+        }
+        return hash;
+      };
+      return [...validPosts].sort((a, b) => hashString(a.id) - hashString(b.id));
+    }
+    return validPosts;
+  }, [allPosts, selectedGender]);
+
   const featuredPost = posts.find(p => p.isFeatured) || posts[0] || null;
   const collections: PublicInspirationCollection[] = collectionsData?.data || [];
 

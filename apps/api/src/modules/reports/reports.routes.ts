@@ -8,6 +8,7 @@ import {
   getDashboardSummaryHandler,
   getRevenueReportHandler,
   getRevenueTrendHandler,
+  getAppointmentTrendHandler,
   getEmployeePerformanceHandler,
 } from './reports.controller';
 
@@ -118,6 +119,7 @@ router.get('/revenue', requirePermission(PERMISSIONS.REPORTS.READ), validate(bas
  *         description: Revenue trend
  */
 router.get('/revenue/trend', requirePermission(PERMISSIONS.REPORTS.READ), validate(baseReportFilterSchema), getRevenueTrendHandler);
+router.get('/appointments/trend', requirePermission(PERMISSIONS.REPORTS.READ), validate(baseReportFilterSchema), getAppointmentTrendHandler);
 
 /**
  * @swagger

@@ -5,6 +5,7 @@ export const queryKeys = {
   dashboard: {
     summary: (branchId?: string) => ['dashboard', 'summary', branchId] as const,
     revenue: (filters: unknown) => ['dashboard', 'revenue', filters] as const,
+    appointments: (filters: unknown) => ['dashboard', 'appointments-trend', filters] as const,
   },
   customers: {
     all: (filters?: unknown) => ['customers', filters] as const,

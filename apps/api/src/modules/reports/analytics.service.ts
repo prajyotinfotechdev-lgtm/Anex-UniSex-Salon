@@ -32,6 +32,17 @@ export class AnalyticsService extends BaseService {
     return data;
   }
 
+  async getAppointmentTrend(organizationId: string, period: 'day' | 'week' | 'month' | 'year', filters: BaseReportFilters) {
+    const data = await ReportAggregator.aggregateAppointmentsByPeriod(
+      organizationId,
+      period,
+      filters.startDate,
+      filters.endDate,
+      filters.branchId
+    );
+    return data;
+  }
+
   async getPaymentMethodBreakdown(organizationId: string, filters: BaseReportFilters) {
     return this.repo.getPaymentMethodBreakdown(organizationId, filters);
   }

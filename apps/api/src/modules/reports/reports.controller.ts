@@ -58,6 +58,21 @@ export const getRevenueTrendHandler = async (req: Request, res: Response, next: 
   }
 };
 
+export const getAppointmentTrendHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const query = req.query as unknown as BaseReportFilterQueryDto;
+    const filters = {
+      startDate: new Date(query.startDate),
+      endDate: new Date(query.endDate),
+      branchId: query.branchId,
+    };
+    const data = await analyticsService.getAppointmentTrend(req.user!.organizationId, query.period, filters);
+    return handleExport(res, data, query.format, 'appointments-trend');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getEmployeePerformanceHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = req.query as unknown as BaseReportFilterQueryDto;

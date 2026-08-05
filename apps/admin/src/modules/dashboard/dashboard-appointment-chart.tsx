@@ -1,27 +1,19 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-
+import { getAppointmentTrend } from '@/shared/api/dashboard.api';
+import { queryKeys } from '@/shared/api/queryKeys';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 
-// Mock function until API is ready
-const getAppointmentTrend = async () => {
-  return [
-    { date: '2024-01-01', appointments: 12 },
-    { date: '2024-01-02', appointments: 15 },
-    { date: '2024-01-03', appointments: 10 },
-    { date: '2024-01-04', appointments: 22 },
-    { date: '2024-01-05', appointments: 18 },
-    { date: '2024-01-06', appointments: 25 },
-    { date: '2024-01-07', appointments: 16 },
-  ];
-};
-
 export function DashboardAppointmentChart() {
+  const endDate = new Date().toISOString();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 7); // Last 7 days
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['dashboard', 'appointments-trend'],
-    queryFn: () => getAppointmentTrend(),
+    queryKey: queryKeys.dashboard.appointments({ startDate: startDate.toISOString(), endDate }),
+    queryFn: () => getAppointmentTrend(startDate.toISOString(), endDate),
   });
 
   return (

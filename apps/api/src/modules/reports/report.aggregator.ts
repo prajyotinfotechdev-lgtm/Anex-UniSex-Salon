@@ -39,4 +39,35 @@ export class ReportAggregator {
       revenue: Number(r.revenue) || 0
     }));
   }
+
+  static async aggregateAppointmentsByPeriod(
+    organizationId: string,
+    period: 'day' | 'week' | 'month' | 'year',
+    startDate: Date,
+    endDate: Date,
+    branchId?: string
+  ): Promise<{ date: string; appointments: number }[]> {
+    const query = Prisma.sql`
+      SELECT 
+        DATE_TRUNC(${period}, app."date") as date,
+        COUNT(app.id)::int as appointments
+      FROM "Appointment" app
+      JOIN "Branch" b ON app."branchId" = b.id
+      WHERE b."organizationId" = ${organizationId}::uuid
+        AND app."deletedAt" IS NULL
+        AND app."isActive" = true
+        AND app."date" >= ${startDate}
+        AND app."date" <= ${endDate}
+        ${branchId ? Prisma.sql`AND b.id = ${branchId}::uuid` : Prisma.empty}
+      GROUP BY 1
+      ORDER BY 1 ASC
+    `;
+
+    const result: any[] = await prisma.$queryRaw(query);
+    
+    return result.map(r => ({
+      date: r.date instanceof Date ? r.date.toISOString() : String(r.date),
+      appointments: Number(r.appointments) || 0
+    }));
+  }
 }

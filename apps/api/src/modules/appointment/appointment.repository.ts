@@ -68,7 +68,7 @@ export class AppointmentRepository extends BaseRepository<Appointment, Prisma.Ap
       deletedAt: null,
       ...(customerId && { customerId }),
       ...(branchId && { branchId }),
-      ...(status && { status }),
+      ...(status ? { status } : { status: { not: 'PENDING' } }),
       ...(source && { source }),
       ...(dateFrom || dateTo ? {
         date: {

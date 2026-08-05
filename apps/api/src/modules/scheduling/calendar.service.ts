@@ -109,14 +109,20 @@ export class CalendarService {
 
   private getDayOfWeek(date: Date): DayOfWeek {
     const days = [DayOfWeek.SUNDAY, DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY];
-    return days[date.getDay()];
+    // Get day in IST timezone
+    const dateInIST = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    return days[dateInIST.getDay()];
   }
 
   private applyTimeToDate(date: Date, timeString: string): Date {
-    // timeString is expected to be "HH:mm" or "HH:mm:ss"
+    // timeString is expected to be "HH:mm" or "HH:mm:ss" in IST timezone
     const [hours, minutes] = timeString.split(':').map(Number);
+    
+    // Create a date using the provided date but set the time
+    // Then we treat that as IST and calculate the UTC equivalent.
+    // IST is UTC + 5:30. To convert IST time to UTC, subtract 5 hours and 30 minutes.
     const result = new Date(date);
-    result.setHours(hours, minutes, 0, 0);
+    result.setUTCHours(hours - 5, minutes - 30, 0, 0);
     return result;
   }
 

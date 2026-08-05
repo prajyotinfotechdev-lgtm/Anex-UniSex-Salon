@@ -71,13 +71,20 @@ export default function WorkingHoursPage() {
       // Helper to format Date or string to HH:MM
       const formatTime = (timeVal: any): string => {
         if (!timeVal) return '09:00';
-        if (typeof timeVal === 'string') {
-          return timeVal.substring(0, 5);
+        let str = '';
+        if (timeVal instanceof Date) {
+          str = timeVal.toISOString();
+        } else if (typeof timeVal === 'string') {
+          str = timeVal;
+        } else {
+          return '09:00';
         }
-        const d = new Date(timeVal);
-        const hours = String(d.getUTCHours()).padStart(2, '0');
-        const minutes = String(d.getUTCMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
+        
+        if (str.includes('T')) {
+          const timePortion = str.split('T')[1];
+          return timePortion.substring(0, 5);
+        }
+        return str.substring(0, 5);
       };
 
       // Override with configured working hours

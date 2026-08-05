@@ -84,6 +84,27 @@ export function EmployeeForm({ initialData }: EmployeeFormProps) {
 
     if (processedValues.dateOfJoining) {
       processedValues.dateOfJoining = new Date(processedValues.dateOfJoining).toISOString();
+    } else {
+      processedValues.dateOfJoining = undefined;
+    }
+
+    if (processedValues.profileImageId === '') {
+      processedValues.profileImageId = undefined;
+    }
+    if (processedValues.email === '') {
+      processedValues.email = undefined;
+    }
+    if (processedValues.phone === '') {
+      processedValues.phone = undefined;
+    }
+    if (processedValues.bio === '') {
+      processedValues.bio = undefined;
+    }
+    if (processedValues.emergencyContactName === '') {
+      processedValues.emergencyContactName = undefined;
+    }
+    if (processedValues.emergencyContactPhone === '') {
+      processedValues.emergencyContactPhone = undefined;
     }
     
     // Ensure primary branch logic

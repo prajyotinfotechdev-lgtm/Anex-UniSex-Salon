@@ -327,9 +327,9 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
         <h1 className="text-3xl md:text-4xl font-serif leading-tight mb-4">{post.title}</h1>
 
         {post.description && (
-          <p className="text-zinc-400 text-[15px] font-light leading-relaxed mb-8">
+          <div className="text-zinc-300 text-[15px] font-light leading-relaxed mb-8 whitespace-pre-line prose prose-invert max-w-none">
             {post.description}
-          </p>
+          </div>
         )}
 
         {/* ─── Premium Service Card ─── */}

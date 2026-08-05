@@ -1,4 +1,4 @@
-import { PremiumLoader } from '../ui/premium-loader';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 
 export function LoadingState({ message = 'Loading...' }: { message?: string }) {
   return <PremiumLoader text={message} />;

@@ -8,12 +8,17 @@ import { ChevronLeft, Scissors, Clock } from 'lucide-react';
 import { SwipeToConfirm } from './swipe-to-confirm';
 import useSWRMutation from 'swr/mutation';
 import { toast } from 'sonner';
-
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../lib/axios';
+import { useCustomerProfile } from '../providers/CustomerProfileContext';
+import { OnboardingCard } from '../onboarding/onboarding-card';
 
 export function BookingSummary() {
   const { state, setDraftId, setMissingRequirements, goToDimension } = useBookingEngine();
+  const { isGuest } = useCustomerProfile();
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const haptics = useHaptics();
   const queryClient = useQueryClient();
   
@@ -130,12 +135,30 @@ export function BookingSummary() {
 
       {/* Footer / Confirm Slider */}
       <div className="p-6 pb-safe bg-background/80 backdrop-blur-md border-t border-border/50 absolute bottom-0 left-0 right-0">
-        <SwipeToConfirm 
-          onConfirm={handleConfirm} 
-          label="Swipe to Book" 
-          processingLabel="Securing your spot..."
-        />
+        {isGuest ? (
+          <Button 
+            className="w-full h-12 text-base font-semibold rounded-2xl" 
+            onClick={() => {
+              haptics.trigger('medium');
+              setShowOnboarding(true);
+            }}
+          >
+            Verify Phone to Book
+          </Button>
+        ) : (
+          <SwipeToConfirm 
+            onConfirm={handleConfirm} 
+            label="Swipe to Book" 
+            processingLabel="Securing your spot..."
+          />
+        )}
       </div>
+
+      <AnimatePresence>
+        {showOnboarding && (
+          <OnboardingCard onClose={() => setShowOnboarding(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

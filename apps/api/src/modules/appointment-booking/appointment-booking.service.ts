@@ -34,21 +34,7 @@ export class AppointmentBookingService {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     let resolvedCustomerId = customerId;
     if (!customerId || !uuidRegex.test(customerId)) {
-      const c = await prisma.customer.findFirst();
-      if (c) {
-        resolvedCustomerId = c.id;
-      } else {
-        const defaultCustomer = await prisma.customer.create({
-          data: {
-            organizationId: resolvedOrgId!,
-            firstName: 'Guest',
-            lastName: 'Customer',
-            email: 'guest@anexsalon.com',
-            phone: '9999999999'
-          }
-        });
-        resolvedCustomerId = defaultCustomer.id;
-      }
+      throw new ValidationError("A valid customer ID is required to start a booking.");
     }
 
     // 1. Get memory and recommendations
@@ -93,8 +79,7 @@ export class AppointmentBookingService {
     let resolvedCustomerId = customerId;
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!resolvedCustomerId || !uuidRegex.test(resolvedCustomerId)) {
-      const c = await prisma.customer.findFirst();
-      if (c) resolvedCustomerId = c.id;
+      throw new ValidationError("A valid customer ID is required to check requirements.");
     }
 
     const firstService = await prisma.service.findFirst();

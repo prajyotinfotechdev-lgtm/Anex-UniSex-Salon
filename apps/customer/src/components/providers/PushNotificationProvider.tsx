@@ -26,21 +26,30 @@ export function PushNotificationProvider({ children }: { children: React.ReactNo
   return (
     <>
       {children}
-      {/* Optional: Floating prompt for users who haven't subscribed */}
+      {/* Aggressive Modal prompt for users who haven't subscribed */}
       {isSupported && permission === "default" && profile && (
-        <div className="fixed bottom-24 left-4 right-4 z-50 bg-zinc-900 border border-zinc-800 rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
-          <div className="flex-1">
-            <h4 className="text-sm font-semibold text-white mb-1">Enable Notifications</h4>
-            <p className="text-xs text-zinc-400">Get updates on your appointments and exclusive offers.</p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl max-w-sm w-full text-center space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
+              <Bell className="w-8 h-8 text-primary animate-pulse" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-white">Don't Miss Out!</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                Enable notifications to instantly receive exclusive offers, appointment reminders, and salon updates.
+              </p>
+            </div>
+
+            <Button 
+              size="lg" 
+              onClick={() => subscribeToPush(profile.id)}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl h-12 text-md"
+            >
+              <Bell className="w-5 h-5 mr-2" />
+              Allow Notifications
+            </Button>
           </div>
-          <Button 
-            size="sm" 
-            onClick={() => subscribeToPush(profile.id)}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-          >
-            <Bell className="w-4 h-4 mr-2" />
-            Enable
-          </Button>
         </div>
       )}
     </>

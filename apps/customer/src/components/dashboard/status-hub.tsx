@@ -152,21 +152,21 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
         ) : (
           <div className="flex flex-row items-center justify-between gap-4">
             <div className="space-y-4 flex-1">
-              <div className="inline-flex items-center gap-1.5 bg-black/5 dark:bg-white/10 text-zinc-700 dark:text-zinc-200 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-black/10 dark:border-white/20 backdrop-blur-md">
+              <div className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-primary/20 backdrop-blur-md">
                 <Crown className="w-3 h-3 text-primary" />
                 Welcome Back
               </div>
               
               <div>
-                <h2 className="text-3xl font-serif text-zinc-900 dark:text-white tracking-tight mb-2">
+                <h2 className="text-3xl font-serif text-white tracking-tight mb-2">
                   Ready for a refresh?
                 </h2>
-                <p className="text-zinc-600 dark:text-zinc-400 font-medium text-sm leading-relaxed mb-4">
+                <p className="text-zinc-400 font-light text-sm leading-relaxed mb-4">
                   Explore our curated services and discover a new look today.
                 </p>
                 
                 <Button 
-                  className="w-full bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-black font-bold rounded-2xl h-12 text-sm shadow-lg transition-all active:scale-[0.98]" 
+                  className="w-full bg-primary hover:bg-primary/95 text-black font-semibold rounded-xl h-12 text-sm shadow-lg shadow-primary/10 transition-all active:scale-[0.98]" 
                   haptic="medium"
                   onClick={() => goToDimension('SERVICE')}
                 >

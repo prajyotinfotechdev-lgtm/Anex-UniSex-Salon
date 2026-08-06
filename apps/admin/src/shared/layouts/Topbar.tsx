@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { usePathname } from 'next/navigation';
+import { MobileSidebar } from './Sidebar';
 
 export function Topbar() {
   const { theme, setTheme } = useTheme();
@@ -29,10 +30,11 @@ export function Topbar() {
   const currentSection = paths.length > 0 ? paths[0].charAt(0).toUpperCase() + paths[0].slice(1) : 'Dashboard';
 
   return (
-    <header className="h-16 border-b bg-background flex items-center justify-between px-6 sticky top-0 z-40">
-      <div className="flex items-center gap-4">
+    <header className="h-16 border-b bg-background flex items-center justify-between px-4 md:px-6 sticky top-0 z-40">
+      <div className="flex items-center gap-2 md:gap-4">
+        <MobileSidebar />
         {/* Breadcrumbs Placeholder */}
-        <h2 className="text-lg font-semibold tracking-tight">
+        <h2 className="text-lg font-semibold tracking-tight truncate max-w-[120px] sm:max-w-xs">
           {currentSection}
         </h2>
       </div>

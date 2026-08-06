@@ -25,7 +25,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         isSidebarExpanded ? "md:ml-64" : "md:ml-16"
       )}>
         <Topbar />
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 overflow-x-hidden overflow-y-auto">
           {children}
         </main>
       </div>

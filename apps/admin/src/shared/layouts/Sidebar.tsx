@@ -104,45 +104,52 @@ export function Sidebar() {
       </div>
       </aside>
 
-      {/* Mobile Sidebar / Drawer */}
-      <div className="md:hidden fixed top-0 left-0 z-50 p-4">
-        <Sheet>
-          <SheetTrigger
-            render={
-              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation">
-                <Menu size={24} />
-              </Button>
-            }
-          />
-          <SheetContent side="left" className="w-64 p-0">
-            <div className="flex items-center h-16 px-4 border-b">
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-                ANEX OS
-              </span>
-            </div>
-            <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
-              {MENU_ITEMS.map((item) => {
-                const isActive = pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center px-3 py-2.5 rounded-md transition-colors",
-                      isActive 
-                        ? "bg-primary/10 text-primary font-medium" 
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className={cn("shrink-0", isActive ? "text-primary" : "text-muted-foreground")} size={20} />
-                    <span className="ml-3 truncate">{item.name}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </SheetContent>
-        </Sheet>
-      </div>
+      {/* Mobile Sidebar is now exported separately and used in Topbar */}
     </>
+  );
+}
+
+export function MobileSidebar() {
+  const pathname = usePathname();
+  
+  return (
+    <div className="md:hidden flex items-center">
+      <Sheet>
+        <SheetTrigger
+          render={
+            <Button variant="ghost" size="icon" className="md:hidden -ml-2" aria-label="Open navigation">
+              <Menu size={24} />
+            </Button>
+          }
+        />
+        <SheetContent side="left" className="w-64 p-0">
+          <div className="flex items-center h-16 px-4 border-b">
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+              ANEX OS
+            </span>
+          </div>
+          <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
+            {MENU_ITEMS.map((item) => {
+              const isActive = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center px-3 py-2.5 rounded-md transition-colors",
+                    isActive 
+                      ? "bg-primary/10 text-primary font-medium" 
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  <item.icon className={cn("shrink-0", isActive ? "text-primary" : "text-muted-foreground")} size={20} />
+                  <span className="ml-3 truncate">{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }

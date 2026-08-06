@@ -8,9 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/components/ui/use-toast';
-import { Send, BellRing, Users } from 'lucide-react';
-import { PremiumLoader } from '@/components/ui/premium-loader';
+import { toast } from 'sonner';
+import { Send, BellRing, Users, Loader2 } from 'lucide-react';
 
 type NotificationForm = {
   title: string;
@@ -20,7 +19,6 @@ type NotificationForm = {
 };
 
 export default function NotificationsPage() {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<NotificationForm>({
     defaultValues: {
@@ -51,17 +49,10 @@ export default function NotificationsPage() {
         throw new Error(result.error || 'Failed to send notification');
       }
 
-      toast({
-        title: "Success",
-        description: `Notification dispatched successfully to ${result.sent} devices.`,
-      });
+      toast.success(`Notification dispatched successfully to ${result.sent} devices.`);
       reset();
     } catch (err: any) {
-      toast({
-        title: "Broadcast Failed",
-        description: err.message,
-        variant: "destructive",
-      });
+      toast.error(err.message || 'Broadcast Failed');
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +80,7 @@ export default function NotificationsPage() {
           <CardContent>
             {isLoading ? (
               <div className="py-20 flex flex-col items-center justify-center space-y-4">
-                <PremiumLoader size="lg" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 <p className="text-muted-foreground animate-pulse">Dispatching to network...</p>
               </div>
             ) : (

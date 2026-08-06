@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Plus, Search, CheckCircle, XCircle, Copy, Edit, Eye } from 'lucide-react';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 
 export function ServiceList() {
   const router = useRouter();
@@ -90,7 +91,9 @@ export function ServiceList() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-10">Loading...</TableCell>
+                <TableCell colSpan={8} className="h-64 p-0">
+                  <PremiumLoader text="Loading services..." />
+                </TableCell>
               </TableRow>
             ) : data?.data?.length === 0 ? (
               <TableRow>

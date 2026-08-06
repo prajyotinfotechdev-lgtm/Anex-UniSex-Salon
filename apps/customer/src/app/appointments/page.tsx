@@ -22,7 +22,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { OnboardingCard } from "@/components/onboarding/onboarding-card";
+import { CancelDialog } from "../../components/booking/cancel-dialog";
+import { OnboardingCard } from "../../components/onboarding/onboarding-card";
+import { PremiumLoader } from "../../components/ui/premium-loader";
 
 export default function AppointmentsPage() {
   const { profile, isGuest, isLoading: profileLoading } = useCustomerProfile();
@@ -207,10 +209,8 @@ export default function AppointmentsPage() {
       {/* Content */}
       <div className="flex-1 px-6 space-y-4">
         {showLoading ? (
-          <div className="space-y-4">
-            {[1, 2].map((i) => (
-              <div key={i} className="h-44 bg-zinc-900/30 border border-zinc-800/40 rounded-3xl animate-pulse" />
-            ))}
+          <div className="flex items-center justify-center h-64">
+            <PremiumLoader text="Loading your appointments..." />
           </div>
         ) : isGuest ? (
           // Guest User State

@@ -4,6 +4,7 @@ import { useTheme } from "next-themes";
 import { Moon, Sun, Bell, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PremiumLoader } from "@/components/ui/premium-loader";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { useCustomerProfile } from "@/components/providers/CustomerProfileContext";
 import { toast } from "sonner";
@@ -60,21 +61,8 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 pb-32">
-        <div className="p-6 pt-12 flex items-center justify-between mb-8">
-          <Skeleton className="h-10 w-48 rounded-lg bg-zinc-900" />
-          <Skeleton className="h-12 w-12 rounded-full bg-zinc-900" />
-        </div>
-        <div className="px-6 space-y-8">
-          <Skeleton className="h-72 w-full rounded-3xl bg-zinc-900" />
-          <div className="space-y-4 mt-8">
-            <Skeleton className="h-6 w-32 rounded-md bg-zinc-900" />
-            <div className="flex gap-4 overflow-hidden">
-              <Skeleton className="h-72 w-64 rounded-3xl shrink-0 bg-zinc-900" />
-              <Skeleton className="h-72 w-64 rounded-3xl shrink-0 bg-zinc-900" />
-            </div>
-          </div>
-        </div>
+      <div className="flex-1 pb-32 flex items-center justify-center h-screen">
+        <PremiumLoader text="Loading your dashboard..." />
       </div>
     );
   }

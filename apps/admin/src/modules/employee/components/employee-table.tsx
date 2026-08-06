@@ -40,6 +40,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { HasPermission } from '@/shared/components/HasPermission';
 import { toast } from 'sonner';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 
 import { useEmployees, useActivateEmployee, useDeactivateEmployee } from '../employee.hooks';
 import { Employee } from '../employee.types';
@@ -182,16 +183,11 @@ export function EmployeeTable() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
-                  <TableCell className="text-right"><Skeleton className="h-8 w-8 rounded-md ml-auto" /></TableCell>
-                </TableRow>
-              ))
+              <TableRow>
+                <TableCell colSpan={6} className="h-64 p-0">
+                  <PremiumLoader text="Loading employees..." />
+                </TableCell>
+              </TableRow>
             ) : isError ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-32 text-center text-destructive">

@@ -33,6 +33,7 @@ import {
   Copy
 } from 'lucide-react';
 import { useCustomers, useActivateCustomer, useDeactivateCustomer } from '../customer.hooks';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 import { Customer } from '../customer.types';
 import { formatDate } from '@/shared/utils/date';
 import { toast } from 'sonner';
@@ -151,19 +152,12 @@ export function CustomerTable() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              // Skeleton State
-              Array.from({ length: limit }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[120px] mb-2" />
-                    <Skeleton className="h-3 w-[100px]" />
-                  </TableCell>
-                  <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-[60px] rounded-full" /></TableCell>
-                  <TableCell><Skeleton className="h-8 w-8 rounded-md" /></TableCell>
-                </TableRow>
-              ))
+              // Loading State
+              <TableRow>
+                <TableCell colSpan={5} className="h-64 p-0">
+                  <PremiumLoader text="Loading customers..." />
+                </TableCell>
+              </TableRow>
             ) : isError ? (
               // Error State
               <TableRow>

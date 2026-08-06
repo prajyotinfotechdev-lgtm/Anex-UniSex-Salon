@@ -5,6 +5,7 @@ import { getDashboardSummary } from '@/shared/api/dashboard.api';
 import { queryKeys } from '@/shared/api/queryKeys';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, Users, Calendar, ArrowUpRight } from 'lucide-react';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 
 export function DashboardMetrics() {
   const { data, isLoading, error } = useQuery({
@@ -12,7 +13,7 @@ export function DashboardMetrics() {
     queryFn: () => getDashboardSummary(),
   });
 
-  if (isLoading) return <div>Loading metrics...</div>;
+  if (isLoading) return <PremiumLoader text="Loading metrics..." />;
   if (error || !data) return <div>Failed to load metrics.</div>;
 
   return (

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBookingEngine } from "@/components/booking/booking-orchestrator";
 import { useHaptics } from "@/hooks/use-haptics";
+import { PremiumLoader } from "@/components/ui/premium-loader";
 import { Button } from "@/components/ui/button";
 import { Search, CheckCircle2, Clock, Sparkles, ChevronRight, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -177,10 +178,8 @@ export default function BookPage() {
       {/* Services Grid/List */}
       <div className="flex-1 px-6 space-y-4 bg-black">
         {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-zinc-900/30 border border-zinc-800/40 rounded-3xl animate-pulse" />
-            ))}
+          <div className="flex items-center justify-center h-64">
+            <PremiumLoader text="Loading services..." />
           </div>
         ) : filteredServices.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">

@@ -11,7 +11,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { MediaAsset as MediaAssetType } from '@/shared/api/media.api';
+import { AssetDetailsPanel } from './asset-details-panel';
 import { DynamicMediaUploadWizard } from './dynamic-upload-wizard';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 
 const FOLDERS = [
   { id: 'all', name: 'All Media', icon: LayoutDashboard },
@@ -213,7 +216,7 @@ export const MediaStudio = () => {
         <div className="flex-1 overflow-y-auto p-6 bg-neutral-50/30">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="w-8 h-8 border-4 border-black/20 border-t-black rounded-full animate-spin"></div>
+              <PremiumLoader text="Loading media..." />
             </div>
           ) : assets.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center max-w-sm mx-auto">

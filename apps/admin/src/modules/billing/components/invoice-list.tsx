@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -184,20 +185,12 @@ export function InvoiceList() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              // Loading Skeleton
-              Array.from({ length: limit }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
-                  <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
-                  <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
-                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell className="text-right"><Skeleton className="h-8 w-8 rounded-md ml-auto" /></TableCell>
-                </TableRow>
-              ))
+              // Loading State
+              <TableRow>
+                <TableCell colSpan={9} className="h-64 p-0">
+                  <PremiumLoader text="Loading invoices..." />
+                </TableCell>
+              </TableRow>
             ) : isError ? (
               <TableRow>
                 <TableCell colSpan={9} className="h-24 text-center text-red-500">

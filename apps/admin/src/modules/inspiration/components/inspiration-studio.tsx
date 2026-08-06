@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useInspiration, InspirationPost } from '../hooks/use-inspiration';
 import { MediaSelector } from '@/modules/media/components/media-selector';
+import { PremiumLoader } from '@/components/ui/premium-loader';
 import { 
   Plus, Search, Edit, Eye, Filter, Trash2, 
   TrendingUp, BarChart3, Image as ImageIcon, Heart, Share2, Calendar
@@ -125,7 +126,7 @@ export function InspirationStudio() {
 
       {/* ─── Post Grid ─── */}
       {isLoading ? (
-        <div className="py-20 text-center text-muted-foreground">Loading inspiration feed...</div>
+        <PremiumLoader text="Loading inspiration feed..." />
       ) : filteredPosts.length === 0 ? (
         <div className="py-20 text-center flex flex-col items-center">
           <ImageIcon className="h-12 w-12 text-muted-foreground/50 mb-4" />

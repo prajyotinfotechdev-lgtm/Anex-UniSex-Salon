@@ -20,16 +20,15 @@ import { useActivateCustomer, useDeactivateCustomer, useHardDeleteCustomer } fro
 
 import Link from 'next/link';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
 
 export function CustomerDetailHeader({ customer }: { customer: Customer }) {
   const router = useRouter();
@@ -136,25 +135,29 @@ export function CustomerDetailHeader({ customer }: { customer: Customer }) {
           </HasPermission>
 
           <HasPermission permission="Customer.Delete">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            <Dialog>
+              <DialogTrigger asChild>
                 <Button variant="destructive" className="ml-2">Delete Permanently</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
                     This action cannot be undone. This will permanently delete the customer profile, their devices, forms, and all associated personal records. Appointments and invoices will remain for financial integrity but will be unlinked from this profile.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">
-                    Yes, delete permanently
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button variant="destructive" onClick={handleDelete}>
+                      Yes, delete permanently
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </HasPermission>
         </div>
       </div>

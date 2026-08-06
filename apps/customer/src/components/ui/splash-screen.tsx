@@ -29,10 +29,10 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
       }
     }, 1500);
 
-    // Safety fallback: dismiss splash screen after 6 seconds if video gets stuck
+    // Safety fallback: dismiss splash screen after 3 seconds if video gets stuck or takes too long to load
     timerRef.current = setTimeout(() => {
       handleVideoEnd();
-    }, 6000);
+    }, 3000);
 
     return () => {
       clearTimeout(autoplayCheckTimer);
@@ -87,7 +87,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
               autoPlay
               muted
               playsInline
-              preload="auto"
+              preload="metadata"
               onPlay={handlePlay}
               onEnded={handleVideoEnd}
               onError={handleVideoEnd}

@@ -49,6 +49,15 @@ export const deleteCustomerHandler = async (req: Request, res: Response, next: N
   }
 };
 
+export const hardDeleteCustomerHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await customerService.hardDeleteCustomer(req.user!.organizationId, req.params.id as string, req.user!.userId);
+    return res.status(200).json(successResponse('Customer permanently deleted', null));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const activateCustomerHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await customerService.activateCustomer(req.user!.organizationId, req.params.id as string, req.user!.userId);

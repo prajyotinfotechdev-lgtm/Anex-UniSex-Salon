@@ -16,14 +16,26 @@ import {
   Copy
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useActivateCustomer, useDeactivateCustomer } from '../customer.hooks';
+import { useActivateCustomer, useDeactivateCustomer, useHardDeleteCustomer } from '../customer.hooks';
 
 import Link from 'next/link';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function CustomerDetailHeader({ customer }: { customer: Customer }) {
   const router = useRouter();
   const activateMutation = useActivateCustomer();
   const deactivateMutation = useDeactivateCustomer();
+  const hardDeleteMutation = useHardDeleteCustomer();
 
   const handleCopy = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
@@ -42,6 +54,16 @@ export function CustomerDetailHeader({ customer }: { customer: Customer }) {
         onError: () => toast.error('Failed to activate customer'),
       });
     }
+  };
+
+  const handleDelete = () => {
+    hardDeleteMutation.mutate(customer.id, {
+      onSuccess: () => {
+        toast.success('Customer permanently deleted');
+        router.push('/customers');
+      },
+      onError: () => toast.error('Failed to delete customer'),
+    });
   };
 
   const initials = `${customer.firstName[0]}${customer.lastName[0]}`;
@@ -111,6 +133,28 @@ export function CustomerDetailHeader({ customer }: { customer: Customer }) {
               <UserPen className="mr-2 h-4 w-4" />
               Edit Profile
             </Button>
+          </HasPermission>
+
+          <HasPermission permission="Customer.Delete">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="ml-2">Delete Permanently</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the customer profile, their devices, forms, and all associated personal records. Appointments and invoices will remain for financial integrity but will be unlinked from this profile.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">
+                    Yes, delete permanently
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </HasPermission>
         </div>
       </div>

@@ -14,6 +14,7 @@ import {
   createCustomerHandler,
   updateCustomerHandler,
   deleteCustomerHandler,
+  hardDeleteCustomerHandler,
   activateCustomerHandler,
   deactivateCustomerHandler,
   listCustomerDevicesHandler,
@@ -288,6 +289,28 @@ router.post('/:id/devices/transfer', requirePermission(PERMISSIONS.CUSTOMER.UPDA
  *         description: Conflict (has active dependencies)
  */
 router.delete('/:id', requirePermission(PERMISSIONS.CUSTOMER.DELETE), deleteCustomerHandler);
+
+/**
+ * @swagger
+ * /api/v1/customers/{id}/permanent:
+ *   delete:
+ *     summary: Fully permanently delete customer
+ *     tags: [Customer]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Customer permanently deleted
+ *       404:
+ *         description: Customer not found
+ */
+router.delete('/:id/permanent', requirePermission(PERMISSIONS.CUSTOMER.DELETE), hardDeleteCustomerHandler);
 
 /**
  * @swagger

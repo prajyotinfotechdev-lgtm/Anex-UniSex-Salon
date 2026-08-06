@@ -187,6 +187,51 @@ export class CustomerService extends BaseService {
     await this.auditLog(organizationId, ActionType.DELETE, customerId, actorUserId, { reason: 'Soft Delete' });
   }
 
+  async hardDeleteCustomer(organizationId: string, customerId: string, actorUserId: string): Promise<void> {
+    const existing = await this.repo.findByIdWithHistory(customerId, organizationId);
+    if (!existing) throw new NotFoundError('Customer not found');
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Unlink optional relations (Appointments and Invoices)
+      await tx.appointment.updateMany({
+        where: { customerId },
+        data: { customerId: null }
+      });
+      await tx.appointmentHistory.updateMany({
+        where: { customerId },
+        data: { customerId: null }
+      });
+      await tx.invoice.updateMany({
+        where: { customerId },
+        data: { customerId: null }
+      });
+
+      // 2. Delete direct relations that don't cascade automatically
+      await tx.customerTag.deleteMany({ where: { customerId } });
+      await tx.customerPhone.deleteMany({ where: { customerId } });
+      await tx.customerMedia.deleteMany({ where: { customerId } });
+      await tx.loyaltyTransaction.deleteMany({ where: { customerId } });
+      await tx.walletTransaction.deleteMany({ where: { customerId } });
+      await tx.customerMembership.deleteMany({ where: { customerId } });
+      await tx.customerPackage.deleteMany({ where: { customerId } });
+      await tx.inspirationBookmark.deleteMany({ where: { customerId } });
+      // Note: CustomerDevice and ConsultationRecord have onDelete: Cascade in schema
+
+      // 3. Consultation form and answers
+      const forms = await tx.consultationForm.findMany({ where: { customerId }, select: { id: true } });
+      const formIds = forms.map(f => f.id);
+      if (formIds.length > 0) {
+        await tx.consultationAnswer.deleteMany({ where: { consultationFormId: { in: formIds } } });
+        await tx.consultationForm.deleteMany({ where: { customerId } });
+      }
+
+      // 4. Finally, delete the customer record
+      await tx.customer.delete({ where: { id: customerId } });
+    });
+
+    await this.auditLog(organizationId, ActionType.DELETE, customerId, actorUserId, { reason: 'Permanent Hard Delete' });
+  }
+
   async getCustomerDevices(organizationId: string, customerId: string) {
     const existing = await this.repo.findByIdWithHistory(customerId, organizationId);
     if (!existing) throw new NotFoundError('Customer not found');

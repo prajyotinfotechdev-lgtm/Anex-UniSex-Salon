@@ -40,4 +40,8 @@ export class CustomersApi {
     const { data } = await apiClient.patch<{ data: Customer }>(`/customers/${id}/deactivate`);
     return data.data;
   }
+
+  static async hardDelete(id: string): Promise<void> {
+    await apiClient.delete(`/customers/${id}/permanent`);
+  }
 }

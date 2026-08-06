@@ -375,14 +375,36 @@ export class CustomerAuthService {
 
     if (existingCustomer) {
       customer = existingCustomer;
+      // If they were previously a 'Guest' and are now providing real info, update them
+      if (data.firstName && customer.firstName === 'Guest') {
+        customer = await prisma.customer.update({
+          where: { id: customer.id },
+          data: {
+            firstName: data.firstName,
+            lastName: data.lastName || '',
+            email: data.email || null,
+            gender: data.gender ? (data.gender as any) : null,
+          }
+        });
+      }
     } else {
+      if (!data.firstName) {
+        // This is a probe request from the PWA (phone only). 
+        // Do not create a phantom customer yet.
+        return {
+          isNewCustomer: true,
+          deviceToken: null,
+          customer: null
+        };
+      }
+
       // Create brand-new customer with real profile data
       isNewCustomer = true;
       customer = await prisma.customer.create({
         data: {
           organizationId: resolvedOrgId,
           primaryPhone: data.phone,
-          firstName: data.firstName || 'Guest',
+          firstName: data.firstName,
           lastName: data.lastName || '',
           email: data.email || null,
           gender: data.gender ? (data.gender as any) : null,

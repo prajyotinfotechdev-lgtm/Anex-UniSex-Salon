@@ -136,8 +136,8 @@ export function CustomerDetailHeader({ customer }: { customer: Customer }) {
 
           <HasPermission permission="Customer.Delete">
             <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="destructive" className="ml-2">Delete Permanently</Button>
+              <DialogTrigger render={<Button variant="destructive" className="ml-2" />}>
+                Delete Permanently
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -147,13 +147,11 @@ export function CustomerDetailHeader({ customer }: { customer: Customer }) {
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
+                  <DialogClose render={<Button variant="outline" />}>
+                    Cancel
                   </DialogClose>
-                  <DialogClose asChild>
-                    <Button variant="destructive" onClick={handleDelete}>
-                      Yes, delete permanently
-                    </Button>
+                  <DialogClose render={<Button variant="destructive" onClick={handleDelete} />}>
+                    Yes, delete permanently
                   </DialogClose>
                 </DialogFooter>
               </DialogContent>

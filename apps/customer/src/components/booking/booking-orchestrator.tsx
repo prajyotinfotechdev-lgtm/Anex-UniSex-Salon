@@ -62,13 +62,13 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const setDraftId = (id: string) => setState(s => ({ ...s, draftId: id }));
   const setMissingRequirements = (reqs: any[]) => setState(s => ({ ...s, missingRequirements: reqs }));
 
-  const loadPrediction = (prediction: { predictedService: { id: string }, predictedStylist: { id: string, name: string } }) => {
+  const loadPrediction = (prediction: any) => {
     setState(s => ({
       ...s,
-      serviceIds: [prediction.predictedService.id],
-      stylistId: prediction.predictedStylist.id,
-      stylistName: prediction.predictedStylist.name,
-      predictedStylist: prediction.predictedStylist
+      serviceIds: [prediction.serviceId || prediction.predictedService?.id].filter(Boolean),
+      stylistId: prediction.stylistId || prediction.predictedStylist?.id,
+      stylistName: prediction.stylistName || prediction.predictedStylist?.name,
+      predictedStylist: prediction.predictedStylist || (prediction.stylistId ? { id: prediction.stylistId, name: prediction.stylistName } : undefined)
     }));
   };
 

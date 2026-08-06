@@ -215,7 +215,8 @@ export class CustomerService extends BaseService {
       await tx.customerMembership.deleteMany({ where: { customerId } });
       await tx.customerPackage.deleteMany({ where: { customerId } });
       await tx.inspirationBookmark.deleteMany({ where: { customerId } });
-      // Note: CustomerDevice and ConsultationRecord have onDelete: Cascade in schema
+      await tx.customerDevice.deleteMany({ where: { customerId } });
+      await tx.consultationRecord.deleteMany({ where: { customerId } });
 
       // 3. Consultation form and answers
       const forms = await tx.consultationForm.findMany({ where: { customerId }, select: { id: true } });

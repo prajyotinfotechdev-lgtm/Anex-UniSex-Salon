@@ -258,7 +258,7 @@ export default function BookPage() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-[calc(env(safe-area-inset-bottom)+70px)] left-4 right-4 z-40"
+            className="fixed bottom-[calc(env(safe-area-inset-bottom)+120px)] left-4 right-4 z-40"
           >
             <div className="bg-zinc-950/90 border border-primary/30 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl shadow-black/80">
               <div>

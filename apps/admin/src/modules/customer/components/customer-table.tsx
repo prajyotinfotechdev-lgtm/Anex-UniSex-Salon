@@ -185,7 +185,11 @@ export function CustomerTable() {
             ) : (
               // Data State
               data.data.map((customer) => (
-                <TableRow key={customer.id}>
+                <TableRow 
+                  key={customer.id} 
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => router.push(`/customers/${customer.id}`)}
+                >
                   <TableCell className="font-medium">
                     {customer.firstName} {customer.lastName}
                   </TableCell>
@@ -211,7 +215,7 @@ export function CustomerTable() {
                       {customer.isActive ? 'Active' : 'Inactive'}
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger render={
                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -221,29 +225,44 @@ export function CustomerTable() {
                       } />
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => router.push(`/customers/${customer.id}`)}>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/customers/${customer.id}`);
+                        }}>
                           <User className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
                         <HasPermission permission="Customer.Update">
-                          <DropdownMenuItem onClick={() => router.push(`/customers/${customer.id}/edit`)}>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/customers/${customer.id}/edit`);
+                          }}>
                             <UserPen className="mr-2 h-4 w-4" />
                             Edit Customer
                           </DropdownMenuItem>
                         </HasPermission>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleCopy(customer.primaryPhone, 'Phone')}>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(customer.primaryPhone, 'Phone');
+                        }}>
                           <Copy className="mr-2 h-4 w-4" />
                           Copy Phone
                         </DropdownMenuItem>
                         {customer.email && (
-                          <DropdownMenuItem onClick={() => handleCopy(customer.email as string, 'Email')}>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopy(customer.email as string, 'Email');
+                          }}>
                             <Copy className="mr-2 h-4 w-4" />
                             Copy Email
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleStatusToggle(customer)}>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          handleStatusToggle(customer);
+                        }}>
                           {customer.isActive ? (
                             <>
                               <XCircle className="mr-2 h-4 w-4 text-destructive" />

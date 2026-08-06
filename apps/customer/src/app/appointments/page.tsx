@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { CancelDialog } from "../../components/booking/cancel-dialog";
 import { OnboardingCard } from "../../components/onboarding/onboarding-card";
 import { PremiumLoader } from "../../components/ui/premium-loader";
 

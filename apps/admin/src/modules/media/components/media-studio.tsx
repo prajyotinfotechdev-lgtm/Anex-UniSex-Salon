@@ -11,8 +11,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { MediaAsset as MediaAssetType } from '@/shared/api/media.api';
-import { AssetDetailsPanel } from './asset-details-panel';
 import { DynamicMediaUploadWizard } from './dynamic-upload-wizard';
 import { PremiumLoader } from '@/components/ui/premium-loader';
 

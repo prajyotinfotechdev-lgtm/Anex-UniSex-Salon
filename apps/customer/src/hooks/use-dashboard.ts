@@ -57,7 +57,7 @@ export function useDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { profile, isLoading: isProfileLoading } = useCustomerProfile();
+  const { profile, isLoading: isProfileLoading, clearProfile } = useCustomerProfile();
 
   useEffect(() => {
     if (isProfileLoading) return; // wait until profile context finishes loading from localStorage
@@ -82,7 +82,7 @@ export function useDashboard() {
 
         if (res.status === 401 || res.status === 404) {
           // Token expired or revoked -> clear local token and revert to Guest Dashboard
-          localStorage.removeItem("anex_device_token");
+          clearProfile();
           setData(DEFAULT_GUEST_DASHBOARD);
           setIsLoading(false);
           return;

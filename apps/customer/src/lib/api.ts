@@ -36,6 +36,14 @@ export const api = {
   get: async (url: string) => {
     const fetchUrl = getFullApiUrl(url);
     const res = await fetch(fetchUrl, { headers: getHeaders() });
+    if (res.status === 401 || res.status === 404) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('anex_customer_profile');
+        localStorage.removeItem('anex_device_token');
+        localStorage.removeItem('anex_device_id');
+        window.location.href = '/';
+      }
+    }
     if (!res.ok) throw new Error(`API Error ${res.status}: ${res.statusText}`);
     return { data: await res.json() };
   },
@@ -47,6 +55,14 @@ export const api = {
       headers: getHeaders(),
       body: body ? JSON.stringify(body) : undefined,
     });
+    if (res.status === 401 || res.status === 404) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('anex_customer_profile');
+        localStorage.removeItem('anex_device_token');
+        localStorage.removeItem('anex_device_id');
+        window.location.href = '/';
+      }
+    }
     if (!res.ok) throw new Error(`API Error ${res.status}: ${res.statusText}`);
     return { data: await res.json() };
   }

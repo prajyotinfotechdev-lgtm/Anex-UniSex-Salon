@@ -7,7 +7,6 @@ import { GlobalBookingWrapper } from "@/components/layout/global-booking-wrapper
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
 import { SplashScreen } from "@/components/ui/splash-screen";
 import { PwaInstallPrompt } from "@/components/ui/pwa-install-prompt";
-import { PushNotificationProvider } from "@/components/providers/PushNotificationProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -66,17 +65,15 @@ export default function RootLayout({
           disableTransitionOnChange={false} // Allow smooth transitions globally if needed
         >
           <ReactQueryProvider>
-            <PushNotificationProvider>
-              <GlobalBookingWrapper>
-                {/* Main App Container with Safe Area Adjustments */}
-                <main className="flex-1 flex flex-col w-full max-w-md mx-auto relative overflow-x-hidden bg-background shadow-2xl pb-[calc(env(safe-area-inset-bottom)+80px)] pt-[env(safe-area-inset-top)] min-h-screen">
-                  <SplashScreen>
-                    {children}
-                  </SplashScreen>
-                </main>
-                <BottomNav />
-              </GlobalBookingWrapper>
-            </PushNotificationProvider>
+            <GlobalBookingWrapper>
+              {/* Main App Container with Safe Area Adjustments */}
+              <main className="flex-1 flex flex-col w-full max-w-md mx-auto relative overflow-x-hidden bg-background shadow-2xl pb-[calc(env(safe-area-inset-bottom)+80px)] pt-[env(safe-area-inset-top)] min-h-screen">
+                <SplashScreen>
+                  {children}
+                </SplashScreen>
+              </main>
+              <BottomNav />
+            </GlobalBookingWrapper>
           </ReactQueryProvider>
           <Toaster position="top-center" />
           <PwaInstallPrompt />

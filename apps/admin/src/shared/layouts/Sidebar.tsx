@@ -18,6 +18,7 @@ import {
   Image as ImageIcon,
   Sparkles,
   Settings,
+  Bell,
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ const MENU_ITEMS = [
   { name: 'Invoices', href: '/invoices', icon: CreditCard },
   { name: 'Media Studio', href: '/media', icon: ImageIcon },
   { name: 'Inspiration', href: '/inspiration', icon: Sparkles },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

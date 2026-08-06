@@ -13,7 +13,12 @@ export class CustomerRepository extends BaseRepository<Customer, Prisma.Customer
       where: { id, organizationId, deletedAt: null },
       include: {
         tags: true,
-        appointments: true,
+        appointments: {
+          include: {
+            items: true
+          },
+          orderBy: { date: 'desc' }
+        },
         invoices: true,
         memberships: true,
         packages: true,

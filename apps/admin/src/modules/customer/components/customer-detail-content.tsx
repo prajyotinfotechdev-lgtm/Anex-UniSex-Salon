@@ -53,8 +53,48 @@ export function CustomerDetailContent({ customer }: { customer: Customer }) {
                 <p className="text-sm mt-1">Book the customer&apos;s first appointment.</p>
               </div>
             ) : (
-              <div className="text-sm text-muted-foreground italic">
-                Appointments table coming soon...
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 rounded-tl-md">Date & Time</th>
+                      <th className="px-4 py-3">Services</th>
+                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3 text-right rounded-tr-md">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customer.appointments.map((app: any, idx: number) => {
+                      const date = new Date(app.date);
+                      const services = app.items?.map((item: any) => item.snapshottedServiceName).join(', ') || 'Service';
+                      const total = app.items?.reduce((sum: number, item: any) => sum + Number(item.price || 0), 0) || 0;
+                      
+                      let statusColor = "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300";
+                      if (app.status === 'CONFIRMED') statusColor = "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300";
+                      if (app.status === 'COMPLETED') statusColor = "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300";
+                      if (app.status === 'CANCELLED' || app.status === 'NO_SHOW') statusColor = "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300";
+
+                      return (
+                        <tr key={app.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-3 font-medium">
+                            {new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short' }).format(date)}
+                          </td>
+                          <td className="px-4 py-3 truncate max-w-[200px]" title={services}>
+                            {services}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-1 rounded-full text-[10px] font-semibold tracking-wide ${statusColor}`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right font-medium">
+                            ₹{total.toLocaleString('en-IN')}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>

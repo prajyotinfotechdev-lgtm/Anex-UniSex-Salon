@@ -26,10 +26,17 @@ export class CustomerAuthService {
   }
 
   static async registerDevice(data: RegisterDeviceDTO) {
+    let resolvedOrgId = data.organizationId;
+    const org = await prisma.organization.findUnique({ where: { id: resolvedOrgId }});
+    if (!org) {
+      const firstOrg = await prisma.organization.findFirst();
+      if (firstOrg) resolvedOrgId = firstOrg.id;
+    }
+
     const customer = await prisma.customer.findFirst({
       where: {
         primaryPhone: data.phone,
-        organizationId: data.organizationId,
+        organizationId: resolvedOrgId,
         isActive: true,
       },
       include: {
@@ -43,7 +50,7 @@ export class CustomerAuthService {
       // Case 1: New Customer
       const newCustomer = await prisma.customer.create({
         data: {
-          organizationId: data.organizationId,
+          organizationId: resolvedOrgId,
           primaryPhone: data.phone,
           firstName: 'Guest',
           lastName: 'Customer', // Or something else? The schema requires firstName and lastName
@@ -103,11 +110,18 @@ export class CustomerAuthService {
   }
 
   static async confirmRegistration(data: RegisterDeviceDTO) {
+    let resolvedOrgId = data.organizationId;
+    const org = await prisma.organization.findUnique({ where: { id: resolvedOrgId }});
+    if (!org) {
+      const firstOrg = await prisma.organization.findFirst();
+      if (firstOrg) resolvedOrgId = firstOrg.id;
+    }
+
     // This is called when the user confirms "Yes, Continue" for Case 2A
     const customer = await prisma.customer.findFirst({
       where: {
         primaryPhone: data.phone,
-        organizationId: data.organizationId,
+        organizationId: resolvedOrgId,
         isActive: true,
       },
       include: {
@@ -342,10 +356,17 @@ export class CustomerAuthService {
     platform?: string;
     browser?: string;
   }) {
+    let resolvedOrgId = data.organizationId;
+    const org = await prisma.organization.findUnique({ where: { id: resolvedOrgId }});
+    if (!org) {
+      const firstOrg = await prisma.organization.findFirst();
+      if (firstOrg) resolvedOrgId = firstOrg.id;
+    }
+
     const existingCustomer = await prisma.customer.findFirst({
       where: {
         primaryPhone: data.phone,
-        organizationId: data.organizationId,
+        organizationId: resolvedOrgId,
       }
     });
 
@@ -359,7 +380,7 @@ export class CustomerAuthService {
       isNewCustomer = true;
       customer = await prisma.customer.create({
         data: {
-          organizationId: data.organizationId,
+          organizationId: resolvedOrgId,
           primaryPhone: data.phone,
           firstName: data.firstName || 'Guest',
           lastName: data.lastName || '',

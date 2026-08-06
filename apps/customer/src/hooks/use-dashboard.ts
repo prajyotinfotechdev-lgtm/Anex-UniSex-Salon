@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getFullApiUrl } from "@/lib/api";
+import { useCustomerProfile } from "@/components/providers/CustomerProfileContext";
 
 export interface DashboardData {
   greeting: string;
@@ -56,11 +57,14 @@ export function useDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { profile, isLoading: isProfileLoading } = useCustomerProfile();
 
   useEffect(() => {
+    if (isProfileLoading) return; // wait until profile context finishes loading from localStorage
+
     async function fetchDashboard() {
       try {
-        const token = localStorage.getItem("anex_device_token");
+        const token = profile?.deviceToken || localStorage.getItem("anex_device_token");
         if (!token) {
           // Guest User (No device registered yet) -> Load Guest Dashboard
           setData(DEFAULT_GUEST_DASHBOARD);
@@ -102,7 +106,7 @@ export function useDashboard() {
     }
 
     fetchDashboard();
-  }, []);
+  }, [profile, isProfileLoading]);
 
   return { data, isLoading, error };
 }

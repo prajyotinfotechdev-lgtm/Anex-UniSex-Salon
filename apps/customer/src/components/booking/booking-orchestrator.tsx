@@ -47,6 +47,11 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
     customerId: profile?.id || 'guest',
   });
 
+  // Sync customerId when profile changes
+  React.useEffect(() => {
+    setState(s => ({ ...s, customerId: profile?.id || 'guest' }));
+  }, [profile?.id]);
+
   const goToDimension = (dim: BookingDimension) => setState(s => ({ ...s, currentDimension: dim }));
 
   const selectService = (id: string) => setState(s => ({ ...s, serviceIds: [...s.serviceIds, id] }));

@@ -14,11 +14,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../../lib/axios';
 import { useCustomerProfile } from '../providers/CustomerProfileContext';
 import { OnboardingCard } from '../onboarding/onboarding-card';
+import { PremiumLoader } from '../ui/premium-loader';
 
 export function BookingSummary() {
   const { state, setDraftId, setMissingRequirements, goToDimension } = useBookingEngine();
   const { isGuest } = useCustomerProfile();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
   const haptics = useHaptics();
   const queryClient = useQueryClient();
   
@@ -28,6 +30,7 @@ export function BookingSummary() {
   const totalPrice = selectedServices.reduce((acc, s) => acc + Number(s.basePrice || 0), 0);
 
   const handleConfirm = async () => {
+    setIsBooking(true);
     try {
       // 1. Create Draft
       const startRes = await apiClient.post('/booking/start', {
@@ -44,6 +47,7 @@ export function BookingSummary() {
       
       if (reqRes.data.data && reqRes.data.data.length > 0) {
         setMissingRequirements(reqRes.data.data);
+        setIsBooking(false);
         goToDimension('REQUIREMENTS');
         return;
       }
@@ -72,10 +76,18 @@ export function BookingSummary() {
       haptics.trigger('heavy');
       const msg = err.response?.data?.message || err.message || 'An error occurred during booking. Please try again.';
       toast.error(msg);
+      setIsBooking(false);
       throw err;
     }
   };
 
+  if (isBooking) {
+    return (
+      <div className="flex flex-col h-full bg-background relative items-center justify-center">
+        <PremiumLoader text="Confirming your appointment..." />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-background relative">

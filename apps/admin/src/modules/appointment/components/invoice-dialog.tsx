@@ -66,52 +66,60 @@ export function InvoiceDialog({ open, onOpenChange, appointment }: InvoiceDialog
         </DialogHeader>
 
         {/* Invoice Body */}
-        <div className="p-6 bg-white dark:bg-zinc-950 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-sm font-mono text-sm space-y-6">
-          <div className="text-center space-y-1">
-            <h2 className="text-xl font-bold tracking-widest uppercase">Anex Salon</h2>
-            <p className="text-muted-foreground">INVOICE #{appointment.id.substring(0, 8).toUpperCase()}</p>
+        <div className="p-8 bg-white dark:bg-zinc-950 rounded-xl border border-zinc-200/60 dark:border-zinc-800 shadow-xl space-y-8 relative overflow-hidden">
+          {/* Subtle gold accent line at top */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 opacity-80" />
+
+          <div className="text-center space-y-3">
+            <img 
+              src="/apple-touch-icon.png" 
+              alt="Anex Salon" 
+              className="w-16 h-16 mx-auto rounded-xl shadow-md border border-zinc-100 dark:border-zinc-800 object-cover"
+            />
+            <h2 className="text-2xl font-serif font-bold tracking-wide uppercase text-zinc-900 dark:text-zinc-100">Anex Salon</h2>
+            <p className="text-xs text-muted-foreground tracking-widest">INVOICE #{appointment.id.substring(0, 8).toUpperCase()}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-y border-zinc-200 dark:border-zinc-800 py-4">
+          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-zinc-100 dark:border-zinc-900">
             <div>
-              <p className="text-muted-foreground text-xs uppercase">Billed To</p>
-              <p className="font-semibold">{appointment.customer?.firstName} {appointment.customer?.lastName}</p>
-              <p className="text-muted-foreground">{appointment.customer?.primaryPhone || 'No Phone'}</p>
+              <p className="text-zinc-400 dark:text-zinc-500 text-[10px] tracking-widest uppercase mb-1">Billed To</p>
+              <p className="font-medium text-sm text-zinc-800 dark:text-zinc-200">{appointment.customer?.firstName} {appointment.customer?.lastName}</p>
+              <p className="text-sm text-muted-foreground">{appointment.customer?.primaryPhone || 'No Phone'}</p>
             </div>
             <div className="text-right">
-              <p className="text-muted-foreground text-xs uppercase">Date</p>
-              <p className="font-semibold">{format(new Date(appointment.date), 'MMM d, yyyy')}</p>
+              <p className="text-zinc-400 dark:text-zinc-500 text-[10px] tracking-widest uppercase mb-1">Date & Time</p>
+              <p className="font-medium text-sm text-zinc-800 dark:text-zinc-200">{format(new Date(appointment.date), 'MMMM d, yyyy')}</p>
               {appointment.items?.[0] && (
-                <p className="text-muted-foreground">{format(parseISO(appointment.items[0].startTime), 'h:mm a')}</p>
+                <p className="text-sm text-muted-foreground">{format(parseISO(appointment.items[0].startTime), 'h:mm a')}</p>
               )}
             </div>
           </div>
 
-          <div>
-            <table className="w-full">
+          <div className="pt-2">
+            <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-zinc-200 dark:border-zinc-800 text-left">
-                  <th className="pb-2 font-semibold">Service</th>
-                  <th className="pb-2 text-right font-semibold">Price</th>
+                <tr className="border-b border-zinc-100 dark:border-zinc-900 text-left">
+                  <th className="pb-3 text-zinc-400 dark:text-zinc-500 font-medium text-xs uppercase tracking-wider">Service Description</th>
+                  <th className="pb-3 text-right text-zinc-400 dark:text-zinc-500 font-medium text-xs uppercase tracking-wider">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
+              <tbody className="divide-y divide-zinc-50 dark:divide-zinc-900/50">
                 {appointment.items?.map((item: any, i: number) => (
                   <tr key={item.id || i}>
-                    <td className="py-3">
-                      <div className="font-medium">{item.service?.name}</div>
-                      <div className="text-xs text-muted-foreground">with {item.employee?.firstName}</div>
+                    <td className="py-4">
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100">{item.service?.name}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">Specialist: {item.employee?.firstName}</div>
                     </td>
-                    <td className="py-3 text-right font-medium">
+                    <td className="py-4 text-right font-medium text-zinc-900 dark:text-zinc-100">
                       ${Number(item.price).toFixed(2)}
                     </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-zinc-900 dark:border-zinc-100">
-                  <td className="pt-4 font-bold text-lg">Total</td>
-                  <td className="pt-4 text-right font-bold text-lg text-primary">
+                <tr className="border-t border-zinc-200 dark:border-zinc-800">
+                  <td className="pt-6 font-serif text-lg font-semibold text-zinc-800 dark:text-zinc-200">Total</td>
+                  <td className="pt-6 text-right font-serif font-bold text-xl text-amber-600 dark:text-amber-500">
                     ${totalPrice.toFixed(2)}
                   </td>
                 </tr>
@@ -119,8 +127,10 @@ export function InvoiceDialog({ open, onOpenChange, appointment }: InvoiceDialog
             </table>
           </div>
           
-          <div className="text-center text-xs text-muted-foreground pt-4">
-            Thank you for choosing Anex Salon!
+          <div className="text-center pt-8">
+            <p className="text-[11px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+              Thank you for choosing Anex Salon
+            </p>
           </div>
         </div>
 

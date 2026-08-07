@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -12,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../lib/axios';
 
 export function TimePicker() {
+  const router = useRouter();
   const { state, setStylist, setTimeSlot, goToDimension } = useBookingEngine();
   const haptics = useHaptics();
   
@@ -106,7 +108,7 @@ export function TimePicker() {
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="px-4 pt-4 pb-2 flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => goToDimension('SERVICE')}>
+        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => { router.push('/book'); goToDimension('HOME'); }}>
           <ChevronLeft size={24} />
         </Button>
         <h2 className="text-2xl font-semibold tracking-tight">Select Time</h2>

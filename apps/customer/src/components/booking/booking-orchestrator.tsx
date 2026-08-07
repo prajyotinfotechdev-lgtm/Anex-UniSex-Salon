@@ -2,14 +2,13 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ServiceSelector } from './service-selector';
 import { TimePicker } from './time-picker';
 import { BookingSummary } from './booking-summary';
 import { ConfirmationDelight } from './confirmation-delight';
 import { Button } from '../ui/button';
 import { useCustomerProfile } from '../providers/CustomerProfileContext';
 
-type BookingDimension = 'HOME' | 'SERVICE' | 'TIME' | 'REQUIREMENTS' | 'CONFIRM' | 'DELIGHT';
+type BookingDimension = 'HOME' | 'TIME' | 'REQUIREMENTS' | 'CONFIRM' | 'DELIGHT';
 
 interface BookingState {
   currentDimension: BookingDimension;
@@ -113,7 +112,6 @@ export function BookingOrchestrator({ children }: { children: React.ReactNode })
           >
             {/* The active dimension component will be plugged in via sub-components or route mapping */}
             <div className="flex-1 flex flex-col relative h-full">
-              {state.currentDimension === 'SERVICE' && <ServiceSelector />}
               {state.currentDimension === 'TIME' && <TimePicker />}
               {state.currentDimension === 'REQUIREMENTS' && (
                 <div className="flex-1 flex flex-col items-center justify-center p-6 bg-background">

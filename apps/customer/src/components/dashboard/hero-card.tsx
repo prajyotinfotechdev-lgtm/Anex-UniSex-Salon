@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 
 import { motion } from "framer-motion";
 import { Sparkles, Clock, Compass, Handshake, MapPin } from "lucide-react";
@@ -15,6 +16,7 @@ interface HeroCardProps {
 }
 
 export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: HeroCardProps) {
+  const router = useRouter();
   const { goToDimension, loadPrediction } = useBookingEngine();
 
   // Appointment Today
@@ -108,7 +110,7 @@ export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: Hero
             <Button 
               className="w-full shadow-lg shadow-primary/20" 
               haptic="success"
-              onClick={() => goToDimension('SERVICE')}
+              onClick={() => router.push('/book')}
             >
               Claim Offer & Book
             </Button>
@@ -140,7 +142,7 @@ export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: Hero
           <Button 
             className="w-full text-lg h-14 shadow-xl shadow-primary/20" 
             haptic="medium"
-            onClick={() => goToDimension('SERVICE')}
+            onClick={() => router.push('/book')}
           >
             Book Your First Look
           </Button>

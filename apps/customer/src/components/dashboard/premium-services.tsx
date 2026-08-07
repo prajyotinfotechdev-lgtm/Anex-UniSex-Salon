@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Star, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,7 +32,7 @@ const PREMIUM_SERVICES = [
 ];
 
 export function PremiumServicesList() {
-  const { goToDimension } = useBookingEngine();
+  const router = useRouter();
 
   return (
     <motion.div
@@ -48,7 +49,7 @@ export function PremiumServicesList() {
           </h3>
           <p className="text-xs text-zinc-600 dark:text-zinc-500 font-medium tracking-wide uppercase">Signature Services</p>
         </div>
-        <Button variant="ghost" className="text-xs text-primary font-semibold pr-0 hover:bg-transparent" onClick={() => goToDimension("SERVICE")}>
+        <Button variant="ghost" className="text-xs text-primary font-semibold pr-0 hover:bg-transparent" onClick={() => router.push("/book")}>
           View All <ChevronRight className="w-3.5 h-3.5 ml-0.5" />
         </Button>
       </div>
@@ -61,7 +62,7 @@ export function PremiumServicesList() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 + (i * 0.1) }}
           >
-            <Card className="border-black/5 dark:border-white/5 bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-black hover:border-primary/30 transition-all shadow-md group rounded-2xl overflow-hidden cursor-pointer" onClick={() => goToDimension("SERVICE")}>
+            <Card className="border-black/5 dark:border-white/5 bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-black hover:border-primary/30 transition-all shadow-md group rounded-2xl overflow-hidden cursor-pointer" onClick={() => router.push("/book")}>
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
                   <h4 className="font-medium text-base text-zinc-900 dark:text-white mb-0.5">{service.name}</h4>

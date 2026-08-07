@@ -50,9 +50,9 @@ export default function NotificationsPage() {
       }
 
       if (result.sent === 0) {
-        toast.warning(`Notification dispatched, but 0 devices were subscribed/reached.`);
+        toast.warning(`Notification dispatched, but 0 devices were reached. (Failed: ${result.failed || 0})`);
       } else {
-        toast.success(`Notification dispatched successfully to ${result.sent} devices.`);
+        toast.success(`Notification dispatched successfully to ${result.sent} devices. (Failed: ${result.failed || 0})`);
       }
       reset();
     } catch (err: any) {

@@ -12,6 +12,7 @@ export const CheckRequirementsDto = z.object({
 
 export const ConfirmBookingDto = z.object({
   appointmentId: z.string(),
+  inspirationId: z.string().optional(),
   items: z.array(z.object({
     serviceId: z.string(),
     employeeId: z.string().nullable().optional(),

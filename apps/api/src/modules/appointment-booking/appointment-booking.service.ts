@@ -214,7 +214,8 @@ export class AppointmentBookingService {
         data: {
           status: AppointmentStatus.CONFIRMED,
           date: firstItemDate,
-          confirmedAt: new Date()
+          confirmedAt: new Date(),
+          inspirationId: data.inspirationId || undefined
         },
         include: { items: true, ConsultationRecord: true }
       });

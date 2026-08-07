@@ -63,6 +63,7 @@ export function BookingSummary() {
 
       await apiClient.post('/booking/confirm', { 
         appointmentId: draftId,
+        inspirationId: state.inspirationId,
         items
       });
 

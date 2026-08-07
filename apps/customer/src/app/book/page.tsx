@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBookingEngine } from "@/components/booking/booking-orchestrator";
 import { useHaptics } from "@/hooks/use-haptics";
@@ -17,6 +18,30 @@ export default function BookPage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedGender, setSelectedGender] = useState("All");
+  const searchParams = useSearchParams();
+  const inspirationId = searchParams.get("inspirationId");
+  const { setInspiration } = useBookingEngine();
+
+  // Fetch inspiration details if ID is present
+  const { data: inspirationRes } = useQuery({
+    queryKey: ["inspiration-post", inspirationId],
+    queryFn: async () => {
+      if (!inspirationId) return null;
+      const res = await api.get(`/public/inspiration/${inspirationId}`);
+      return res.data;
+    },
+    enabled: !!inspirationId
+  });
+
+  const inspirationPost = inspirationRes?.data;
+
+  // Sync with context
+  useEffect(() => {
+    if (inspirationPost) {
+      const media = inspirationPost.heroMedia?.url || inspirationPost.heroMedia?.key;
+      setInspiration(inspirationPost.id, media);
+    }
+  }, [inspirationPost, setInspiration]);
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["public-services"],
@@ -95,6 +120,32 @@ export default function BookPage() {
       {/* Header Banner */}
       <div className="px-6 pt-12 pb-4 bg-gradient-to-b from-zinc-950 to-black relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+        
+        {/* Premium Inspired By Banner */}
+        <AnimatePresence>
+          {inspirationPost && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative z-20 mb-6 flex items-center gap-4 bg-zinc-900/60 border border-primary/20 p-3 rounded-2xl backdrop-blur-md"
+            >
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/10 shadow-lg relative">
+                {(inspirationPost.heroMedia?.url || inspirationPost.heroMedia?.key) ? (
+                  <img src={inspirationPost.heroMedia.url || inspirationPost.heroMedia.key} alt="Inspiration" className="w-full h-full object-cover" />
+                ) : (
+                  <Sparkles className="w-6 h-6 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-50" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-primary font-semibold mb-1">Inspired By</p>
+                <h3 className="text-white font-serif text-sm line-clamp-1">{inspirationPost.title}</h3>
+                <p className="text-zinc-400 text-xs mt-0.5 line-clamp-1">{inspirationPost.description || "Let's bring this look to life."}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-primary animate-pulse" />

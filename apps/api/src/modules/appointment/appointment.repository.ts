@@ -21,6 +21,11 @@ export class AppointmentRepository extends BaseRepository<Appointment, Prisma.Ap
             employee: true,
           }
         },
+        inspirationPost: {
+          include: {
+            heroMedia: true
+          }
+        }
       },
     });
   }

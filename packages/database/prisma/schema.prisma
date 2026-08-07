@@ -1111,6 +1111,7 @@ model Appointment {
   checkedInAt         DateTime?
   completedAt         DateTime?
   internalNotes       String?
+  inspirationId       String?           @db.Uuid
   createdByEmployeeId String?           @db.Uuid
   updatedByEmployeeId String?           @db.Uuid
   createdAt           DateTime          @default(now())
@@ -1120,6 +1121,7 @@ model Appointment {
 
   branch             Branch               @relation(fields: [branchId], references: [id])
   customer           Customer?            @relation(fields: [customerId], references: [id])
+  inspirationPost    InspirationPost?     @relation(fields: [inspirationId], references: [id])
   createdByEmployee  Employee?            @relation("AppointmentCreatedBy", fields: [createdByEmployeeId], references: [id])
   updatedByEmployee  Employee?            @relation("AppointmentUpdatedBy", fields: [updatedByEmployeeId], references: [id])
   items              AppointmentItem[]
@@ -1857,6 +1859,7 @@ model InspirationPost {
   collections  InspirationPostCollection[]
   bookmarks    InspirationBookmark[]
   events       InspirationEvent[]
+  appointments Appointment[]
 
   @@unique([organizationId, slug])
 }

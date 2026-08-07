@@ -26,7 +26,8 @@ import {
   CheckSquare,
   UserX,
   XCircle,
-  CalendarClock
+  CalendarClock,
+  Sparkles
 } from 'lucide-react';
 import { HasPermission } from '@/shared/components/HasPermission';
 import {
@@ -214,6 +215,39 @@ export default function AppointmentDetailPage({ params }: { params: { id: string
               </div>
             </CardContent>
           </Card>
+
+          {(appointment as any).inspirationPost && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Client's Inspiration
+                </CardTitle>
+                <CardDescription>
+                  The look requested by the customer during booking
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row gap-6">
+                  {((appointment as any).inspirationPost.heroMedia?.url || (appointment as any).inspirationPost.heroMedia?.key) && (
+                    <a href={(appointment as any).inspirationPost.heroMedia.url || (appointment as any).inspirationPost.heroMedia.key} target="_blank" rel="noreferrer" className="block w-48 h-48 rounded-lg overflow-hidden border bg-muted flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity">
+                      <img 
+                        src={(appointment as any).inspirationPost.heroMedia.url || (appointment as any).inspirationPost.heroMedia.key} 
+                        alt="Inspiration" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </a>
+                  )}
+                  <div>
+                    <h4 className="font-semibold text-lg">{(appointment as any).inspirationPost.title}</h4>
+                    {(appointment as any).inspirationPost.description && (
+                      <p className="text-muted-foreground mt-2">{(appointment as any).inspirationPost.description}</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
         </div>
 

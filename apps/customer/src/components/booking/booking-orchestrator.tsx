@@ -21,6 +21,8 @@ interface BookingState {
   missingRequirements?: any[];
   predictedStylist?: { id: string; name: string };
   customerId: string; // Mocking auth for now
+  inspirationId?: string;
+  inspirationImageUrl?: string;
 }
 
 interface BookingContextType {
@@ -33,6 +35,7 @@ interface BookingContextType {
   setDraftId: (id: string) => void;
   setMissingRequirements: (reqs: any[]) => void;
   loadPrediction: (prediction: { predictedService: { id: string }, predictedStylist: { id: string, name: string } }) => void;
+  setInspiration: (id: string, imageUrl?: string) => void;
   reset: () => void;
 }
 
@@ -61,13 +64,19 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const setDraftId = (id: string) => setState(s => ({ ...s, draftId: id }));
   const setMissingRequirements = (reqs: any[]) => setState(s => ({ ...s, missingRequirements: reqs }));
 
-  const loadPrediction = (prediction: any) => {
-    setState(s => ({
-      ...s,
-      serviceIds: [prediction.serviceId || prediction.predictedService?.id].filter(Boolean),
-      stylistId: prediction.stylistId || prediction.predictedStylist?.id,
-      stylistName: prediction.stylistName || prediction.predictedStylist?.name,
-      predictedStylist: prediction.predictedStylist || (prediction.stylistId ? { id: prediction.stylistId, name: prediction.stylistName } : undefined)
+  const loadPrediction = (prediction: { predictedService: { id: string }, predictedStylist: { id: string, name: string } }) => {
+    setState(prev => ({
+      ...prev,
+      serviceIds: [...new Set([...prev.serviceIds, prediction.predictedService.id])],
+      predictedStylist: prediction.predictedStylist
+    }));
+  };
+
+  const setInspiration = (id: string, imageUrl?: string) => {
+    setState(prev => ({
+      ...prev,
+      inspirationId: id,
+      inspirationImageUrl: imageUrl
     }));
   };
 
@@ -75,7 +84,7 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <BookingContext.Provider value={{
-      state, goToDimension, selectService, deselectService, setStylist, setTimeSlot, setDraftId, setMissingRequirements, loadPrediction, reset
+      state, goToDimension, selectService, deselectService, setStylist, setTimeSlot, setDraftId, setMissingRequirements, loadPrediction, setInspiration, reset
     }}>
       {children}
     </BookingContext.Provider>

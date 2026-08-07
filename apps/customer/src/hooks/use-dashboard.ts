@@ -9,7 +9,7 @@ export interface DashboardData {
   metrics?: { loyaltyPoints?: number };
   upcomingAppointment?: Record<string, unknown> | null;
   notifications?: { unreadCount: number };
-  urgencyState?: 'NONE' | 'CHECK_IN' | 'PAYMENT' | 'LATE' | 'FIRST_TIME' | 'RETURNING' | 'INACTIVE' | 'APPOINTMENT_TODAY';
+  urgencyState?: 'NONE' | 'CHECK_IN' | 'PAYMENT' | 'LATE' | 'FIRST_TIME' | 'RETURNING' | 'INACTIVE' | 'APPOINTMENT_TODAY' | 'UPCOMING_APPOINTMENT';
   urgentAction?: { label: string; action: string; type: 'primary' | 'destructive' };
   predictiveBooking?: { title: string; subtitle: string; serviceId: string; suggestionReason: string };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

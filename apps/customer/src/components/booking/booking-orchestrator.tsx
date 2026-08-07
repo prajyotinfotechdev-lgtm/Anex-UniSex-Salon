@@ -34,7 +34,7 @@ interface BookingContextType {
   setTimeSlot: (start: Date, end: Date) => void;
   setDraftId: (id: string) => void;
   setMissingRequirements: (reqs: any[]) => void;
-  loadPrediction: (prediction: { predictedService: { id: string }, predictedStylist: { id: string, name: string } }) => void;
+  loadPrediction: (prediction: { serviceId?: string, stylistId?: string, title?: string }) => void;
   setInspiration: (id: string, imageUrl?: string) => void;
   reset: () => void;
 }
@@ -64,12 +64,16 @@ export function BookingProvider({ children }: { children: React.ReactNode }) {
   const setDraftId = (id: string) => setState(s => ({ ...s, draftId: id }));
   const setMissingRequirements = (reqs: any[]) => setState(s => ({ ...s, missingRequirements: reqs }));
 
-  const loadPrediction = (prediction: { predictedService: { id: string }, predictedStylist: { id: string, name: string } }) => {
-    setState(prev => ({
-      ...prev,
-      serviceIds: [...new Set([...prev.serviceIds, prediction.predictedService.id])],
-      predictedStylist: prediction.predictedStylist
-    }));
+  const loadPrediction = (prediction: { serviceId?: string, stylistId?: string }) => {
+    setState(prev => {
+      const newServiceIds = prediction.serviceId ? [...new Set([...prev.serviceIds, prediction.serviceId])] : prev.serviceIds;
+      return {
+        ...prev,
+        serviceIds: newServiceIds,
+        stylistId: prediction.stylistId || 'any',
+        stylistName: prediction.stylistId ? 'Previous Stylist' : 'Anyone'
+      };
+    });
   };
 
   const setInspiration = (id: string, imageUrl?: string) => {

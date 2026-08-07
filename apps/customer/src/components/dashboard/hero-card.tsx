@@ -17,7 +17,7 @@ interface HeroCardProps {
 
 export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: HeroCardProps) {
   const router = useRouter();
-  const { goToDimension, loadPrediction } = useBookingEngine();
+  const { goToDimension, loadPrediction, reset } = useBookingEngine();
 
   // Appointment Today
   if (urgencyState === "APPOINTMENT_TODAY" && urgentAction) {
@@ -110,7 +110,10 @@ export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: Hero
             <Button 
               className="w-full shadow-lg shadow-primary/20" 
               haptic="success"
-              onClick={() => router.push('/book')}
+              onClick={() => {
+                reset();
+                router.push('/book');
+              }}
             >
               Claim Offer & Book
             </Button>
@@ -142,7 +145,10 @@ export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: Hero
           <Button 
             className="w-full text-lg h-14 shadow-xl shadow-primary/20" 
             haptic="medium"
-            onClick={() => router.push('/book')}
+            onClick={() => {
+              reset();
+              router.push('/book');
+            }}
           >
             Book Your First Look
           </Button>

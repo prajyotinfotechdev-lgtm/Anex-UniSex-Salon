@@ -174,6 +174,11 @@ export default function HomePage() {
               variant="outline" 
               className="rounded-full whitespace-nowrap bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 hover:border-black/20 dark:hover:border-white/20 text-zinc-700 dark:text-zinc-300 transition-all"
               haptic="light"
+              onClick={() => {
+                if (action === 'Quick Book') {
+                  window.location.href = '/book';
+                }
+              }}
             >
               {action}
             </Button>

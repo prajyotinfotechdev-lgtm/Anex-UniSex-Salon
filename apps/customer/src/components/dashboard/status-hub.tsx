@@ -24,7 +24,7 @@ interface StatusHubProps {
 
 export function StatusHub({ urgencyState, urgentAction, predictiveBooking, financials }: StatusHubProps) {
   const router = useRouter();
-  const { goToDimension, loadPrediction } = useBookingEngine();
+  const { goToDimension, loadPrediction, reset } = useBookingEngine();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   
@@ -170,7 +170,10 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
                 <Button 
                   className="w-full bg-primary hover:bg-primary/95 text-black font-semibold rounded-xl h-12 text-sm shadow-lg shadow-primary/10 transition-all active:scale-[0.98]" 
                   haptic="medium"
-                  onClick={() => router.push('/book')}
+                  onClick={() => {
+                    reset();
+                    router.push('/book');
+                  }}
                 >
                   Book an Appointment
                 </Button>

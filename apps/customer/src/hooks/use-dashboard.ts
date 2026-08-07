@@ -22,7 +22,14 @@ export interface DashboardData {
 
 const DEFAULT_GUEST_DASHBOARD: DashboardData = {
   greeting: "Welcome, Guest",
-  urgencyState: "FIRST_TIME",
+  urgencyState: "UPCOMING_APPOINTMENT",
+  urgentAction: {
+    type: "UPCOMING_APPOINTMENT",
+    title: "Signature Haircut",
+    subtitle: "with Stylist",
+    time: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+    actions: ["MANAGE"]
+  },
   financials: null,
   recommendations: [
     {
@@ -50,6 +57,33 @@ export function useDashboard() {
   const [error, setError] = useState<Error | null>(null);
   const { profile, isLoading: isProfileLoading, clearProfile } = useCustomerProfile();
 
+  async function fetchGuestDashboard() {
+    try {
+      const res = await fetch(getFullApiUrl("/public/inspiration"));
+      if (res.ok) {
+        const json = await res.json();
+        let items = Array.isArray(json) ? json : (json.data || []);
+        items = items.filter((p: any) => p.heroMedia?.url || p.heroMedia?.secureUrl);
+        if (items.length > 0) {
+          const randomizedDiscover = items.sort(() => 0.5 - Math.random()).slice(0, 8).map((p: any) => ({
+            id: p.id,
+            type: p.category || 'INSPIRATION',
+            title: p.title,
+            imageUrl: p.heroMedia?.secureUrl || p.heroMedia?.url || '',
+            action: 'VIEW_INSPIRATION',
+            targetId: p.slug || p.id,
+          }));
+          return { ...DEFAULT_GUEST_DASHBOARD, discover: randomizedDiscover };
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    // fallback to mock
+    const mockDiscover = [...MOCK_DISCOVER_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
+    return { ...DEFAULT_GUEST_DASHBOARD, discover: mockDiscover };
+  }
+
   useEffect(() => {
     if (isProfileLoading) return; // wait until profile context finishes loading from localStorage
 
@@ -58,8 +92,8 @@ export function useDashboard() {
         const token = profile?.deviceToken || localStorage.getItem("anex_device_token");
         if (!token) {
           // Guest User (No device registered yet) -> Load Guest Dashboard
-          const randomizedDiscover = [...MOCK_DISCOVER_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
-          setData({ ...DEFAULT_GUEST_DASHBOARD, discover: randomizedDiscover });
+          const guestData = await fetchGuestDashboard();
+          setData(guestData);
           setIsLoading(false);
           return;
         }
@@ -75,8 +109,8 @@ export function useDashboard() {
         if (res.status === 401 || res.status === 404) {
           // Token expired or revoked -> clear local token and revert to Guest Dashboard
           clearProfile();
-          const randomizedDiscover = [...MOCK_DISCOVER_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
-          setData({ ...DEFAULT_GUEST_DASHBOARD, discover: randomizedDiscover });
+          const guestData = await fetchGuestDashboard();
+          setData(guestData);
           setIsLoading(false);
           return;
         }

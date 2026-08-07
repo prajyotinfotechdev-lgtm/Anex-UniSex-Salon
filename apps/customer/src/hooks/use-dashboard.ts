@@ -32,7 +32,6 @@ const DEFAULT_GUEST_DASHBOARD: DashboardData = {
       actionId: "srv_discover"
     }
   ],
-  ],
   discover: [], // Set dynamically below
   notifications: { unreadCount: 0 }
 };

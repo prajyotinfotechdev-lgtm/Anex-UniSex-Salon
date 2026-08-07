@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBookingEngine } from "@/components/booking/booking-orchestrator";
 import { useHaptics } from "@/hooks/use-haptics";
@@ -67,9 +67,11 @@ export default function BookPage() {
 
   const services = Array.isArray(response) ? response : (response?.data || []);
 
+  const hasSkipped = useRef(false);
+
   // Handle skipToTime
   useEffect(() => {
-    if (skipToTime === 'true' && !isLoading) {
+    if (skipToTime === 'true' && !isLoading && !hasSkipped.current) {
       if (serviceIdParam) {
         if (!state.serviceIds.includes(serviceIdParam)) {
           selectService(serviceIdParam);
@@ -79,6 +81,7 @@ export default function BookPage() {
         selectService(services[0].id);
       }
       
+      hasSkipped.current = true;
       // Add a slight delay to ensure state updates smoothly before transition
       const timer = setTimeout(() => {
         if (state.currentDimension !== 'TIME') {

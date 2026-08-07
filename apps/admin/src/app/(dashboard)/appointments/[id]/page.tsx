@@ -5,6 +5,7 @@ import { useAppointment, useConfirmAppointment, useCheckInAppointment, useStartA
 import { AppointmentStatusBadge } from '@/modules/appointment/components/appointment-status-badge';
 import { AppointmentTimeline } from '@/modules/appointment/components/appointment-timeline';
 import { RescheduleDialog } from '@/modules/appointment/components/reschedule-dialog';
+import { InvoiceDialog } from '@/modules/appointment/components/invoice-dialog';
 import { AppointmentStatus } from '@/modules/appointment/appointment.types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -27,6 +28,8 @@ import {
   UserX,
   XCircle,
   CalendarClock,
+  AlertCircle,
+  FileText,
   Sparkles
 } from 'lucide-react';
 import { HasPermission } from '@/shared/components/HasPermission';
@@ -52,6 +55,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
   const updateNotesMutation = useUpdateNotes(unwrappedParams.id);
 
   const [isRescheduleOpen, setIsRescheduleOpen] = React.useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = React.useState(false);
   const [isCancelOpen, setIsCancelOpen] = React.useState(searchParams.get('action') === 'cancel');
   const [cancelReason, setCancelReason] = React.useState('');
 
@@ -125,6 +129,12 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
               <Button variant="outline" onClick={() => setIsRescheduleOpen(true)}>
                 <CalendarClock className="h-4 w-4 mr-2" />
                 Reschedule
+              </Button>
+            )}
+            {appointment.status === AppointmentStatus.COMPLETED && (
+              <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={() => setIsInvoiceOpen(true)}>
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Invoice
               </Button>
             )}
             <Button variant="outline" onClick={() => router.push(`/appointments/${appointment.id}/edit`)}>
@@ -350,10 +360,17 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
+      {/* Modals */}
       <RescheduleDialog 
         isOpen={isRescheduleOpen}
         onClose={() => setIsRescheduleOpen(false)}
         appointment={appointment}
+      />
+
+      <InvoiceDialog
+        appointment={appointment}
+        open={isInvoiceOpen}
+        onOpenChange={setIsInvoiceOpen}
       />
 
       <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>

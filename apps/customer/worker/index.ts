@@ -7,8 +7,8 @@ swSelf.addEventListener('push', (event) => {
   const title = data.title || 'Anex Salon';
   const options = {
     body: data.body || 'You have a new notification!',
-    icon: '/anex-logo.png',
-    badge: '/anex-logo.png',
+    icon: '/icon-192x192.png',
+    badge: '/icon-192x192.png',
     data: data.data || {},
   };
 

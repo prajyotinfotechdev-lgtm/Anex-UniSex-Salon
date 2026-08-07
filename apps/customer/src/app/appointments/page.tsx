@@ -245,12 +245,12 @@ export default function AppointmentsPage() {
                 : "You don't have any past appointment history registered."}
             </p>
             {activeTab === "upcoming" && (
-              <Link href="/book" className="w-full max-w-[200px]">
+              <Link href="/book" className="w-full">
                 <Button
-                  onClick={() => haptics.trigger("light")}
-                  className="bg-primary hover:bg-primary/95 text-black font-semibold rounded-xl w-full h-11 text-xs"
+                  onClick={() => haptics.trigger("medium")}
+                  className="w-full bg-primary hover:bg-primary/95 text-black font-semibold rounded-xl h-12 text-sm shadow-lg shadow-primary/10 transition-all active:scale-[0.98]"
                 >
-                  Book Appointment
+                  Book an Appointment
                 </Button>
               </Link>
             )}

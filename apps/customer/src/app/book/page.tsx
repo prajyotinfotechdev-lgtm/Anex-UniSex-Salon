@@ -45,6 +45,26 @@ export default function BookPage() {
     }
   }, [inspirationPost, setInspiration]);
 
+  const { data: response, isLoading } = useQuery({
+    queryKey: ["public-services"],
+    queryFn: async () => {
+      try {
+        const res = await api.get("/public/services");
+        return res.data || [];
+      } catch (e) {
+        // Fallback fallback data for luxury demo experience if API is not fully running locally
+        return [
+          { id: "srv_1", name: "Signature Haircut", description: "Tailored haircut, wash, conditioning, and professional blow dry styling.", durationMinutes: 45, basePrice: 800, category: "Hair" },
+          { id: "srv_2", name: "Beard Sculpting", description: "Precision trimming, hot towel therapy, razor lining, and signature oil finish.", durationMinutes: 30, basePrice: 400, category: "Grooming" },
+          { id: "srv_3", name: "Premium Balayage", description: "Custom hand-painted French highlighting technique for natural, sun-kissed color.", durationMinutes: 120, basePrice: 4500, category: "Color" },
+          { id: "srv_4", name: "Deep Tissue Massage", description: "Therapeutic massage targeting deep muscle layers to release persistent tension.", durationMinutes: 60, basePrice: 1500, category: "Spa" },
+          { id: "srv_5", name: "Luxury Charcoal Facial", description: "Deep cleansing facial treatment with activated charcoal mask and face massage.", durationMinutes: 50, basePrice: 1200, category: "Skin" },
+          { id: "srv_6", name: "Global Hair Coloring", description: "Even root-to-tip high-quality permanent color application with gloss finish.", durationMinutes: 90, basePrice: 2800, category: "Color" },
+        ];
+      }
+    },
+  });
+
   const services = Array.isArray(response) ? response : (response?.data || []);
 
   // Handle skipToTime
@@ -69,25 +89,7 @@ export default function BookPage() {
     }
   }, [skipToTime, serviceIdParam, state.serviceIds, state.currentDimension, selectService, goToDimension, isLoading, services]);
 
-  const { data: response, isLoading } = useQuery({
-    queryKey: ["public-services"],
-    queryFn: async () => {
-      try {
-        const res = await api.get("/public/services");
-        return res.data || [];
-      } catch (e) {
-        // Fallback fallback data for luxury demo experience if API is not fully running locally
-        return [
-          { id: "srv_1", name: "Signature Haircut", description: "Tailored haircut, wash, conditioning, and professional blow dry styling.", durationMinutes: 45, basePrice: 800, category: "Hair" },
-          { id: "srv_2", name: "Beard Sculpting", description: "Precision trimming, hot towel therapy, razor lining, and signature oil finish.", durationMinutes: 30, basePrice: 400, category: "Grooming" },
-          { id: "srv_3", name: "Premium Balayage", description: "Custom hand-painted French highlighting technique for natural, sun-kissed color.", durationMinutes: 120, basePrice: 4500, category: "Color" },
-          { id: "srv_4", name: "Deep Tissue Massage", description: "Therapeutic massage targeting deep muscle layers to release persistent tension.", durationMinutes: 60, basePrice: 1500, category: "Spa" },
-          { id: "srv_5", name: "Luxury Charcoal Facial", description: "Deep cleansing facial treatment with activated charcoal mask and face massage.", durationMinutes: 50, basePrice: 1200, category: "Skin" },
-          { id: "srv_6", name: "Global Hair Coloring", description: "Even root-to-tip high-quality permanent color application with gloss finish.", durationMinutes: 90, basePrice: 2800, category: "Color" },
-        ];
-      }
-    },
-  });
+
 
   const toggleService = (id: string) => {
     haptics.trigger("light");

@@ -392,6 +392,17 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
           </div>
         )}
 
+        {/* ─── CTA Button ─── */}
+        <div className="my-8">
+          <button
+            onClick={handleBook}
+            className="w-full bg-white text-black py-4 rounded-full font-bold text-[15px] flex items-center justify-center gap-2.5 hover:bg-zinc-200 active:scale-[0.98] transition-all shadow-xl ring-4 ring-white/10"
+          >
+            <Calendar className="w-5 h-5" />
+            Book This Look
+          </button>
+        </div>
+
         {/* ─── Suggested Looks ─── */}
         {suggestedLooks.length > 0 && (
           <div className="mt-12 mb-8">
@@ -419,17 +430,6 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
             </div>
           </div>
         )}
-      </div>
-
-      {/* ─── Floating CTA ─── */}
-      <div className="fixed bottom-6 left-0 right-0 px-5 z-40 max-w-2xl mx-auto drop-shadow-2xl">
-        <button
-          onClick={handleBook}
-          className="w-full bg-white text-black py-4 rounded-full font-bold text-[15px] flex items-center justify-center gap-2.5 hover:bg-zinc-200 active:scale-[0.98] transition-all shadow-2xl ring-4 ring-white/10"
-        >
-          <Calendar className="w-5 h-5" />
-          Book This Look
-        </button>
       </div>
 
       {/* ─── Lightbox ─── */}

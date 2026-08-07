@@ -91,7 +91,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
               onPlay={handlePlay}
               onEnded={handleVideoEnd}
               onError={handleVideoEnd}
-              className="w-full h-full object-contain max-w-md"
+              className="w-full h-full object-cover"
             >
               <source src="/anex-logo-vdo.mp4" type="video/mp4" />
             </video>

@@ -237,8 +237,10 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
     );
   }
 
-  // Get suggested looks (exclude current)
-  const suggestedLooks = feedData?.data?.filter((p: any) => p.id !== post.id).slice(0, 6) || [];
+  // Get suggested looks (exclude current) randomly
+  const suggestedLooks = (feedData?.data?.filter((p: any) => p.id !== post.id) || [])
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 6);
 
   return (
     <div className="min-h-screen bg-black text-white pb-32 selection:bg-white/20">
@@ -420,7 +422,7 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
       </div>
 
       {/* ─── Floating CTA ─── */}
-      <div className="fixed bottom-0 left-0 right-0 p-5 pt-12 bg-gradient-to-t from-black via-black/95 to-transparent z-40 max-w-2xl mx-auto">
+      <div className="fixed bottom-6 left-0 right-0 px-5 z-40 max-w-2xl mx-auto drop-shadow-2xl">
         <button
           onClick={handleBook}
           className="w-full bg-white text-black py-4 rounded-full font-bold text-[15px] flex items-center justify-center gap-2.5 hover:bg-zinc-200 active:scale-[0.98] transition-all shadow-2xl ring-4 ring-white/10"

@@ -45,12 +45,20 @@ export default function BookPage() {
     }
   }, [inspirationPost, setInspiration]);
 
+  const services = Array.isArray(response) ? response : (response?.data || []);
+
   // Handle skipToTime
   useEffect(() => {
-    if (skipToTime === 'true' && serviceIdParam) {
-      if (!state.serviceIds.includes(serviceIdParam)) {
-        selectService(serviceIdParam);
+    if (skipToTime === 'true' && !isLoading) {
+      if (serviceIdParam) {
+        if (!state.serviceIds.includes(serviceIdParam)) {
+          selectService(serviceIdParam);
+        }
+      } else if (state.serviceIds.length === 0 && services.length > 0) {
+        // If no service is provided, and none selected, auto-select a default one so they can pick a time
+        selectService(services[0].id);
       }
+      
       // Add a slight delay to ensure state updates smoothly before transition
       const timer = setTimeout(() => {
         if (state.currentDimension !== 'TIME') {
@@ -59,7 +67,7 @@ export default function BookPage() {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [skipToTime, serviceIdParam, state.serviceIds, state.currentDimension, selectService, goToDimension]);
+  }, [skipToTime, serviceIdParam, state.serviceIds, state.currentDimension, selectService, goToDimension, isLoading, services]);
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["public-services"],
@@ -81,8 +89,6 @@ export default function BookPage() {
     },
   });
 
-  const services = Array.isArray(response) ? response : (response?.data || []);
-
   const toggleService = (id: string) => {
     haptics.trigger("light");
     if (state.serviceIds.includes(id)) {
@@ -92,7 +98,6 @@ export default function BookPage() {
     }
   };
 
-  // Helper to extract category name
   const getCategory = (service: any) => {
     return service.serviceCategory?.name || service.category || "Other";
   };

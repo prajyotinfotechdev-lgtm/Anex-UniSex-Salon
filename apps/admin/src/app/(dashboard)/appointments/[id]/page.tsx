@@ -37,18 +37,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-export default function AppointmentDetailPage({ params }: { params: { id: string } }) {
+export default function AppointmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = React.use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: appointment, isLoading, isError } = useAppointment(params.id);
+  const { data: appointment, isLoading, isError } = useAppointment(unwrappedParams.id);
 
-  const confirmMutation = useConfirmAppointment(params.id);
-  const checkInMutation = useCheckInAppointment(params.id);
-  const startMutation = useStartAppointment(params.id);
-  const completeMutation = useCompleteAppointment(params.id);
-  const noShowMutation = useNoShowAppointment(params.id);
-  const cancelMutation = useCancelAppointment(params.id);
-  const updateNotesMutation = useUpdateNotes(params.id);
+  const confirmMutation = useConfirmAppointment(unwrappedParams.id);
+  const checkInMutation = useCheckInAppointment(unwrappedParams.id);
+  const startMutation = useStartAppointment(unwrappedParams.id);
+  const completeMutation = useCompleteAppointment(unwrappedParams.id);
+  const noShowMutation = useNoShowAppointment(unwrappedParams.id);
+  const cancelMutation = useCancelAppointment(unwrappedParams.id);
+  const updateNotesMutation = useUpdateNotes(unwrappedParams.id);
 
   const [isRescheduleOpen, setIsRescheduleOpen] = React.useState(false);
   const [isCancelOpen, setIsCancelOpen] = React.useState(searchParams.get('action') === 'cancel');

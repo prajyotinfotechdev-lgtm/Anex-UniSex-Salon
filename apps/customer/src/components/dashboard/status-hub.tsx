@@ -143,11 +143,11 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-2xl h-14 text-base shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all active:scale-[0.98]" 
                 haptic="medium"
                 onClick={() => {
-                  loadPrediction(predictiveBooking);
-                  goToDimension('TIME');
+                  reset();
+                  router.push('/book');
                 }}
               >
-                Book It Again <ArrowRight className="w-4 h-4 ml-2" />
+                Book Appointment <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           </div>

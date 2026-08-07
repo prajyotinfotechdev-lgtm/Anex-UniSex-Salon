@@ -75,11 +75,11 @@ export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: Hero
               className="w-full text-lg h-14 shadow-lg shadow-primary/10" 
               haptic="medium"
               onClick={() => {
-                loadPrediction(predictiveBooking);
-                goToDimension('TIME'); // Jump straight to time for "The Usual"
+                reset();
+                router.push('/book');
               }}
             >
-              Book It Again
+              Book Appointment
             </Button>
           </CardContent>
         </Card>

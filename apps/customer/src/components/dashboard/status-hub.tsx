@@ -183,33 +183,6 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
         )}
       </motion.div>
 
-      {/* Identity & Financials Footer (Integrated) */}
-      {financials && (
-        <div className="relative z-10 bg-white/40 dark:bg-black/40 backdrop-blur-md border-t border-black/5 dark:border-white/5 p-5">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center">
-                <QrCode className="w-5 h-5 text-zinc-800 dark:text-white/80" />
-              </div>
-              <div>
-                <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-0.5">Wallet</p>
-                <div className="flex items-center gap-1.5">
-                  <Wallet className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">₹{financials.walletBalance}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-right">
-              <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-0.5">Points</p>
-              <div className="flex items-baseline justify-end gap-1">
-                <span className="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">{financials.rewardPoints}</span>
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold">PTS</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 }

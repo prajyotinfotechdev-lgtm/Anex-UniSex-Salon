@@ -337,7 +337,7 @@ export default function BookPage() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-[100px] left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-[26rem]"
+            className="fixed bottom-[140px] left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-[26rem]"
             style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
           >
             <div className="bg-zinc-950/90 border border-primary/30 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl shadow-black/80">

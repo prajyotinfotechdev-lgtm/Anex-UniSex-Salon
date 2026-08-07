@@ -146,7 +146,11 @@ export function AppointmentList() {
               </TableRow>
             ) : (
               data?.data.map((app) => (
-                <TableRow key={app.id}>
+                <TableRow 
+                  key={app.id} 
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => router.push(`/appointments/${app.id}`)}
+                >
                   <TableCell className="font-medium">
                     <div className="flex flex-col">
                       <span>{format(new Date(app.date), 'MMM d, yyyy')}</span>

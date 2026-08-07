@@ -208,6 +208,7 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
     if (post.employeeId) query.append('employeeId', post.employeeId);
     if (post.branchId) query.append('branchId', post.branchId);
     query.append('inspirationId', post.id);
+    query.append('skipToTime', 'true');
     router.push(`/book?${query.toString()}`);
   };
 

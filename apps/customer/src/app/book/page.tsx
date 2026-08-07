@@ -20,6 +20,8 @@ export default function BookPage() {
   const [selectedGender, setSelectedGender] = useState("All");
   const searchParams = useSearchParams();
   const inspirationId = searchParams.get("inspirationId");
+  const skipToTime = searchParams.get("skipToTime");
+  const serviceIdParam = searchParams.get("serviceId");
   const { setInspiration } = useBookingEngine();
 
   // Fetch inspiration details if ID is present
@@ -42,6 +44,22 @@ export default function BookPage() {
       setInspiration(inspirationPost.id, media);
     }
   }, [inspirationPost, setInspiration]);
+
+  // Handle skipToTime
+  useEffect(() => {
+    if (skipToTime === 'true' && serviceIdParam) {
+      if (!state.serviceIds.includes(serviceIdParam)) {
+        selectService(serviceIdParam);
+      }
+      // Add a slight delay to ensure state updates smoothly before transition
+      const timer = setTimeout(() => {
+        if (state.currentDimension !== 'TIME') {
+          goToDimension('TIME');
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [skipToTime, serviceIdParam, state.serviceIds, state.currentDimension, selectService, goToDimension]);
 
   const { data: response, isLoading } = useQuery({
     queryKey: ["public-services"],

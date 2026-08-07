@@ -95,6 +95,17 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
             >
               <source src="/anex-logo-vdo.mp4" type="video/mp4" />
             </video>
+            
+            {/* Premium Skip Button */}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              onClick={handleVideoEnd}
+              className="absolute top-12 right-6 z-[100000] px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/80 text-xs font-medium tracking-widest uppercase hover:bg-white/20 hover:text-white transition-all shadow-xl"
+            >
+              Skip
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>

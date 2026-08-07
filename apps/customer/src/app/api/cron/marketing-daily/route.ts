@@ -46,7 +46,8 @@ export async function GET(req: Request) {
     const payload = JSON.stringify({
       title: randomMessage.title,
       body: randomMessage.body,
-      url: '/book'
+      url: '/book',
+      data: { url: '/book' }
     });
 
     let sent = 0;

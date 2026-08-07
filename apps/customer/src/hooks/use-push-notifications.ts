@@ -81,10 +81,37 @@ export function usePushNotifications() {
     return false;
   };
 
+  const unsubscribeFromPush = async (customerId: string) => {
+    if (!subscription) return false;
+
+    try {
+      const successful = await subscription.unsubscribe();
+      if (successful) {
+        setSubscription(null);
+        setPermission('default');
+        
+        // Remove subscription from backend
+        await fetch('/api/notifications/unsubscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ customerId }),
+        });
+        
+        return true;
+      }
+    } catch (error) {
+      console.error('Error unsubscribing from push notifications:', error);
+    }
+    return false;
+  };
+
   return {
     isSupported,
     permission,
     subscription,
     subscribeToPush,
+    unsubscribeFromPush,
   };
 }

@@ -47,6 +47,7 @@ export async function POST(req: Request) {
       title,
       body,
       url: url || '/',
+      data: { url: url || '/' }
     });
 
     let sentCount = 0;

@@ -5,13 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCustomerProfile } from '@/components/providers/CustomerProfileContext';
 import { OnboardingCard } from '@/components/onboarding/onboarding-card';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Phone, LogOut, ChevronRight, Settings, Star, CreditCard, Shield, Sparkles, Check, X } from 'lucide-react';
+import { User, Mail, Phone, LogOut, ChevronRight, Settings, Star, CreditCard, Shield, Sparkles, Check, X, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 import { getFullApiUrl } from '@/lib/api';
 import { useDashboard } from '@/hooks/use-dashboard';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 
 export default function ProfilePage() {
   const { profile, isGuest, clearProfile, updateProfileLocally } = useCustomerProfile();
+  const { permission, subscription, subscribeToPush, unsubscribeFromPush } = usePushNotifications();
   const { data } = useDashboard();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -280,6 +282,47 @@ export default function ProfilePage() {
               </div>
             </div>
             
+          </div>
+        </div>
+
+        {/* App Settings */}
+        <div>
+          <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-4 mt-8">App Settings</h3>
+          <div className="bg-zinc-900/30 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-sm">
+            
+            <div className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                <Bell className="w-4 h-4 text-zinc-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-zinc-300 font-medium mb-0.5">Push Notifications</p>
+                <p className="text-xs text-zinc-500">Receive offers and reminders</p>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (permission === 'granted' && subscription) {
+                      await unsubscribeFromPush(profile?.id || '');
+                    } else {
+                      await subscribeToPush(profile?.id || '');
+                    }
+                  }}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900 ${
+                    permission === 'granted' && subscription ? 'bg-primary' : 'bg-zinc-700'
+                  }`}
+                  role="switch"
+                  aria-checked={permission === 'granted' && subscription ? 'true' : 'false'}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                      permission === 'granted' && subscription ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
 

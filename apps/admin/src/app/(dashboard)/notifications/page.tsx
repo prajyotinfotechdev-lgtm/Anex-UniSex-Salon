@@ -49,7 +49,11 @@ export default function NotificationsPage() {
         throw new Error(result.error || 'Failed to send notification');
       }
 
-      toast.success(`Notification dispatched successfully to ${result.sent} devices.`);
+      if (result.sent === 0) {
+        toast.warning(`Notification dispatched, but 0 devices were subscribed/reached.`);
+      } else {
+        toast.success(`Notification dispatched successfully to ${result.sent} devices.`);
+      }
       reset();
     } catch (err: any) {
       toast.error(err.message || 'Broadcast Failed');

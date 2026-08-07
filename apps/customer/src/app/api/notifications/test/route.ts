@@ -32,6 +32,7 @@ export async function POST(req: Request) {
       title: title || 'Anex Salon Update',
       body: body || 'This is a test notification from Anex Salon.',
       url: '/',
+      data: { url: '/' }
     });
 
     await webpush.sendNotification(subscription, payload);

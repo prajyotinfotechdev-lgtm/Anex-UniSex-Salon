@@ -161,29 +161,7 @@ export default function HomePage() {
           financials={data.financials}
         />
 
-        {/* Quick Actions Scroll Bar */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex gap-3 overflow-x-auto no-scrollbar -mx-6 px-6"
-        >
-          {['Quick Book', 'Gift Cards', 'My Packages', 'Refer a Friend'].map((action, i) => (
-            <Button 
-              key={action} 
-              variant="outline" 
-              className="rounded-full whitespace-nowrap bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 hover:border-black/20 dark:hover:border-white/20 text-zinc-700 dark:text-zinc-300 transition-all"
-              haptic="light"
-              onClick={() => {
-                if (action === 'Quick Book') {
-                  window.location.href = '/book';
-                }
-              }}
-            >
-              {action}
-            </Button>
-          ))}
-        </motion.div>
+        {/* Quick Actions Scroll Bar Removed */}
 
         {/* 3. Contextual Recommendations */}
         <ContextualRecommendations recommendations={data.recommendations} />

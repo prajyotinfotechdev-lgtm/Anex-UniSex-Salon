@@ -3,6 +3,7 @@ import { DashboardMetrics } from '@/modules/dashboard/dashboard-metrics';
 import { DashboardCharts } from '@/modules/dashboard/dashboard-charts';
 import { DashboardAppointmentChart } from '@/modules/dashboard/dashboard-appointment-chart';
 import { DashboardRecentActivity } from '@/modules/dashboard/dashboard-recent-activity';
+import { DashboardRecentAppointments } from '@/modules/dashboard/dashboard-recent-appointments';
 
 export const metadata: Metadata = {
   title: 'Dashboard | ANEX OS',
@@ -24,7 +25,10 @@ export default function DashboardPage() {
           <DashboardAppointmentChart />
         </div>
         <div className="col-span-1 md:col-span-4 lg:col-span-3">
-          <DashboardRecentActivity />
+          <div className="flex flex-col gap-4">
+            <DashboardRecentActivity />
+            <DashboardRecentAppointments />
+          </div>
         </div>
       </div>
     </div>

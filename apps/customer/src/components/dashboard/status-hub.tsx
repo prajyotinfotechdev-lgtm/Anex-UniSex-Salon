@@ -179,36 +179,6 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
                 </Button>
               </div>
             </div>
-
-            {/* Glowing Circular Progress Ring for Loyalty */}
-            <div className="relative w-24 h-24 shrink-0 flex items-center justify-center">
-              <div className="absolute inset-0 bg-black/5 dark:bg-black/40 rounded-full blur-md" />
-              <svg className="w-24 h-24 transform -rotate-90 relative z-10" viewBox="0 0 36 36">
-                <path
-                  className="text-black/10 dark:text-white/10"
-                  strokeWidth="3"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <motion.path
-                  className="text-primary"
-                  strokeWidth="3"
-                  strokeDasharray={`${strokeDasharray}`}
-                  strokeLinecap="round"
-                  stroke="currentColor"
-                  fill="none"
-                  initial={{ strokeDasharray: "0 100" }}
-                  animate={{ strokeDasharray }}
-                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-                <span className="text-lg font-bold text-zinc-900 dark:text-white">{points}</span>
-                <span className="text-[9px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-medium -mt-1">Pts</span>
-              </div>
-            </div>
           </div>
         )}
       </motion.div>

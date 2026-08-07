@@ -87,7 +87,7 @@ export class CustomerMeService {
     };
 
     // Discover & Content — pulled from real published InspirationPosts
-    const inspirationPosts = await prisma.inspirationPost.findMany({
+    let inspirationPosts = await prisma.inspirationPost.findMany({
       where: {
         organizationId,
         status: 'PUBLISHED',
@@ -101,17 +101,19 @@ export class CustomerMeService {
         category: true,
         heroMedia: { select: { secureUrl: true, url: true } },
       },
-      orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
-      take: 8,
+      take: 20, // Fetch more to allow for random selection
     });
 
+    // Shuffle the array to show random images every time the PWA opens
+    inspirationPosts = inspirationPosts.sort(() => 0.5 - Math.random()).slice(0, 8);
+
     const discover = inspirationPosts
-      .filter(p => p.heroMedia?.secureUrl)  // Guard: skip posts without a valid image
+      .filter(p => p.heroMedia?.secureUrl || p.heroMedia?.url)  // Guard: skip posts without a valid image
       .map(p => ({
         id: p.id,
         type: p.category || 'INSPIRATION',
         title: p.title,
-        imageUrl: p.heroMedia!.secureUrl,
+        imageUrl: p.heroMedia?.secureUrl || p.heroMedia?.url || '',
         action: 'VIEW_INSPIRATION',
         targetId: p.slug || p.id,
       }));

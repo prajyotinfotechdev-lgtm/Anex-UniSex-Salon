@@ -176,37 +176,7 @@ export default function ProfilePage() {
         )}
       </motion.div>
 
-      {/* Quick Stats (Only if not editing) */}
-      <AnimatePresence mode="wait">
-        {!isEditing && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="grid grid-cols-2 gap-3 mb-10 overflow-hidden"
-          >
-            <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-zinc-400 mb-1">
-                <Star className="w-4 h-4 text-yellow-500" />
-                <span className="text-xs font-medium uppercase tracking-wider">Loyalty</span>
-              </div>
-              <span className="text-2xl font-semibold text-white">
-                {data?.metrics?.loyaltyPoints || '0'} <span className="text-sm text-zinc-500 font-normal">pts</span>
-              </span>
-            </div>
-            
-            <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-zinc-400 mb-1">
-                <CreditCard className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs font-medium uppercase tracking-wider">Wallet</span>
-              </div>
-              <span className="text-2xl font-semibold text-white">
-                ₹{data?.financials?.walletBalance || '0.00'}
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Contact Info Details */}
       <motion.div 

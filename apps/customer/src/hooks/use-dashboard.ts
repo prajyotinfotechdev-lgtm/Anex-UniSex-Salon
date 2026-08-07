@@ -32,26 +32,18 @@ const DEFAULT_GUEST_DASHBOARD: DashboardData = {
       actionId: "srv_discover"
     }
   ],
-  discover: [
-    {
-      id: "content_1",
-      type: "TREND",
-      title: "The Textured Crop",
-      imageUrl: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&auto=format&fit=crop&q=80",
-      action: "BOOK_SERVICE",
-      targetId: "srv_crop"
-    },
-    {
-      id: "content_2",
-      type: "TIP",
-      title: "Rainy Day Frizz Control",
-      imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80",
-      action: "READ_ARTICLE",
-      targetId: "art_12"
-    }
   ],
+  discover: [], // Set dynamically below
   notifications: { unreadCount: 0 }
 };
+
+const MOCK_DISCOVER_POOL = [
+  { id: "content_1", type: "TREND", title: "The Textured Crop", imageUrl: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&auto=format&fit=crop&q=80", action: "BOOK_SERVICE", targetId: "srv_crop" },
+  { id: "content_2", type: "TIP", title: "Rainy Day Frizz Control", imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&auto=format&fit=crop&q=80", action: "READ_ARTICLE", targetId: "art_12" },
+  { id: "content_3", type: "INSPIRATION", title: "Modern Fade", imageUrl: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&auto=format&fit=crop&q=80", action: "BOOK_SERVICE", targetId: "srv_fade" },
+  { id: "content_4", type: "TREND", title: "Vibrant Balayage", imageUrl: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&auto=format&fit=crop&q=80", action: "BOOK_SERVICE", targetId: "srv_color" },
+  { id: "content_5", type: "INSPIRATION", title: "Bridal Elegance", imageUrl: "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?w=800&auto=format&fit=crop&q=80", action: "BOOK_SERVICE", targetId: "srv_bridal" },
+];
 
 export function useDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -67,7 +59,8 @@ export function useDashboard() {
         const token = profile?.deviceToken || localStorage.getItem("anex_device_token");
         if (!token) {
           // Guest User (No device registered yet) -> Load Guest Dashboard
-          setData(DEFAULT_GUEST_DASHBOARD);
+          const randomizedDiscover = [...MOCK_DISCOVER_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
+          setData({ ...DEFAULT_GUEST_DASHBOARD, discover: randomizedDiscover });
           setIsLoading(false);
           return;
         }
@@ -83,7 +76,8 @@ export function useDashboard() {
         if (res.status === 401 || res.status === 404) {
           // Token expired or revoked -> clear local token and revert to Guest Dashboard
           clearProfile();
-          setData(DEFAULT_GUEST_DASHBOARD);
+          const randomizedDiscover = [...MOCK_DISCOVER_POOL].sort(() => 0.5 - Math.random()).slice(0, 3);
+          setData({ ...DEFAULT_GUEST_DASHBOARD, discover: randomizedDiscover });
           setIsLoading(false);
           return;
         }

@@ -57,6 +57,17 @@ export class CustomerMeService {
         time: nextAppt.date.toISOString(),
         actions: ["GET_DIRECTIONS", "RUNNING_LATE"]
       };
+    } else if (upcomingAppointments.length > 0) {
+      urgencyState = "UPCOMING_APPOINTMENT";
+      const nextAppt = upcomingAppointments[upcomingAppointments.length - 1]; // Closest one
+      const firstItem = nextAppt.items[0];
+      urgentAction = {
+        type: "UPCOMING_APPOINTMENT",
+        title: firstItem?.service?.name || "Appointment",
+        subtitle: firstItem?.employee?.firstName ? `with ${firstItem.employee.firstName}` : "",
+        time: nextAppt.date.toISOString(),
+        actions: ["MANAGE"]
+      };
     } else if (pastAppointments.length === 0) {
       urgencyState = "FIRST_TIME";
     } else {

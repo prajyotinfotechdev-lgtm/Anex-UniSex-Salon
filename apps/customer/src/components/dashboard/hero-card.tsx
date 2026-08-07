@@ -51,6 +51,39 @@ export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: Hero
     );
   }
 
+  // Upcoming Appointment (Not Today)
+  if (urgencyState === "UPCOMING_APPOINTMENT" && urgentAction) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 30 }}
+      >
+        <Card glass className="relative overflow-hidden bg-gradient-to-br from-blue-500/20 to-background border-blue-500/30">
+          <div className="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full" />
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-500">
+              <Clock className="w-5 h-5" />
+              {new Date(urgentAction.time).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(urgentAction.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </CardTitle>
+            <CardDescription className="text-foreground/80 font-medium mt-1">
+              {urgentAction.title} {urgentAction.subtitle}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full shadow-xl shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white" 
+              haptic="medium"
+              onClick={() => router.push('/appointments')}
+            >
+              Manage Appointment
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
+
   // Returning Customer (The Usual)
   if (urgencyState === "RETURNING" && predictiveBooking) {
     return (

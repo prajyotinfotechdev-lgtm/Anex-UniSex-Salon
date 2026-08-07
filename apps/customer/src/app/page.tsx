@@ -18,7 +18,6 @@ import { StatusHub } from "@/components/dashboard/status-hub";
 import { DiscoverCarousel } from "@/components/dashboard/discover-carousel";
 import { NotificationPrompt } from "@/components/dashboard/notification-prompt";
 import { ContextualRecommendations } from "@/components/dashboard/contextual-recommendations";
-import { PremiumServicesList } from "@/components/dashboard/premium-services";
 
 export default function HomePage() {
   const { theme, setTheme } = useTheme();
@@ -181,10 +180,7 @@ export default function HomePage() {
           ))}
         </motion.div>
 
-        {/* 3. Best Premium Services */}
-        <PremiumServicesList />
-
-        {/* 4. Contextual Recommendations */}
+        {/* 3. Contextual Recommendations */}
         <ContextualRecommendations recommendations={data.recommendations} />
       </div>
 

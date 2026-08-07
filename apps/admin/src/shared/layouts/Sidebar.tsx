@@ -31,7 +31,6 @@ const MENU_ITEMS = [
   { name: 'Appointments', href: '/appointments', icon: CalendarDays },
   { name: 'Invoices', href: '/invoices', icon: CreditCard },
   { name: 'Media Studio', href: '/media', icon: ImageIcon },
-  { name: 'Inspiration', href: '/inspiration', icon: Sparkles },
   { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

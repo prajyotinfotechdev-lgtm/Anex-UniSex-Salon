@@ -12,16 +12,22 @@ export function PushNotificationProvider({ children }: { children: React.ReactNo
 
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((registration) => {
-          console.log("Service Worker registered with scope:", registration.scope);
-        })
-        .catch((error) => {
-          console.error("Service Worker registration failed:", error);
-        });
+      navigator.serviceWorker.ready.then((registration) => {
+        // If already granted, ensure backend has it
+        if (Notification.permission === "granted" && profile?.id) {
+          registration.pushManager.getSubscription().then((sub) => {
+            if (sub) {
+              fetch('/api/notifications/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subscription: sub, customerId: profile.id }),
+              }).catch(console.error);
+            }
+          });
+        }
+      });
     }
-  }, []);
+  }, [profile?.id]);
 
   return (
     <>

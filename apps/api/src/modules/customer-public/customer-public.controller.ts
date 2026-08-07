@@ -41,3 +41,12 @@ export const getSlotsHandler = async (req: Request, res: Response, next: NextFun
     res.status(200).json(data);
   } catch (error) { next(error); }
 };
+
+export const getInvoiceHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const data = await CustomerPublicService.getInvoice((req as any).publicOrganizationId, id);
+    if (!data) return res.status(404).json({ message: 'Invoice not found or appointment not completed' });
+    res.status(200).json(data);
+  } catch (error) { next(error); }
+};

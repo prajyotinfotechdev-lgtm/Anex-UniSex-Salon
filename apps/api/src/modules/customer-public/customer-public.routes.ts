@@ -3,7 +3,8 @@ import {
   getBranchesHandler,
   getServicesHandler,
   getEmployeesHandler,
-  getSlotsHandler
+  getSlotsHandler,
+  getInvoiceHandler
 } from './customer-public.controller';
 import { requireOrganizationId } from './customer-public.middleware';
 import {
@@ -21,6 +22,7 @@ router.get('/branches', getBranchesHandler);
 router.get('/services', getServicesHandler);
 router.get('/employees', getEmployeesHandler);
 router.get('/slots', getSlotsHandler);
+router.get('/invoice/:id', getInvoiceHandler);
 
 // ─── Inspiration Public Routes ────────────────────────────────────────────────
 router.get('/inspiration', validate(listInspirationPostsSchema), InspirationPublicController.listPosts);

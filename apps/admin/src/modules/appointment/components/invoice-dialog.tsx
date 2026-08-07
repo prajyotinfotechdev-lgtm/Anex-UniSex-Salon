@@ -23,19 +23,16 @@ export function InvoiceDialog({ open, onOpenChange, appointment }: InvoiceDialog
   const totalPrice = appointment.items?.reduce((acc: number, item: any) => acc + Number(item.price), 0) || 0;
   
   const generateMessage = () => {
-    let msg = `*Anex Salon - Invoice*\n`;
-    msg += `---------------------------\n`;
-    msg += `*Date:* ${format(new Date(appointment.date), 'MMM d, yyyy')}\n`;
-    msg += `*Customer:* ${appointment.customer?.firstName} ${appointment.customer?.lastName || ''}\n\n`;
+    const customerBaseUrl = process.env.NEXT_PUBLIC_CUSTOMER_URL || 
+      (typeof window !== 'undefined' ? window.location.origin.replace('3001', '3000').replace('admin', 'customer') : 'http://localhost:3000');
     
-    msg += `*Services:*\n`;
-    appointment.items?.forEach((item: any) => {
-      msg += `- ${item.service?.name || 'Service'} ($${Number(item.price).toFixed(2)})\n`;
-    });
-    
-    msg += `\n*Total Amount: $${totalPrice.toFixed(2)}*\n`;
-    msg += `---------------------------\n`;
-    msg += `Thank you for choosing Anex Salon!`;
+    const invoiceLink = `${customerBaseUrl}/invoice/${appointment.id}`;
+
+    let msg = `*Anex Salon*\n`;
+    msg += `Hi ${appointment.customer?.firstName},\n\n`;
+    msg += `Thank you for your visit on ${format(new Date(appointment.date), 'MMM d, yyyy')}! Your premium invoice is ready.\n\n`;
+    msg += `*View & Download Invoice PDF:*\n${invoiceLink}\n\n`;
+    msg += `We look forward to seeing you again.`;
     return msg;
   };
 

@@ -95,4 +95,47 @@ export class CustomerPublicService {
       intervalMinutes
     );
   }
+
+  static async getInvoice(organizationId: string, id: string) {
+    return prisma.appointment.findFirst({
+      where: {
+        id,
+        branch: { organizationId },
+        status: 'COMPLETED',
+        isActive: true,
+        deletedAt: null
+      },
+      select: {
+        id: true,
+        date: true,
+        customer: {
+          select: {
+            firstName: true,
+            lastName: true,
+            primaryPhone: true,
+            email: true
+          }
+        },
+        items: {
+          select: {
+            id: true,
+            price: true,
+            startTime: true,
+            endTime: true,
+            service: {
+              select: {
+                name: true
+              }
+            },
+            employee: {
+              select: {
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 }

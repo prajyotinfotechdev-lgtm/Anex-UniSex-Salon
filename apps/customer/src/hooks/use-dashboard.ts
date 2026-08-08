@@ -104,7 +104,8 @@ export function useDashboard() {
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
-          }
+          },
+          cache: "no-store"
         });
 
         if (res.status === 401 || res.status === 404) {

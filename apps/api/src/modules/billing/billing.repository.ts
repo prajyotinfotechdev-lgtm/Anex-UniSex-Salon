@@ -35,6 +35,20 @@ export class BillingRepository {
 
   async createInvoice(data: CreateInvoiceInput, txClient?: Prisma.TransactionClient) {
     const execute = async (tx: Prisma.TransactionClient) => {
+      if (data.appointmentId) {
+        const existingInvoice = await tx.invoice.findFirst({
+          where: {
+            appointmentId: data.appointmentId,
+            status: { not: InvoiceStatus.VOIDED },
+            isActive: true,
+            deletedAt: null,
+          },
+        });
+        if (existingInvoice) {
+          throw new Error('An active invoice already exists for this appointment.');
+        }
+      }
+
       const invoiceNumber = await this.generateInvoiceNumber(data.branchId, tx);
       const totals = InvoiceCalculator.calculateTotals(data.items);
       

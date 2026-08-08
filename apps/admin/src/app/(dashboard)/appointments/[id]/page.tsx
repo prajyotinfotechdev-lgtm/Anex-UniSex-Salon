@@ -155,14 +155,14 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
                 Reschedule
               </Button>
             )}
-            {appointment.status === AppointmentStatus.COMPLETED && (!appointment.invoices || appointment.invoices.length === 0) && (
+            {appointment.status === AppointmentStatus.COMPLETED && (!appointment.invoices || appointment.invoices.filter((inv: any) => inv.status !== 'VOIDED').length === 0) && (
               <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={handleGenerateInvoice} disabled={createInvoiceMutation.isPending}>
                 <FileText className="h-4 w-4 mr-2" />
                 {createInvoiceMutation.isPending ? 'Generating...' : 'Generate Invoice'}
               </Button>
             )}
-            {appointment.status === AppointmentStatus.COMPLETED && appointment.invoices && appointment.invoices.length > 0 && (
-              <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={() => router.push(`/invoices/${appointment.invoices![0].id}`)}>
+            {appointment.status === AppointmentStatus.COMPLETED && appointment.invoices && appointment.invoices.filter((inv: any) => inv.status !== 'VOIDED').length > 0 && (
+              <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={() => router.push(`/invoices/${appointment.invoices!.find((inv: any) => inv.status !== 'VOIDED')?.id}`)}>
                 <FileText className="h-4 w-4 mr-2" />
                 View Invoice
               </Button>

@@ -68,9 +68,9 @@ export function StyleQuizWidget() {
         {/* Bottom preview strip — 3 sample style thumbnails */}
         <div className="px-6 pb-5 flex gap-2 overflow-hidden">
           {[
-            'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=120&auto=format&fit=crop&q=80',
-            'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=120&auto=format&fit=crop&q=80',
-            'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=120&auto=format&fit=crop&q=80',
+            '/images/haircuts/high-skin-fade.png',
+            '/images/haircuts/classic-side-part.png',
+            '/images/haircuts/pompadour.png',
           ].map((url, i) => (
             <div
               key={i}

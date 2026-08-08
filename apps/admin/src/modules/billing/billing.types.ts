@@ -110,6 +110,7 @@ export interface Invoice {
     lastName: string;
     email?: string;
     phone?: string;
+    primaryPhone?: string;
   };
   branch?: {
     id: string;

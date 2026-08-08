@@ -53,7 +53,8 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
   };
 
   const handleSendWhatsApp = () => {
-    if (!invoice.customer?.phone) {
+    const customerPhone = invoice.customer?.primaryPhone || invoice.customer?.phone;
+    if (!customerPhone) {
       alert("Customer doesn't have a phone number on file.");
       return;
     }
@@ -69,7 +70,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
     msg += `*View & Download Invoice PDF:*\n${invoiceLink}\n\n`;
     msg += `We look forward to seeing you again.`;
 
-    const phone = invoice.customer.phone.replace(/\D/g, '');
+    const phone = customerPhone.replace(/\D/g, '');
     const text = encodeURIComponent(msg);
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
@@ -116,23 +117,22 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
       <div className="w-full md:w-[70%] bg-white md:bg-transparent print:w-full print:block print:!m-0 print:!p-0 print:bg-white relative">
         
         {/* Receipt Container optimized for WhatsApp/Mobile & Print */}
-        <div className="print:max-w-md mx-auto print:shadow-none bg-white rounded-2xl md:shadow-sm md:border p-6 md:p-8 space-y-8">
+        <div className="print:max-w-md mx-auto print:shadow-none bg-white rounded-2xl md:shadow-xl md:border border-slate-200/60 p-6 md:p-8 space-y-8 relative overflow-hidden">
           
+          {/* Subtle gold accent line at top */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 opacity-80" />
+
           {/* Header */}
           <div className="flex flex-col items-center justify-center text-center space-y-3 pb-6 border-b border-dashed">
-            {isPaid ? (
-              <div className="h-12 w-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-2">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-            ) : (
-              <div className="h-12 w-12 bg-slate-100 text-slate-800 rounded-full flex items-center justify-center mb-2">
-                <FileText className="h-6 w-6" />
-              </div>
-            )}
+            <img 
+              src="/apple-touch-icon.png" 
+              alt="Logo" 
+              className="w-16 h-16 rounded-xl shadow-md border border-slate-100 object-cover mb-2"
+            />
             
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{invoice.branch?.name || 'ANEX Salon'}</h1>
-              <p className="text-sm text-slate-500 mt-1">Official Receipt</p>
+              <h1 className="text-2xl font-serif font-bold text-slate-900 tracking-wide uppercase">{invoice.branch?.name || 'Anex Salon'}</h1>
+              <p className="text-sm text-slate-500 mt-1">Premium Invoice</p>
             </div>
             
             <div className="flex items-center gap-2 mt-2">
@@ -158,7 +158,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
             {invoice.customer ? (
               <div className="space-y-0.5">
                 <p className="font-semibold text-slate-900 text-base">{invoice.customer.firstName} {invoice.customer.lastName}</p>
-                {invoice.customer.phone && <p className="text-sm text-slate-600">{invoice.customer.phone}</p>}
+                {(invoice.customer.primaryPhone || invoice.customer.phone) && <p className="text-sm text-slate-600">{invoice.customer.primaryPhone || invoice.customer.phone}</p>}
                 {invoice.customer.email && <p className="text-sm text-slate-600">{invoice.customer.email}</p>}
               </div>
             ) : (

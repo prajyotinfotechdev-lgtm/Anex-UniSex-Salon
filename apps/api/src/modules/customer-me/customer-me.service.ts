@@ -34,12 +34,31 @@ export class CustomerMeService {
     const greeting = `${timeGreeting}, ${customer.firstName}.`;
 
     // Process Appointments for Urgency State
-    const pastAppointments = customer.appointments.filter(a => a.status === 'COMPLETED' || a.date < now);
-    const upcomingAppointments = customer.appointments.filter(a => a.status === 'CONFIRMED' || (a.status !== 'CANCELLED' && a.date >= now));
+    const validAppointments = customer.appointments.filter(a => a.status !== 'CANCELLED');
+    
+    const upcomingAppointments = validAppointments.filter(a => {
+      if (a.status === 'COMPLETED') return false;
+      const startTime = a.items?.[0]?.startTime || a.date;
+      return startTime >= now;
+    }).sort((a, b) => {
+      const timeA = a.items?.[0]?.startTime?.getTime() || a.date.getTime();
+      const timeB = b.items?.[0]?.startTime?.getTime() || b.date.getTime();
+      return timeA - timeB; // Sort ascending (closest first)
+    });
+
+    const pastAppointments = validAppointments.filter(a => {
+      if (a.status === 'COMPLETED') return true;
+      const startTime = a.items?.[0]?.startTime || a.date;
+      return startTime < now;
+    }).sort((a, b) => {
+      const timeA = a.items?.[0]?.startTime?.getTime() || a.date.getTime();
+      const timeB = b.items?.[0]?.startTime?.getTime() || b.date.getTime();
+      return timeB - timeA; // Sort descending (most recent past first)
+    });
 
     const todayAppointments = upcomingAppointments.filter(a => {
-      const isSameDay = a.date.toDateString() === now.toDateString();
-      return isSameDay;
+      const startTime = a.items?.[0]?.startTime || a.date;
+      return startTime.toDateString() === now.toDateString();
     });
 
     let urgencyState = "FIRST_TIME";
@@ -48,7 +67,7 @@ export class CustomerMeService {
 
     if (todayAppointments.length > 0) {
       urgencyState = "APPOINTMENT_TODAY";
-      const nextAppt = todayAppointments[todayAppointments.length - 1]; // Closest one
+      const nextAppt = todayAppointments[0]; // Closest one since it's sorted ascending
       const firstItem = nextAppt.items[0];
       urgentAction = {
         id: nextAppt.id,
@@ -60,7 +79,7 @@ export class CustomerMeService {
       };
     } else if (upcomingAppointments.length > 0) {
       urgencyState = "UPCOMING_APPOINTMENT";
-      const nextAppt = upcomingAppointments[upcomingAppointments.length - 1]; // Closest one
+      const nextAppt = upcomingAppointments[0]; // Closest one since it's sorted ascending
       const firstItem = nextAppt.items[0];
       urgentAction = {
         id: nextAppt.id,

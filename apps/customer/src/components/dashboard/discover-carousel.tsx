@@ -1,14 +1,9 @@
 "use client";
-
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
 
 interface DiscoverItem {
   id: string;
@@ -19,79 +14,78 @@ interface DiscoverItem {
   targetId: string;
 }
 
-interface DiscoverCarouselProps {
-  items: DiscoverItem[];
-}
-
-function getHref(item: DiscoverItem): string {
-  if (item.action === 'VIEW_INSPIRATION') return `/inspiration/${item.targetId}`;
-  return `/inspiration`;
-}
-
-function getSafeImageUrl(url: string): string {
+function getSafeUrl(url: string) {
   if (!url) return '';
   return url.replace(/^http:\/\//, 'https://');
 }
 
-function CarouselItem({ item, containerRef }: {
+function getHref(item: DiscoverItem) {
+  return item.action === 'VIEW_INSPIRATION' ? `/inspiration/${item.targetId}` : '/inspiration';
+}
+
+function CarouselCard({ item, containerRef }: {
   item: DiscoverItem;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const safeUrl = getSafeImageUrl(item.imageUrl);
-  const itemRef = useRef<HTMLAnchorElement>(null);
+  const safeUrl = getSafeUrl(item.imageUrl);
   const { scrollXProgress } = useScroll({ container: containerRef });
-  const x = useTransform(scrollXProgress, [0, 1], ["0%", "12%"]);
+  const x = useTransform(scrollXProgress, [0, 1], ["0%", "10%"]);
 
   return (
     <Link
-      ref={itemRef}
       href={getHref(item)}
-      className="snap-start shrink-0 w-[230px] relative rounded-[1.75rem] overflow-hidden group cursor-pointer block
-        ring-1 ring-black/8 hover:ring-[#cba876]/40
-        shadow-[0_4px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(203,168,118,0.20)]
-        transition-all duration-500"
+      className="
+        snap-start shrink-0 w-[220px] block rounded-[1.75rem] overflow-hidden group
+        ring-1 ring-stone-200 hover:ring-[#c9a96e]/60
+        dark:ring-white/8 dark:hover:ring-white/25
+        shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_40px_rgba(201,169,110,0.22)]
+        dark:shadow-none
+        transition-all duration-500
+      "
     >
-      <div className="aspect-[4/5] relative bg-zinc-100 overflow-hidden">
+      <div className="aspect-[4/5] relative overflow-hidden bg-stone-100 dark:bg-zinc-900">
         {safeUrl ? (
           <motion.div style={{ x, width: "115%", height: "100%", left: "-7.5%", position: "absolute" }}>
             <Image
-              src={safeUrl}
-              alt={item.title}
-              fill
-              className="object-cover transition-transform duration-1000 group-hover:scale-108 will-change-transform"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              src={safeUrl} alt={item.title} fill
+              className="object-cover group-hover:scale-105 transition-transform duration-1000 will-change-transform"
+              onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           </motion.div>
         ) : (
-          /* Elegant placeholder */
-          <div className="absolute inset-0 bg-gradient-to-br from-[#fdf7ee] to-[#e9d8be] flex items-center justify-center">
-            <Sparkles className="w-10 h-10 text-[#cba876]/40" />
+          /* Placeholder */
+          <div className="absolute inset-0 flex items-center justify-center
+            bg-gradient-to-br from-stone-100 to-[#f0e4cc]
+            dark:from-zinc-900 dark:to-zinc-800">
+            <Sparkles className="w-10 h-10 text-[#c9a96e]/40 dark:text-[#e4c27e]/30" />
           </div>
         )}
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent
+          opacity-75 group-hover:opacity-90 transition-opacity duration-500" />
 
-        {/* Bottom content */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
-          {/* Type badge */}
-          <div className="flex items-center gap-1.5 mb-2">
-            <Sparkles className="w-3 h-3 text-[#cba876]" />
-            <span className="text-[9px] uppercase tracking-[0.18em] font-bold text-[#cba876]">
+        {/* Content */}
+        <div className="absolute bottom-0 left-0 right-0 p-4
+          translate-y-1 group-hover:translate-y-0 transition-transform duration-400">
+          {/* Type */}
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Sparkles className="w-3 h-3 text-[#c9a96e]" />
+            <span className="text-[9px] uppercase tracking-[0.18em] font-bold text-[#c9a96e]">
               {item.type.replace(/_/g, ' ')}
             </span>
           </div>
-
           {/* Title */}
-          <h4 className="text-white font-serif text-[17px] leading-snug mb-4 line-clamp-2">
+          <h4 className="text-white font-serif text-base leading-snug line-clamp-2 mb-3">
             {item.title}
           </h4>
-
           {/* CTA pill */}
-          <div className="w-full h-10 rounded-full flex items-center justify-center border text-xs font-semibold
-            border-white/25 text-white bg-white/10 backdrop-blur-md
-            group-hover:bg-white group-hover:text-zinc-900 group-hover:border-transparent
-            transition-all duration-300">
+          <div className="
+            w-full h-9 rounded-full border flex items-center justify-center text-[11px] font-semibold
+            border-white/25 text-white bg-white/12 backdrop-blur-sm
+            group-hover:bg-white group-hover:text-stone-900 group-hover:border-transparent
+            transition-all duration-300
+          ">
             View Look
           </div>
         </div>
@@ -100,76 +94,61 @@ function CarouselItem({ item, containerRef }: {
   );
 }
 
-export function DiscoverCarousel({ items }: DiscoverCarouselProps) {
+export function DiscoverCarousel({ items }: { items: DiscoverItem[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [shuffledItems, setShuffledItems] = React.useState<DiscoverItem[]>([]);
-  const [isMounted, setIsMounted] = React.useState(false);
-  const { resolvedTheme } = useTheme();
-  const [themeReady, setThemeReady] = useState(false);
-  useEffect(() => { setThemeReady(true); }, []);
+  const [shuffled, setShuffled] = useState<DiscoverItem[]>([]);
+  const [ready, setReady] = useState(false);
 
-  React.useEffect(() => {
-    if (items && items.length > 0) {
-      setShuffledItems([...items].sort(() => Math.random() - 0.5));
-    }
-    setIsMounted(true);
+  useEffect(() => {
+    if (items?.length) setShuffled([...items].sort(() => Math.random() - 0.5));
+    setReady(true);
   }, [items]);
 
-  if (!items || items.length === 0) return null;
+  if (!items?.length) return null;
 
-  const displayItems = isMounted ? shuffledItems : items;
-  const isLight = themeReady && resolvedTheme === 'light';
+  const display = ready ? shuffled : items;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
       className="space-y-5"
     >
-      {/* Section header */}
+      {/* Header */}
       <div className="flex items-end justify-between px-5">
         <div>
-          <h3 className={cn(
-            "text-2xl font-serif tracking-tight mb-0.5",
-            isLight ? "text-zinc-900" : "text-white"
-          )}>
+          <h3 className="text-2xl font-serif font-semibold tracking-tight text-stone-900 dark:text-white">
             Lookbook
           </h3>
-          <p className={cn(
-            "text-[10px] font-bold uppercase tracking-[0.18em]",
-            isLight ? "text-[#cba876]/80" : "text-[#e6c896]/60"
-          )}>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c9a96e] dark:text-[#e4c27e] mt-0.5">
             Curated Inspiration
           </p>
         </div>
         <Link href="/inspiration">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "h-8 px-3 text-xs font-semibold rounded-full border gap-1",
-              isLight
-                ? "bg-[#fdf6ed] border-[#cba876]/25 text-[#8a6d3b] hover:bg-[#cba876]/15"
-                : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
-            )}
-            haptic="light"
-          >
+          <div className="
+            flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full border
+            bg-[#c9a96e]/8 border-[#c9a96e]/30 text-[#8a6030]
+            hover:bg-[#c9a96e]/15 hover:border-[#c9a96e]/50
+            dark:bg-[#e4c27e]/8 dark:border-[#e4c27e]/20 dark:text-[#e4c27e]
+            dark:hover:bg-[#e4c27e]/15
+            transition-all duration-200
+          ">
             Explore <ArrowRight className="w-3.5 h-3.5" />
-          </Button>
+          </div>
         </Link>
       </div>
 
-      {/* Scrollable row */}
+      {/* Scroll row */}
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto pb-6 px-5 no-scrollbar snap-x snap-mandatory"
       >
-        {displayItems.map((item) => (
-          <CarouselItem key={item.id} item={item} containerRef={scrollRef} />
+        {display.map(item => (
+          <CarouselCard key={item.id} item={item} containerRef={scrollRef} />
         ))}
         <div className="shrink-0 w-1" />
       </div>
-    </motion.div>
+    </motion.section>
   );
 }

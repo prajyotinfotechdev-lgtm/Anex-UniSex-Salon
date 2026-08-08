@@ -107,6 +107,16 @@ export class AppointmentBookingService {
       throw new NotFoundError('Draft appointment not found or expired');
     }
 
+    // Since we don't strictly have actorRole here, we just ensure if they aren't the customer,
+    // they must be an employee. But the simplest way is to check if it's the customer's draft.
+    // However, employees can also confirm bookings, so we should check if they are the owner OR an employee.
+    // If they aren't the customer, we can assume they are an employee, but to be completely safe,
+    // it's best to verify if the actorUserId matches the customerId or if the actorUserId is an employee in the system.
+    const isEmployee = await prisma.employee.findFirst({ where: { id: actorUserId, isActive: true } });
+    if (!isEmployee && draft.customerId !== actorUserId) {
+      throw new ForbiddenError('You can only confirm your own appointments.');
+    }
+
     let resolvedOrgId = organizationId;
     if (!resolvedOrgId) {
       // Appointment has no organizationId — resolve via Branch

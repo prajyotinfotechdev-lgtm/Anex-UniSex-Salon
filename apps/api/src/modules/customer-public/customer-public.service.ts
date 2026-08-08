@@ -100,7 +100,6 @@ export class CustomerPublicService {
     return prisma.appointment.findFirst({
       where: {
         id,
-        branch: { organizationId },
         status: 'COMPLETED',
         isActive: true,
         deletedAt: null

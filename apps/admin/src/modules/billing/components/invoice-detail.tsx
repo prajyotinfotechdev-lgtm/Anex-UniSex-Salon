@@ -238,12 +238,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
                 <span>Amount Paid</span>
                 <span>₹{Number(invoice.amountPaid).toFixed(2)}</span>
               </div>
-              {Number(invoice.amountDue) > 0 && (
-                <div className="flex justify-between items-center text-red-500 font-semibold text-lg mt-2 pt-2 border-t border-slate-100">
-                  <span>Balance Due</span>
-                  <span>₹{Number(invoice.amountDue).toFixed(2)}</span>
-                </div>
-              )}
+              {/* Balance Due removed as requested */}
             </div>
           </div>
 

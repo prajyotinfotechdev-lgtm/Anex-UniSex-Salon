@@ -179,7 +179,7 @@ export const rescheduleCustomerAppointmentHandler = async (req: Request, res: Re
     }
 
     // Call ops service
-    const updated = await appointmentOperationsService.rescheduleAppointment(
+    const updated = await appointmentOperationsService.reschedule(
       organizationId,
       id,
       customerId, // using customer ID as actor ID

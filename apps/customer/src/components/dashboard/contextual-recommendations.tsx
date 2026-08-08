@@ -1,6 +1,9 @@
 "use client";
+
 import { motion } from "framer-motion";
 import { Sparkles, ArrowRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface Recommendation {
   type: string;
@@ -9,82 +12,51 @@ interface Recommendation {
   actionId: string;
 }
 
-const TYPE_EMOJI: Record<string, string> = {
-  SERVICE: "✂️",
-  PRODUCT: "🧴",
-  OFFER: "🎁",
-  MEMBERSHIP: "👑",
-  LOYALTY: "⭐",
-};
+interface ContextualRecommendationsProps {
+  recommendations: Recommendation[];
+}
 
-export function ContextualRecommendations({ recommendations }: { recommendations: Recommendation[] }) {
+export function ContextualRecommendations({ recommendations }: ContextualRecommendationsProps) {
   if (!recommendations || recommendations.length === 0) return null;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.28, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+      transition={{ delay: 0.3, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
       className="space-y-4"
     >
-      {/* Section header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h3 className="text-xl font-serif font-semibold tracking-tight text-stone-900 dark:text-white">
-            Curated For You
-          </h3>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#c9a96e] dark:text-[#e4c27e] mt-0.5">
-            Personalised picks
-          </p>
-        </div>
+      <div className="px-1">
+        <h3 className="text-xl font-serif tracking-tight text-zinc-900 dark:text-white mb-0.5">Curated For You</h3>
+        <p className="text-xs text-zinc-600 dark:text-zinc-500 font-medium tracking-wide uppercase">Personalized Recommendations</p>
       </div>
-
-      {/* Horizontal scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar snap-x snap-mandatory -mx-5 px-5">
+      
+      <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory -mx-6 px-6">
         {recommendations.map((rec, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, x: 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.32 + i * 0.07, duration: 0.4 }}
-            className="snap-start shrink-0 w-[230px] cursor-pointer group"
+          <Card 
+            key={i} 
+            className="snap-start shrink-0 w-[280px] border-black/5 dark:border-white/5 bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-black hover:border-primary/30 transition-all shadow-xl group rounded-2xl overflow-hidden cursor-pointer"
           >
-            <div className="
-              h-full rounded-2xl border p-5 flex flex-col gap-4 transition-all duration-300
-              bg-white border-stone-200/70
-              shadow-[0_2px_16px_rgba(201,169,110,0.07)]
-              hover:border-[#c9a96e]/40 hover:shadow-[0_4px_24px_rgba(201,169,110,0.16)]
-              dark:bg-[#111111] dark:border-white/8
-              dark:hover:border-white/20 dark:hover:shadow-none
-            ">
-              {/* Icon badge */}
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg
-                bg-[#c9a96e]/10 dark:bg-[#e4c27e]/8
-                group-hover:scale-110 transition-transform duration-300">
-                {TYPE_EMOJI[rec.type] || <Sparkles className="w-4 h-4 text-[#c9a96e]" />}
-              </div>
-
-              {/* Text */}
-              <div className="flex-1">
-                <p className="font-semibold text-[15px] leading-snug text-stone-900 dark:text-white mb-1.5">
+            <CardContent className="p-5 flex flex-col h-full justify-between gap-4">
+              <div>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                </div>
+                <p className="font-medium text-base text-zinc-900 dark:text-white leading-tight mb-1">
                   {rec.title}
                 </p>
-                <p className="text-xs leading-relaxed line-clamp-2 text-stone-500 dark:text-zinc-400">
+                <p className="text-xs text-zinc-600 dark:text-zinc-500 line-clamp-2 leading-relaxed">
                   {rec.subtitle}
                 </p>
               </div>
-
-              {/* CTA */}
-              <div className="flex items-center gap-1 text-xs font-bold
-                text-[#c9a96e] dark:text-[#e4c27e]
-                group-hover:gap-2 transition-all duration-200">
-                Explore
-                <ArrowRight className="w-3.5 h-3.5" />
+              <div className="flex items-center text-xs font-semibold text-primary group-hover:text-primary/80 transition-colors">
+                Explore <ArrowRight className="w-3.5 h-3.5 ml-1 transform group-hover:translate-x-1 transition-transform" />
               </div>
-            </div>
-          </motion.div>
+            </CardContent>
+          </Card>
         ))}
-        <div className="shrink-0 w-1" />
+        {/* Spacer for right edge */}
+        <div className="shrink-0 w-2" />
       </div>
     </motion.div>
   );

@@ -55,7 +55,7 @@ export function DashboardRecentAppointments() {
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-medium">
-                    {format(new Date(appointment.date), 'h:mm a')}
+                    {format(new Date(appointment.items?.[0]?.startTime || appointment.date), 'h:mm a')}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {format(new Date(appointment.date), 'MMM d, yyyy')}

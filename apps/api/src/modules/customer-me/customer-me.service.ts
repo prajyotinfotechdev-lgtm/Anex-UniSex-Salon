@@ -55,7 +55,7 @@ export class CustomerMeService {
         type: "APPOINTMENT_COUNTDOWN",
         title: firstItem?.service?.name || "Appointment",
         subtitle: firstItem?.employee?.firstName ? `with ${firstItem.employee.firstName}` : "",
-        time: nextAppt.date.toISOString(),
+        time: firstItem?.startTime ? firstItem.startTime.toISOString() : nextAppt.date.toISOString(),
         actions: ["GET_DIRECTIONS", "RUNNING_LATE"]
       };
     } else if (upcomingAppointments.length > 0) {
@@ -63,10 +63,11 @@ export class CustomerMeService {
       const nextAppt = upcomingAppointments[upcomingAppointments.length - 1]; // Closest one
       const firstItem = nextAppt.items[0];
       urgentAction = {
+        id: nextAppt.id,
         type: "UPCOMING_APPOINTMENT",
         title: firstItem?.service?.name || "Appointment",
         subtitle: firstItem?.employee?.firstName ? `with ${firstItem.employee.firstName}` : "",
-        time: nextAppt.date.toISOString(),
+        time: firstItem?.startTime ? firstItem.startTime.toISOString() : nextAppt.date.toISOString(),
         actions: ["MANAGE"]
       };
     } else if (pastAppointments.length === 0) {

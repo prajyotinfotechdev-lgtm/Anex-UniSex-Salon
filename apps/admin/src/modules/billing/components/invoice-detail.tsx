@@ -62,7 +62,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
     const customerBaseUrl = process.env.NEXT_PUBLIC_CUSTOMER_URL || 
       (typeof window !== 'undefined' ? window.location.origin.replace('3001', '3000').replace('admin', 'customer') : 'http://localhost:3000');
     
-    const invoiceLink = `${customerBaseUrl}/invoice/${invoice.id}`;
+    const invoiceLink = `${customerBaseUrl}/invoice/${invoice.appointmentId || invoice.id}`;
 
     let msg = `*Anex Salon*\n`;
     msg += `Hi ${invoice.customer?.firstName || 'Customer'},\n\n`;

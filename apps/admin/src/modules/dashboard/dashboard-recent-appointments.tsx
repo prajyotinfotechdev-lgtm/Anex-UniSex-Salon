@@ -39,7 +39,7 @@ export function DashboardRecentAppointments() {
     <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>Recent & Upcoming</CardTitle>
-        <Select value={dateFilter} onValueChange={setDateFilter}>
+        <Select value={dateFilter} onValueChange={(val) => setDateFilter(val || 'all')}>
           <SelectTrigger className="w-[120px] h-8 text-xs">
             <SelectValue placeholder="Select date" />
           </SelectTrigger>

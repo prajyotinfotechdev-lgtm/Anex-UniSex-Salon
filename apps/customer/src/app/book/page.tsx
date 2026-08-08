@@ -144,9 +144,9 @@ export default function BookPage() {
   }, 0);
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-black pb-32">
+    <div className="flex-1 flex flex-col min-h-screen bg-background pb-32">
       {/* Header Banner */}
-      <div className="px-6 pt-12 pb-4 bg-gradient-to-b from-zinc-950 to-black relative overflow-hidden">
+      <div className="px-6 pt-12 pb-4 bg-background relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
         
         {/* Premium Inspired By Banner */}
@@ -155,9 +155,9 @@ export default function BookPage() {
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="relative z-20 mb-6 flex items-center gap-4 bg-zinc-900/60 border border-primary/20 p-3 rounded-2xl backdrop-blur-md"
+              className="relative z-20 mb-6 flex items-center gap-4 bg-card border border-primary/20 p-3 rounded-2xl backdrop-blur-md"
             >
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-black flex-shrink-0 border border-white/10 shadow-lg relative">
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-background flex-shrink-0 border border-white/10 shadow-lg relative">
                 {(inspirationPost.heroMedia?.url || inspirationPost.heroMedia?.key) ? (
                   <img src={inspirationPost.heroMedia.url || inspirationPost.heroMedia.key} alt="Inspiration" className="w-full h-full object-cover" />
                 ) : (

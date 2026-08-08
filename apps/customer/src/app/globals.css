@@ -61,52 +61,61 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #111111;
+    /* Soft Terracotta tinted background */
+    --background: #faf6f3;
+    --foreground: #2d1c12;
     --card: #ffffff;
-    --card-foreground: #111111;
+    --card-foreground: #2d1c12;
     --popover: #ffffff;
-    --popover-foreground: #111111;
-    /* Soft, luxury Gold/Champagne primary for light mode */
-    --primary: #cba876;
+    --popover-foreground: #2d1c12;
+    
+    /* Premium Golden for interactions (like racks/poles) */
+    --primary: #d4af37;
     --primary-foreground: #ffffff;
-    --secondary: #f4f4f5;
-    --secondary-foreground: #18181b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --accent: #f4f4f5;
-    --accent-foreground: #18181b;
+    
+    /* Warm Terracotta Brown for secondary elements (like walls) */
+    --secondary: #946041;
+    --secondary-foreground: #ffffff;
+    --muted: #e8ded8;
+    --muted-foreground: #7a6355;
+    --accent: #946041;
+    --accent-foreground: #ffffff;
+    
     --destructive: #ef4444;
     --destructive-foreground: #f8fafc;
-    --border: #e4e4e7;
-    --input: #e4e4e7;
-    --ring: #cba876;
+    --border: #e8ded8;
+    --input: #e8ded8;
+    --ring: #d4af37;
     --radius: 1rem;
   }
 
   .dark {
-    /* True Black for OLED */
-    --background: #000000;
-    --foreground: #fafafa;
-    /* Deep dark grays for cards */
-    --card: #111111;
-    --card-foreground: #fafafa;
-    --popover: #111111;
-    --popover-foreground: #fafafa;
-    /* Rich Gold for dark mode */
-    --primary: #e6c896;
-    --primary-foreground: #000000;
-    --secondary: #27272a;
-    --secondary-foreground: #fafafa;
-    --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --accent: #27272a;
-    --accent-foreground: #fafafa;
+    /* Deep Rich Terracotta-Black for Dark Mode */
+    --background: #150d09;
+    --foreground: #f3eae4;
+    /* Slightly lighter Terracotta for Cards */
+    --card: #211610;
+    --card-foreground: #f3eae4;
+    --popover: #211610;
+    --popover-foreground: #f3eae4;
+    
+    /* Premium Golden for interactions */
+    --primary: #d4af37;
+    --primary-foreground: #150d09;
+    
+    /* Warm Terracotta Brown for secondary/accents */
+    --secondary: #946041;
+    --secondary-foreground: #ffffff;
+    --muted: #3a271c;
+    --muted-foreground: #a69082;
+    --accent: #946041;
+    --accent-foreground: #ffffff;
+    
     --destructive: #7f1d1d;
-    --destructive-foreground: #fafafa;
-    --border: #27272a;
-    --input: #27272a;
-    --ring: #e6c896;
+    --destructive-foreground: #f3eae4;
+    --border: #3a271c;
+    --input: #3a271c;
+    --ring: #d4af37;
   }
 }
 

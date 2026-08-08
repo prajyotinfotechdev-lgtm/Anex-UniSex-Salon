@@ -146,7 +146,7 @@ export default function AppointmentsPage() {
   const showLoading = profileLoading || (isAppointmentsLoading && !isGuest);
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-black pb-32">
+    <div className="flex-1 flex flex-col min-h-screen bg-background pb-32">
       {/* Onboarding Dialog */}
       <AnimatePresence>
         {showOnboarding && (
@@ -155,7 +155,7 @@ export default function AppointmentsPage() {
       </AnimatePresence>
 
       {/* Header Banner */}
-      <div className="px-6 pt-12 pb-6 bg-gradient-to-b from-zinc-950 to-black relative overflow-hidden">
+      <div className="px-6 pt-12 pb-6 bg-background relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
@@ -165,7 +165,7 @@ export default function AppointmentsPage() {
           <h1 className="text-3xl font-serif font-semibold tracking-tight text-white mb-1">
             Appointments
           </h1>
-          <p className="text-zinc-400 text-sm font-light">
+          <p className="text-muted-foreground text-sm font-light">
             View details, schedule adjustments, and history of your salon treatments.
           </p>
         </div>
@@ -173,7 +173,7 @@ export default function AppointmentsPage() {
 
       {/* Tabs */}
       <div className="px-6 mb-6">
-        <div className="bg-zinc-900/60 border border-zinc-800/50 p-1 rounded-2xl flex">
+        <div className="bg-secondary/40 border border-border p-1 rounded-2xl flex">
           <button
             onClick={() => {
               haptics.trigger("light");
@@ -183,7 +183,7 @@ export default function AppointmentsPage() {
               "flex-1 py-3 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all",
               activeTab === "upcoming"
                 ? "bg-primary text-black font-bold shadow-md shadow-primary/5"
-                : "text-zinc-400 hover:text-white"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             Upcoming ({upcomingAppointments.length})
@@ -197,7 +197,7 @@ export default function AppointmentsPage() {
               "flex-1 py-3 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all",
               activeTab === "past"
                 ? "bg-primary text-black font-bold shadow-md shadow-primary/5"
-                : "text-zinc-400 hover:text-white"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             History ({pastAppointments.length})
@@ -213,12 +213,12 @@ export default function AppointmentsPage() {
           </div>
         ) : isGuest ? (
           // Guest User State
-          <div className="flex flex-col items-center justify-center py-20 text-center bg-zinc-950/40 border border-zinc-900/60 rounded-3xl p-6">
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-card border border-border rounded-3xl p-6">
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
               <Calendar className="w-7 h-7 text-primary" />
             </div>
             <h3 className="text-xl font-serif font-medium text-white mb-2">Login to View Bookings</h3>
-            <p className="text-zinc-400 text-xs font-light max-w-xs mb-8 leading-relaxed">
+            <p className="text-muted-foreground text-xs font-light max-w-xs mb-8 leading-relaxed">
               Create an account or login to access your scheduled salon appointments, active perks, and check-in history.
             </p>
             <Button
@@ -234,12 +234,12 @@ export default function AppointmentsPage() {
           </div>
         ) : displayedAppointments.length === 0 ? (
           // Empty State
-          <div className="flex flex-col items-center justify-center py-20 text-center bg-zinc-950/40 border border-zinc-900/60 rounded-3xl p-6">
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-card border border-border rounded-3xl p-6">
             <div className="w-14 h-14 rounded-2xl bg-zinc-900/60 flex items-center justify-center mb-6">
               <Calendar className="w-6 h-6 text-zinc-500" />
             </div>
             <h3 className="text-lg font-serif font-medium text-white mb-1.5">No Appointments Found</h3>
-            <p className="text-zinc-500 text-xs font-light max-w-xs mb-8">
+            <p className="text-muted-foreground text-xs font-light max-w-xs mb-8">
               {activeTab === "upcoming" 
                 ? "You don't have any treatments booked. Let's arrange a luxury slot today!" 
                 : "You don't have any past appointment history registered."}
@@ -268,7 +268,7 @@ export default function AppointmentsPage() {
                 key={app.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-zinc-950/80 border border-zinc-900/80 rounded-3xl p-6 relative overflow-hidden"
+                className="bg-card border border-border rounded-3xl p-6 relative overflow-hidden"
               >
                 {/* Accent line based on status */}
                 <div 
@@ -285,7 +285,7 @@ export default function AppointmentsPage() {
                     <h3 className="font-serif font-semibold text-lg text-white">
                       {formatDate(app.date || startTimeStr)}
                     </h3>
-                    <div className="flex items-center gap-1.5 text-zinc-400 text-xs font-light mt-1">
+                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs font-light mt-1">
                       <Clock size={13} className="text-primary/70" />
                       <span>{formatTime(startTimeStr)}</span>
                     </div>

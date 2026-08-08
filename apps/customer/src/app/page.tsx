@@ -63,7 +63,7 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 pb-32 flex items-center justify-center h-screen">
+      <div className="flex-1 flex flex-col min-h-screen bg-background items-center justify-center h-screen">
         <PremiumLoader text="Loading your dashboard..." />
       </div>
     );
@@ -91,7 +91,7 @@ export default function HomePage() {
       <motion.div 
         className={cn(
           "sticky top-0 z-50 px-6 pt-12 pb-4 transition-all duration-300 flex items-center justify-between",
-          scrolled ? "bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 shadow-sm" : "bg-transparent"
+          scrolled ? "bg-white/80 dark:bg-background/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 shadow-sm" : "bg-transparent"
         )}
       >
         <motion.div
@@ -99,10 +99,10 @@ export default function HomePage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-xl md:text-2xl font-light text-zinc-500 dark:text-zinc-400 tracking-wide">
+          <h1 className="text-xl md:text-2xl font-light text-muted-foreground tracking-wide">
             {timeGreeting},
           </h1>
-          <h2 className="text-2xl md:text-3xl font-serif font-medium text-zinc-900 dark:text-white tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-serif font-medium text-foreground tracking-tight">
             {displayName}
           </h2>
         </motion.div>
@@ -114,7 +114,7 @@ export default function HomePage() {
           transition={{ duration: 0.5 }}
         >
           {/* Premium Logo */}
-          <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-black/5 dark:border-white/10 shadow-sm bg-white dark:bg-zinc-900 flex items-center justify-center p-1">
+          <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-black/5 dark:border-white/10 shadow-sm bg-card flex items-center justify-center p-1">
             <Image 
               src="/logo-premium.png" 
               alt="Anex Salon Logo" 

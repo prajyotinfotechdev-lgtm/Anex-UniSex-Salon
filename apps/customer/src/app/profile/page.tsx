@@ -88,7 +88,7 @@ export default function ProfilePage() {
         <h1 className="text-3xl font-serif font-medium text-white tracking-tight mb-2">
           Your Premium Profile
         </h1>
-        <p className="text-zinc-400 mb-8 max-w-sm">
+        <p className="text-muted-foreground mb-8 max-w-sm">
           Sign in or create an account to manage your appointments, view loyalty points, and personalize your salon experience.
         </p>
         
@@ -118,7 +118,7 @@ export default function ProfilePage() {
           variant="ghost" 
           size="icon" 
           onClick={() => setIsEditing(!isEditing)}
-          className={`rounded-full h-10 w-10 ${isEditing ? 'bg-primary/20 text-primary' : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'}`}
+          className={`rounded-full h-10 w-10 ${isEditing ? 'bg-primary/20 text-primary' : 'bg-white/5 text-muted-foreground hover:text-white hover:bg-white/10'}`}
         >
           {isEditing ? <X className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
         </Button>
@@ -131,7 +131,7 @@ export default function ProfilePage() {
         className="flex flex-col items-center mb-10"
       >
         <div className="relative">
-          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-950 border border-white/10 flex items-center justify-center text-3xl font-serif text-white shadow-2xl mb-4">
+          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-secondary to-background border border-border/50 flex items-center justify-center text-3xl font-serif text-white shadow-2xl mb-4">
             {getInitials()}
           </div>
           <div className="absolute bottom-4 right-0 w-8 h-8 rounded-full bg-primary border-4 border-black flex items-center justify-center">
@@ -147,28 +147,28 @@ export default function ProfilePage() {
                 value={editForm.firstName}
                 onChange={e => setEditForm(f => ({ ...f, firstName: e.target.value }))}
                 placeholder="First Name"
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-center"
+                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-center"
               />
               <input 
                 type="text" 
                 value={editForm.lastName}
                 onChange={e => setEditForm(f => ({ ...f, lastName: e.target.value }))}
                 placeholder="Last Name"
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-center"
+                className="w-full bg-card border border-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 text-center"
               />
             </div>
           </div>
         ) : (
           <>
             <h2 className="text-2xl font-bold text-white mb-1">{profile?.firstName} {profile?.lastName}</h2>
-            <p className="text-zinc-500 text-sm flex items-center gap-1.5 mb-4">
+            <p className="text-muted-foreground text-sm flex items-center gap-1.5 mb-4">
               <Shield className="w-3.5 h-3.5" /> Premium Member
             </p>
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => setIsEditing(true)}
-              className="rounded-full bg-transparent border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 h-8 px-4 text-xs"
+              className="rounded-full bg-transparent border-border text-foreground hover:text-white hover:bg-secondary h-8 px-4 text-xs"
             >
               Edit Profile
             </Button>
@@ -186,30 +186,30 @@ export default function ProfilePage() {
         className="space-y-6"
       >
         <div>
-          <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-4">Contact Information</h3>
-          <div className="bg-zinc-900/30 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-sm">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">Contact Information</h3>
+          <div className="bg-card/50 border border-border rounded-3xl overflow-hidden backdrop-blur-sm">
             
             {/* Phone */}
-            <div className="p-4 flex items-center gap-4 border-b border-white/5">
+            <div className="p-4 flex items-center gap-4 border-b border-border">
               <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                <Phone className="w-4 h-4 text-zinc-400" />
+                <Phone className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-zinc-500 mb-0.5">Mobile Number</p>
-                <p className="text-sm text-zinc-300 font-medium">{profile?.primaryPhone}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Mobile Number</p>
+                <p className="text-sm text-foreground font-medium">{profile?.primaryPhone}</p>
               </div>
               {isEditing && (
-                <span className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold bg-zinc-900 px-2 py-1 rounded">Locked</span>
+                <span className="text-[10px] uppercase tracking-wider text-zinc-600 font-bold bg-card px-2 py-1 rounded">Locked</span>
               )}
             </div>
 
             {/* Email */}
-            <div className="p-4 flex items-center gap-4 border-b border-white/5">
+            <div className="p-4 flex items-center gap-4 border-b border-border">
               <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                <Mail className="w-4 h-4 text-zinc-400" />
+                <Mail className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex-1">
-                <p className="text-xs text-zinc-500 mb-0.5">Email Address</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Email Address</p>
                 {isEditing ? (
                   <input 
                     type="email"
@@ -219,7 +219,7 @@ export default function ProfilePage() {
                     className="w-full bg-transparent text-sm text-white focus:outline-none placeholder:text-zinc-700"
                   />
                 ) : (
-                  <p className="text-sm text-zinc-300 font-medium">{profile?.email || 'Not provided'}</p>
+                  <p className="text-sm text-foreground font-medium">{profile?.email || 'Not provided'}</p>
                 )}
               </div>
             </div>
@@ -227,24 +227,24 @@ export default function ProfilePage() {
             {/* Gender */}
             <div className="p-4 flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                <User className="w-4 h-4 text-zinc-400" />
+                <User className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex-1 flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-zinc-500 mb-0.5">Gender</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">Gender</p>
                   {isEditing ? (
                     <select 
                       value={editForm.gender}
                       onChange={e => setEditForm(f => ({ ...f, gender: e.target.value }))}
                       className="bg-transparent text-sm text-white focus:outline-none appearance-none"
                     >
-                      <option value="" className="bg-zinc-900">Not specified</option>
-                      <option value="MALE" className="bg-zinc-900">Male</option>
-                      <option value="FEMALE" className="bg-zinc-900">Female</option>
-                      <option value="OTHER" className="bg-zinc-900">Other</option>
+                      <option value="" className="bg-card">Not specified</option>
+                      <option value="MALE" className="bg-card">Male</option>
+                      <option value="FEMALE" className="bg-card">Female</option>
+                      <option value="OTHER" className="bg-card">Other</option>
                     </select>
                   ) : (
-                    <p className="text-sm text-zinc-300 font-medium">
+                    <p className="text-sm text-foreground font-medium">
                       {profile?.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1).toLowerCase() : 'Not provided'}
                     </p>
                   )}
@@ -257,16 +257,16 @@ export default function ProfilePage() {
 
         {/* App Settings */}
         <div>
-          <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-4 mt-8">App Settings</h3>
-          <div className="bg-zinc-900/30 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-sm">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4 mt-8">App Settings</h3>
+          <div className="bg-card/50 border border-border rounded-3xl overflow-hidden backdrop-blur-sm">
             
             <div className="p-4 flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-                <Bell className="w-4 h-4 text-zinc-400" />
+                <Bell className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-zinc-300 font-medium mb-0.5">Push Notifications</p>
-                <p className="text-xs text-zinc-500">Receive offers and reminders</p>
+                <p className="text-sm text-foreground font-medium mb-0.5">Push Notifications</p>
+                <p className="text-xs text-muted-foreground">Receive offers and reminders</p>
               </div>
               <div>
                 <button
@@ -307,7 +307,7 @@ export default function ProfilePage() {
         ) : (
           <button 
             onClick={handleSignOut}
-            className="w-full flex items-center justify-between p-4 bg-zinc-900/30 border border-white/5 rounded-2xl hover:bg-zinc-900/50 transition-colors group"
+            className="w-full flex items-center justify-between p-4 bg-card/50 border border-border rounded-2xl hover:bg-card/50 transition-colors group"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 group-hover:bg-red-500/20 transition-colors">

@@ -20,7 +20,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-center pb-[env(safe-area-inset-bottom)] w-[92%] max-w-sm pointer-events-none">
-      <div className="flex items-center justify-between w-full rounded-full bg-[#1e2730]/40 backdrop-blur-3xl border border-white/[0.08] px-3 py-2.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] pointer-events-auto ring-1 ring-white/5">
+      <div className="flex items-center justify-between w-full rounded-full bg-card/40 backdrop-blur-3xl border border-border/30 px-3 py-2.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] pointer-events-auto ring-1 ring-border/10">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -34,7 +34,7 @@ export function BottomNav() {
               {isActive && (
                 <motion.div
                   layoutId="floating-nav-indicator"
-                  className="absolute inset-0 bg-white/[0.12] rounded-[1.25rem] border border-white/10 shadow-inner"
+                  className="absolute inset-0 bg-primary/20 rounded-[1.25rem] border border-primary/20 shadow-inner"
                   initial={false}
                   transition={{
                     type: "spring",
@@ -53,7 +53,7 @@ export function BottomNav() {
                 <Icon
                   className={cn(
                     "w-[22px] h-[22px] transition-all duration-300",
-                    isActive ? "text-white" : "text-white/40 group-hover:text-white/80"
+                    isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground"
                   )}
                   strokeWidth={isActive ? 2 : 1.25}
                 />

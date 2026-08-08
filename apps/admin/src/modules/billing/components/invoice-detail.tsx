@@ -4,12 +4,11 @@ import * as React from 'react';
 import { useInvoice, useVoidInvoice } from '../billing.hooks';
 import { InvoiceStatus, PaymentStatus, InvoiceItem, Payment } from '../billing.types';
 import { formatDate } from '@/shared/utils/date';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// removed separator import
 import {
   Table,
   TableBody,
@@ -18,10 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Printer, XCircle, CreditCard, Clock, CalendarDays, User, Building, FileText } from 'lucide-react';
+import { Printer, XCircle, CreditCard, Clock, CalendarDays, User, Building, FileText, CheckCircle2 } from 'lucide-react';
 import { HasPermission } from '@/shared/components/HasPermission';
-import Link from 'next/link';
-
 import { PaymentDialog } from './payment-dialog';
 
 interface InvoiceDetailProps {
@@ -58,227 +55,212 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
   const renderStatusBadge = (status: InvoiceStatus) => {
     switch (status) {
       case InvoiceStatus.DRAFT:
-        return <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200 px-3 py-1 text-sm">Draft</Badge>;
+        return <Badge variant="outline" className="bg-slate-100 text-slate-800 border-slate-200">Draft</Badge>;
       case InvoiceStatus.ISSUED:
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 px-3 py-1 text-sm">Finalized</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Finalized</Badge>;
       case InvoiceStatus.PARTIALLY_PAID:
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200 px-3 py-1 text-sm">Partially Paid</Badge>;
+        return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Partially Paid</Badge>;
       case InvoiceStatus.PAID:
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 px-3 py-1 text-sm">Paid</Badge>;
+        return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">Paid in Full</Badge>;
       case InvoiceStatus.VOIDED:
-        return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200 px-3 py-1 text-sm">Voided</Badge>;
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Voided</Badge>;
       case InvoiceStatus.REFUNDED:
-        return <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 px-3 py-1 text-sm">Refunded</Badge>;
+        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Refunded</Badge>;
       default:
-        return <Badge variant="outline" className="px-3 py-1 text-sm">{status}</Badge>;
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
   const renderPaymentStatusBadge = (status: PaymentStatus) => {
     switch (status) {
       case PaymentStatus.COMPLETED:
-        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">Completed</Badge>;
+        return <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] px-1.5 py-0">Completed</Badge>;
       case PaymentStatus.PENDING:
-        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>;
+        return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] px-1.5 py-0">Pending</Badge>;
       case PaymentStatus.FAILED:
-        return <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">Failed</Badge>;
+        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-[10px] px-1.5 py-0">Failed</Badge>;
       case PaymentStatus.REFUNDED:
-        return <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">Refunded</Badge>;
+        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 text-[10px] px-1.5 py-0">Refunded</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline" className="text-[10px] px-1.5 py-0">{status}</Badge>;
     }
   };
 
+  const isPaid = invoice.status === InvoiceStatus.PAID;
+
   return (
-    <div className="flex flex-col md:flex-row gap-6 items-start print:block print:w-full">
-      {/* LEFT COLUMN: 70% */}
-      <div className="w-full md:w-[70%] space-y-6">
+    <div className="flex flex-col md:flex-row gap-6 items-start">
+      {/* LEFT COLUMN / PRINT VIEW */}
+      <div className="w-full md:w-[70%] bg-white md:bg-transparent print:w-full print:block print:!m-0 print:!p-0 print:bg-white relative">
         
-        {/* Print Header (Only visible when printing) */}
-        <div className="hidden print:block mb-8 text-center">
-          <h1 className="text-3xl font-bold">{invoice.branch?.name || 'ANEX OS'}</h1>
-          <p className="text-muted-foreground">Invoice #{invoice.invoiceNumber}</p>
-        </div>
-
-        {/* Customer & Appointment Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-                <User className="mr-2 h-4 w-4" />
-                Customer Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {invoice.customer ? (
-                <div className="space-y-1">
-                  <p className="font-semibold">{invoice.customer.firstName} {invoice.customer.lastName}</p>
-                  {invoice.customer.email && <p className="text-sm text-muted-foreground">{invoice.customer.email}</p>}
-                  {invoice.customer.phone && <p className="text-sm text-muted-foreground">{invoice.customer.phone}</p>}
-                </div>
-              ) : (
-                <p className="text-muted-foreground italic">Walk-in Customer</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
-                <Building className="mr-2 h-4 w-4" />
-                Branch Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <p className="font-semibold">{invoice.branch?.name || 'Unknown Branch'}</p>
-                <p className="text-sm text-muted-foreground flex items-center">
-                  <CalendarDays className="mr-1 h-3 w-3" />
-                  Issued: {formatDate(invoice.issueDate)}
-                </p>
-                {invoice.appointmentId && (
-                  <p className="text-sm text-muted-foreground">
-                    From Appointment
-                  </p>
-                )}
+        {/* Receipt Container optimized for WhatsApp/Mobile & Print */}
+        <div className="print:max-w-md mx-auto print:shadow-none bg-white rounded-2xl md:shadow-sm md:border p-6 md:p-8 space-y-8">
+          
+          {/* Header */}
+          <div className="flex flex-col items-center justify-center text-center space-y-3 pb-6 border-b border-dashed">
+            {isPaid ? (
+              <div className="h-12 w-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-2">
+                <CheckCircle2 className="h-6 w-6" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Line Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <FileText className="mr-2 h-5 w-5" />
-              Line Items
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Item</TableHead>
-                  <TableHead className="text-center">Qty</TableHead>
-                  <TableHead className="text-right">Unit Price</TableHead>
-                  <TableHead className="text-right">Discount</TableHead>
-                  <TableHead className="text-right">Tax</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoice.items && invoice.items.length > 0 ? (
-                  invoice.items.map((item: InvoiceItem) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">
-                        {item.snapshottedName || 'Unknown Item'}
-                        <p className="text-xs text-muted-foreground">{item.type}</p>
-                      </TableCell>
-                      <TableCell className="text-center">{item.quantity}</TableCell>
-                      <TableCell className="text-right">₹{Number(item.unitPrice).toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-red-500">
-                        {Number(item.discount) > 0 ? `-₹${Number(item.discount).toFixed(2)}` : '-'}
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {Number(item.tax) > 0 ? `₹${Number(item.tax).toFixed(2)}` : '-'}
-                      </TableCell>
-                      <TableCell className="text-right font-semibold">₹{Number(item.total).toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
-                      No items found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
-        {/* Totals */}
-        <div className="flex justify-end">
-          <div className="w-full max-w-sm space-y-3 p-4 bg-muted/20 rounded-lg">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span>₹{Number(invoice.subtotal).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm text-red-500">
-              <span>Total Discount</span>
-              <span>-${Number(invoice.discountTotal).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Total Tax</span>
-              <span>₹{Number(invoice.taxTotal).toFixed(2)}</span>
-            </div>
-            {Number(invoice.tipAmount) > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Tip</span>
-                <span>₹{Number(invoice.tipAmount).toFixed(2)}</span>
+            ) : (
+              <div className="h-12 w-12 bg-slate-100 text-slate-800 rounded-full flex items-center justify-center mb-2">
+                <FileText className="h-6 w-6" />
               </div>
             )}
-            <hr className="my-4 border-slate-200" />
-            <div className="flex justify-between font-bold text-lg">
-              <span>Grand Total</span>
-              <span>₹{Number(invoice.grandTotal).toFixed(2)}</span>
+            
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{invoice.branch?.name || 'ANEX Salon'}</h1>
+              <p className="text-sm text-slate-500 mt-1">Official Receipt</p>
+            </div>
+            
+            <div className="flex items-center gap-2 mt-2">
+              {renderStatusBadge(invoice.status)}
             </div>
           </div>
+
+          {/* Meta Info */}
+          <div className="grid grid-cols-2 gap-6 text-sm">
+            <div className="space-y-1">
+              <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Invoice No</p>
+              <p className="font-semibold text-slate-900">{invoice.invoiceNumber}</p>
+            </div>
+            <div className="space-y-1 text-right">
+              <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Date</p>
+              <p className="font-semibold text-slate-900">{formatDate(invoice.issueDate)}</p>
+            </div>
+          </div>
+
+          {/* Customer Info */}
+          <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-2">Billed To</p>
+            {invoice.customer ? (
+              <div className="space-y-0.5">
+                <p className="font-semibold text-slate-900 text-base">{invoice.customer.firstName} {invoice.customer.lastName}</p>
+                {invoice.customer.phone && <p className="text-sm text-slate-600">{invoice.customer.phone}</p>}
+                {invoice.customer.email && <p className="text-sm text-slate-600">{invoice.customer.email}</p>}
+              </div>
+            ) : (
+              <p className="text-slate-600 font-medium italic">Walk-in Customer</p>
+            )}
+          </div>
+
+          {/* Line Items */}
+          <div className="space-y-3">
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wider">Services & Items</p>
+            
+            <div className="border-t border-b border-slate-200 py-2">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-slate-500 border-b border-slate-100">
+                    <th className="font-normal text-left py-2">Item</th>
+                    <th className="font-normal text-center py-2">Qty</th>
+                    <th className="font-normal text-right py-2">Price</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100/50">
+                  {invoice.items && invoice.items.length > 0 ? (
+                    invoice.items.map((item: InvoiceItem) => (
+                      <tr key={item.id} className="text-slate-700">
+                        <td className="py-3 pr-2">
+                          <p className="font-medium text-slate-900">{item.snapshottedName || 'Unknown Item'}</p>
+                          {Number(item.discount) > 0 && (
+                            <p className="text-xs text-emerald-600">-₹{Number(item.discount).toFixed(2)} discount</p>
+                          )}
+                        </td>
+                        <td className="py-3 text-center text-slate-500">{item.quantity}</td>
+                        <td className="py-3 text-right font-medium text-slate-900">₹{Number(item.total).toFixed(2)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className="py-4 text-center text-slate-400 italic">No items found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Totals */}
+          <div className="space-y-2 pt-2 text-sm text-slate-600">
+            <div className="flex justify-between items-center">
+              <span>Subtotal</span>
+              <span className="font-medium text-slate-900">₹{Number(invoice.subtotal).toFixed(2)}</span>
+            </div>
+            {Number(invoice.discountTotal) > 0 && (
+              <div className="flex justify-between items-center text-emerald-600">
+                <span>Total Discount</span>
+                <span>-₹{Number(invoice.discountTotal).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center">
+              <span>Tax</span>
+              <span className="font-medium text-slate-900">₹{Number(invoice.taxTotal).toFixed(2)}</span>
+            </div>
+            {Number(invoice.tipAmount) > 0 && (
+              <div className="flex justify-between items-center">
+                <span>Tip</span>
+                <span className="font-medium text-slate-900">₹{Number(invoice.tipAmount).toFixed(2)}</span>
+              </div>
+            )}
+            
+            <div className="pt-4 border-t border-dashed border-slate-200 mt-4">
+              <div className="flex justify-between items-center text-lg">
+                <span className="font-semibold text-slate-900">Total</span>
+                <span className="font-bold text-slate-900">₹{Number(invoice.grandTotal).toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <div className="flex justify-between items-center text-emerald-600 font-medium">
+                <span>Amount Paid</span>
+                <span>₹{Number(invoice.amountPaid).toFixed(2)}</span>
+              </div>
+              {Number(invoice.amountDue) > 0 && (
+                <div className="flex justify-between items-center text-red-500 font-semibold text-lg mt-2 pt-2 border-t border-slate-100">
+                  <span>Balance Due</span>
+                  <span>₹{Number(invoice.amountDue).toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Print Footer */}
+          <div className="pt-8 text-center space-y-1 pb-4">
+            <p className="text-sm font-medium text-slate-900">Thank you for visiting!</p>
+            <p className="text-xs text-slate-500">We hope to see you again soon.</p>
+          </div>
+
         </div>
       </div>
 
-      {/* RIGHT COLUMN: 30% */}
+      {/* RIGHT COLUMN: ACTIONS & TIMELINE - HIDDEN ON PRINT */}
       <div className="w-full md:w-[30%] space-y-6 print:hidden">
         
-        {/* Status Card */}
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              {renderStatusBadge(invoice.status)}
-              
-              <div className="text-center">
-                <p className="text-3xl font-bold">₹{Number(invoice.amountDue).toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">Amount Due</p>
-              </div>
-
-              <div className="w-full space-y-2 mt-4 pt-4 border-t">
-                <div className="flex justify-between text-sm">
-                  <span>Grand Total</span>
-                  <span className="font-medium">₹{Number(invoice.grandTotal).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Amount Paid</span>
-                  <span className="font-medium text-green-600">₹{Number(invoice.amountPaid).toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
+        <Card className="border-slate-200 shadow-sm">
+          <CardHeader className="pb-3">
             <CardTitle className="text-base">Actions</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-3">
             <HasPermission permission="Billing.Create">
               {(invoice.status === InvoiceStatus.ISSUED || invoice.status === InvoiceStatus.PARTIALLY_PAID) ? (
                 <PaymentDialog invoice={invoice}>
-                  <Button className="w-full">
+                  <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white">
                     <span>Record Payment</span>
                   </Button>
                 </PaymentDialog>
               ) : null}
             </HasPermission>
             
-            <Button variant="outline" className="w-full" onClick={handlePrint}>
+            <Button variant="outline" className="w-full border-slate-300" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
-              Print Invoice
+              Print / Save Receipt
             </Button>
 
             <HasPermission permission="Billing.Manage">
               {(invoice.status !== InvoiceStatus.VOIDED && invoice.status !== InvoiceStatus.PAID) ? (
-                <Button variant="outline" className="w-full text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleVoid} disabled={voidMutation.isPending}>
+                <Button variant="ghost" className="w-full text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleVoid} disabled={voidMutation.isPending}>
                   <XCircle className="mr-2 h-4 w-4" />
                   Void Invoice
                 </Button>
@@ -288,72 +270,66 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
         </Card>
 
         {/* Payment History */}
-        <Card>
-          <CardHeader>
+        <Card className="border-slate-200 shadow-sm">
+          <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
-              <CreditCard className="mr-2 h-4 w-4" />
+              <CreditCard className="mr-2 h-4 w-4 text-slate-500" />
               Payment History
             </CardTitle>
           </CardHeader>
           <CardContent>
             {invoice.payments && invoice.payments.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {invoice.payments.map((payment: Payment) => (
-                  <div key={payment.id} className="flex justify-between items-center border-b pb-2 last:border-0 last:pb-0">
+                  <div key={payment.id} className="flex justify-between items-center p-3 rounded-lg bg-slate-50 border border-slate-100">
                     <div>
-                      <p className="font-medium">₹{Number(payment.amount).toFixed(2)}</p>
-                      <p className="text-xs text-muted-foreground">{formatDate(payment.paymentDate)} via {payment.method}</p>
+                      <p className="font-semibold text-slate-900">₹{Number(payment.amount).toFixed(2)}</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">{formatDate(payment.paymentDate)} • {payment.method}</p>
                     </div>
                     {renderPaymentStatusBadge(payment.status)}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-2">No payments recorded.</p>
+              <p className="text-sm text-slate-400 italic text-center py-2">No payments recorded.</p>
             )}
           </CardContent>
         </Card>
 
         {/* Timeline */}
-        <Card>
-          <CardHeader>
+        <Card className="border-slate-200 shadow-sm">
+          <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center">
-              <Clock className="mr-2 h-4 w-4" />
+              <Clock className="mr-2 h-4 w-4 text-slate-500" />
               Timeline
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
-              <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white bg-slate-300 group-[.is-active]:bg-emerald-500 text-slate-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ml-[3px] md:ml-0 z-10"></div>
-                <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] ml-4 md:ml-0">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">Invoice Created</span>
-                    <span className="text-xs text-muted-foreground">{formatDate(invoice.createdAt)}</span>
-                  </div>
+            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-2 before:h-full before:w-px before:bg-slate-200">
+              <div className="relative flex items-start gap-4">
+                <div className="w-4 h-4 rounded-full border-2 border-white bg-slate-300 mt-1 z-10 shrink-0"></div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-slate-900">Invoice Created</span>
+                  <span className="text-xs text-slate-500">{formatDate(invoice.createdAt)}</span>
                 </div>
               </div>
               
               {invoice.payments?.map((payment: Payment, idx: number) => (
-                <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white bg-slate-300 group-[.is-active]:bg-emerald-500 text-slate-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ml-[3px] md:ml-0 z-10"></div>
-                  <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] ml-4 md:ml-0">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">Payment Received</span>
-                      <span className="text-xs text-muted-foreground">{formatDate(payment.createdAt)}</span>
-                    </div>
+                <div key={idx} className="relative flex items-start gap-4">
+                  <div className="w-4 h-4 rounded-full border-2 border-white bg-emerald-500 mt-1 z-10 shrink-0"></div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-slate-900">Payment Received</span>
+                    <span className="text-xs text-slate-500">{formatDate(payment.createdAt)}</span>
                   </div>
                 </div>
               ))}
               
               {invoice.status === InvoiceStatus.VOIDED && (
-                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white bg-slate-300 group-[.is-active]:bg-red-500 text-slate-500 group-[.is-active]:text-red-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 ml-[3px] md:ml-0 z-10"></div>
-                  <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] ml-4 md:ml-0">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-red-600">Invoice Voided</span>
-                      <span className="text-xs text-muted-foreground">{formatDate(invoice.updatedAt)}</span>
-                    </div>
+                <div className="relative flex items-start gap-4">
+                  <div className="w-4 h-4 rounded-full border-2 border-white bg-red-500 mt-1 z-10 shrink-0"></div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-red-600">Invoice Voided</span>
+                    <span className="text-xs text-slate-500">{formatDate(invoice.updatedAt)}</span>
                   </div>
                 </div>
               )}
@@ -368,19 +344,11 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
 function InvoiceDetailSkeleton() {
   return (
     <div className="flex flex-col md:flex-row gap-6 items-start">
-      <div className="w-full md:w-[70%] space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Skeleton className="h-32 w-full rounded-xl" />
-          <Skeleton className="h-32 w-full rounded-xl" />
-        </div>
-        <Skeleton className="h-64 w-full rounded-xl" />
-        <div className="flex justify-end">
-          <Skeleton className="h-40 w-full max-w-sm rounded-xl" />
-        </div>
+      <div className="w-full md:w-[70%]">
+        <Skeleton className="h-[600px] w-full rounded-2xl" />
       </div>
       <div className="w-full md:w-[30%] space-y-6">
         <Skeleton className="h-48 w-full rounded-xl" />
-        <Skeleton className="h-40 w-full rounded-xl" />
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     </div>

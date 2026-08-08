@@ -1,8 +1,5 @@
 import { Metadata } from 'next';
 import { DashboardMetrics } from '@/modules/dashboard/dashboard-metrics';
-import { DashboardCharts } from '@/modules/dashboard/dashboard-charts';
-import { DashboardAppointmentChart } from '@/modules/dashboard/dashboard-appointment-chart';
-import { DashboardRecentActivity } from '@/modules/dashboard/dashboard-recent-activity';
 import { DashboardRecentAppointments } from '@/modules/dashboard/dashboard-recent-appointments';
 
 export const metadata: Metadata = {
@@ -19,17 +16,8 @@ export default function DashboardPage() {
       
       <DashboardMetrics />
       
-      <div className="grid gap-4 grid-cols-1 md:grid-cols-4 lg:grid-cols-7">
-        <div className="col-span-1 md:col-span-4 lg:col-span-4 space-y-4">
-          <DashboardCharts />
-          <DashboardAppointmentChart />
-        </div>
-        <div className="col-span-1 md:col-span-4 lg:col-span-3">
-          <div className="flex flex-col gap-4">
-            <DashboardRecentActivity />
-            <DashboardRecentAppointments />
-          </div>
-        </div>
+      <div className="grid gap-4 grid-cols-1 mt-4">
+        <DashboardRecentAppointments />
       </div>
     </div>
   );

@@ -18,6 +18,7 @@ import { StatusHub } from "@/components/dashboard/status-hub";
 import { DiscoverCarousel } from "@/components/dashboard/discover-carousel";
 import { NotificationPrompt } from "@/components/dashboard/notification-prompt";
 import { ContextualRecommendations } from "@/components/dashboard/contextual-recommendations";
+import { StyleQuizWidget } from "@/components/style-quiz/style-quiz-widget";
 
 export default function HomePage() {
   const { theme, setTheme } = useTheme();
@@ -141,9 +142,10 @@ export default function HomePage() {
           financials={data.financials}
         />
 
-        {/* Quick Actions Scroll Bar Removed */}
+        {/* 3. Style Quiz Widget */}
+        <StyleQuizWidget />
 
-        {/* 3. Contextual Recommendations */}
+        {/* 4. Contextual Recommendations */}
         <ContextualRecommendations recommendations={data.recommendations} />
       </div>
 

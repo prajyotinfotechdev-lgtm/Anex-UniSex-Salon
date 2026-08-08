@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Printer, XCircle, CreditCard, Clock, CalendarDays, User, Building, FileText, CheckCircle2 } from 'lucide-react';
+import { Printer, XCircle, CreditCard, Clock, CalendarDays, User, Building, FileText, CheckCircle2, Send } from 'lucide-react';
 import { HasPermission } from '@/shared/components/HasPermission';
 import { PaymentDialog } from './payment-dialog';
 
@@ -50,6 +50,28 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSendWhatsApp = () => {
+    if (!invoice.customer?.phone) {
+      alert("Customer doesn't have a phone number on file.");
+      return;
+    }
+    
+    const customerBaseUrl = process.env.NEXT_PUBLIC_CUSTOMER_URL || 
+      (typeof window !== 'undefined' ? window.location.origin.replace('3001', '3000').replace('admin', 'customer') : 'http://localhost:3000');
+    
+    const invoiceLink = `${customerBaseUrl}/invoice/${invoice.id}`;
+
+    let msg = `*${invoice.branch?.name || 'Anex Salon'}*\n`;
+    msg += `Hi ${invoice.customer.firstName},\n\n`;
+    msg += `Thank you for your visit! Your premium invoice is ready.\n\n`;
+    msg += `*View & Download Invoice PDF:*\n${invoiceLink}\n\n`;
+    msg += `We look forward to seeing you again.`;
+
+    const phone = invoice.customer.phone.replace(/\D/g, '');
+    const text = encodeURIComponent(msg);
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
 
   const renderStatusBadge = (status: InvoiceStatus) => {
@@ -256,6 +278,14 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
             <Button variant="outline" className="w-full border-slate-300" onClick={handlePrint}>
               <Printer className="mr-2 h-4 w-4" />
               Print / Save Receipt
+            </Button>
+            
+            <Button 
+              className="w-full bg-[#25D366] hover:bg-[#1ebd5a] text-white" 
+              onClick={handleSendWhatsApp}
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Send via WhatsApp
             </Button>
 
             <HasPermission permission="Billing.Manage">

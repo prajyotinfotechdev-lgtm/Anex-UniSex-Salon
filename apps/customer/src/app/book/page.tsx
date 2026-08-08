@@ -334,18 +334,18 @@ export default function BookPage() {
       <AnimatePresence>
         {hasSelection && (
           <div 
-            className="fixed bottom-[110px] md:bottom-[120px] left-1/2 -translate-x-1/2 z-[90] w-[92%] max-w-[26rem] pointer-events-none" 
-            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+            className="fixed top-6 md:top-8 left-1/2 -translate-x-1/2 z-[90] w-[92%] max-w-[26rem] pointer-events-none" 
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             <motion.div
-              initial={{ y: 100, opacity: 0 }}
+              initial={{ y: -100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
+              exit={{ y: -100, opacity: 0 }}
               className="pointer-events-auto"
             >
-              <div className="bg-zinc-950/90 border border-primary/30 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl shadow-black/80">
+              <div className="bg-card/90 border border-primary/30 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl shadow-background">
                 <div>
-                  <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold">Selected</p>
+                  <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-semibold">Selected</p>
                   <h4 className="text-white font-serif font-semibold text-base">
                     {state.serviceIds.length} Treatment{state.serviceIds.length > 1 ? "s" : ""}
                   </h4>

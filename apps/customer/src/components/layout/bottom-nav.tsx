@@ -4,14 +4,14 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Calendar, CalendarDays, Sparkles, User } from "lucide-react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { haptics } from "@/lib/haptics";
 
 const NAV_ITEMS = [
   { name: "Home", href: "/", icon: Home },
   { name: "Inspire", href: "/inspiration", icon: Sparkles },
   { name: "Book", href: "/book", icon: Calendar },
-  { name: "Appointments", href: "/appointments", icon: CalendarDays },
+  { name: "Appts", href: "/appointments", icon: CalendarDays },
   { name: "Profile", href: "/profile", icon: User },
 ];
 
@@ -19,8 +19,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-center pb-[env(safe-area-inset-bottom)] w-[92%] max-w-sm pointer-events-none">
-      <div className="flex items-center justify-between w-full rounded-full bg-card/40 backdrop-blur-3xl border border-border/30 px-3 py-2.5 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] pointer-events-auto ring-1 ring-border/10">
+    <nav className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-center pb-[env(safe-area-inset-bottom)] w-full max-w-[24rem] pointer-events-none px-4">
+      <div className="flex items-center justify-between w-full rounded-full bg-background/80 backdrop-blur-2xl border border-border/40 px-2 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.5)] pointer-events-auto ring-1 ring-white/5">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -29,35 +29,37 @@ export function BottomNav() {
             <Link
               key={item.name}
               href={item.href}
-              className="relative flex items-center justify-center w-12 h-12 rounded-full group outline-none"
+              onClick={() => haptics.trigger("light")}
+              className="relative outline-none group"
             >
-              {isActive && (
-                <motion.div
-                  layoutId="floating-nav-indicator"
-                  className="absolute inset-0 bg-primary/20 rounded-[1.25rem] border border-primary/20 shadow-inner"
-                  initial={false}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 25,
-                    mass: 0.8
-                  }}
-                />
-              )}
-              
-              <motion.div
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.85 }}
-                className="relative z-10"
+              <div
+                className={cn(
+                  "flex items-center justify-center h-12 rounded-full transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+                  isActive 
+                    ? "bg-primary shadow-[0_0_20px_rgba(212,175,55,0.3)] px-4 w-auto" 
+                    : "bg-transparent hover:bg-white/5 w-12"
+                )}
               >
                 <Icon
                   className={cn(
-                    "w-[22px] h-[22px] transition-all duration-300",
-                    isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground"
+                    "w-[22px] h-[22px] shrink-0 transition-colors duration-500",
+                    isActive ? "text-black" : "text-muted-foreground group-hover:text-foreground"
                   )}
-                  strokeWidth={isActive ? 2 : 1.25}
+                  strokeWidth={isActive ? 2.5 : 1.5}
                 />
-              </motion.div>
+                
+                {/* Expanding Text Container */}
+                <div 
+                  className={cn(
+                    "overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] flex items-center",
+                    isActive ? "max-w-[100px] opacity-100 ml-2" : "max-w-0 opacity-0 ml-0"
+                  )}
+                >
+                  <span className="text-black font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">
+                    {item.name}
+                  </span>
+                </div>
+              </div>
             </Link>
           );
         })}

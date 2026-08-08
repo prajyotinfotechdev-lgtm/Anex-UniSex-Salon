@@ -12,6 +12,7 @@ import {
   StickyNote,
   MessageSquare
 } from 'lucide-react';
+import { CustomerInvoiceTable } from '@/modules/billing/components/customer-invoice-table';
 
 export function CustomerDetailContent({ customer }: { customer: Customer }) {
   return (
@@ -109,17 +110,7 @@ export function CustomerDetailContent({ customer }: { customer: Customer }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {(!customer.invoices || customer.invoices.length === 0) ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground border-2 border-dashed rounded-lg">
-                <Receipt className="h-10 w-10 mb-4 opacity-20" />
-                <p className="font-medium">No invoices yet.</p>
-                <p className="text-sm mt-1">Invoices will appear here after billing.</p>
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground italic">
-                Invoices table coming soon...
-              </div>
-            )}
+            <CustomerInvoiceTable customerId={customer.id} />
           </CardContent>
         </Card>
 

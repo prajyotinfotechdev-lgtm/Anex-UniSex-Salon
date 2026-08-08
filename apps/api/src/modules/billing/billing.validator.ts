@@ -42,7 +42,7 @@ export const invoiceListSchema = z.object({
     page: z.string().regex(/^\d+$/).optional(),
     limit: z.string().regex(/^\d+$/).optional(),
     branchId: z.string().uuid().optional(),
-    customerId: z.string().uuid().optional(),
+    customerId: z.union([z.string().uuid(), z.literal('null')]).optional(),
     status: z.string().optional(),
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),

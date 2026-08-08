@@ -65,21 +65,14 @@ export function Topbar() {
           <span className="sr-only">Toggle theme</span>
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-[1.2rem] w-[1.2rem]" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full" />
-        </Button>
-
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{user?.firstName?.[0] || 'A'}{user?.lastName?.[0] || 'U'}</AvatarFallback>
-                </Avatar>
-              </Button>
-            }
-          />
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>{user?.firstName?.[0] || 'A'}{user?.lastName?.[0] || 'U'}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">

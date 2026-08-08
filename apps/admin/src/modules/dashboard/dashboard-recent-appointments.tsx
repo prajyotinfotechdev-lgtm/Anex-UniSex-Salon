@@ -1,37 +1,61 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAppointments } from '@/modules/appointment/appointment.hooks';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, addDays } from 'date-fns';
 import { Clock, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function DashboardRecentAppointments() {
   const router = useRouter();
-  // Fetch today's appointments or all recent upcoming appointments
+  const [dateFilter, setDateFilter] = useState('all');
+
+  const getStartDate = () => {
+    if (dateFilter === 'today') return startOfDay(new Date()).toISOString();
+    if (dateFilter === 'tomorrow') return startOfDay(addDays(new Date(), 1)).toISOString();
+    return undefined;
+  };
+
+  const getEndDate = () => {
+    if (dateFilter === 'today') return endOfDay(new Date()).toISOString();
+    if (dateFilter === 'tomorrow') return endOfDay(addDays(new Date(), 1)).toISOString();
+    return undefined;
+  };
+
   const { data, isLoading } = useAppointments({ 
-    limit: 5,
+    limit: 10,
     sortField: 'date',
     sortOrder: 'asc',
-    // We ideally want from today onwards, but for simple recent we just get the ones coming up
-    status: 'SCHEDULED' 
+    startDate: getStartDate(),
+    endDate: getEndDate(),
   });
 
   const appointments = data?.data || [];
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>Recent & Upcoming Appointments</CardTitle>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle>Recent & Upcoming</CardTitle>
+        <Select value={dateFilter} onValueChange={setDateFilter}>
+          <SelectTrigger className="w-[120px] h-8 text-xs">
+            <SelectValue placeholder="Select date" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Dates</SelectItem>
+            <SelectItem value="today">Today</SelectItem>
+            <SelectItem value="tomorrow">Tomorrow</SelectItem>
+          </SelectContent>
+        </Select>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="flex-1 overflow-auto">
+        <div className="space-y-3 pt-2">
           {isLoading ? (
             <div className="text-sm text-muted-foreground text-center py-4">Loading appointments...</div>
           ) : appointments.length === 0 ? (
-            <div className="text-sm text-muted-foreground text-center py-4">No scheduled appointments found.</div>
+            <div className="text-sm text-muted-foreground text-center py-4">No appointments found.</div>
           ) : (
             appointments.map((appointment) => (
               <div
@@ -53,14 +77,14 @@ export function DashboardRecentAppointments() {
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end">
                   <div className="text-sm font-medium">
                     {format(new Date(appointment.items?.[0]?.startTime || appointment.date), 'h:mm a')}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {format(new Date(appointment.date), 'MMM d, yyyy')}
                   </div>
-                  <Badge variant="secondary" className="mt-1 text-[10px] px-1.5 py-0">
+                  <Badge variant={appointment.status === 'PENDING' ? 'outline' : 'secondary'} className="mt-1 text-[10px] px-1.5 py-0">
                     {appointment.status}
                   </Badge>
                 </div>

@@ -131,10 +131,16 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
                 Reschedule
               </Button>
             )}
-            {appointment.status === AppointmentStatus.COMPLETED && (
+            {appointment.status === AppointmentStatus.COMPLETED && (!appointment.invoices || appointment.invoices.length === 0) && (
               <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={() => setIsInvoiceOpen(true)}>
                 <FileText className="h-4 w-4 mr-2" />
                 Generate Invoice
+              </Button>
+            )}
+            {appointment.status === AppointmentStatus.COMPLETED && appointment.invoices && appointment.invoices.length > 0 && (
+              <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={() => router.push(`/invoices/${appointment.invoices![0].id}`)}>
+                <FileText className="h-4 w-4 mr-2" />
+                View Invoice
               </Button>
             )}
             <Button variant="outline" onClick={() => router.push(`/appointments/${appointment.id}/edit`)}>

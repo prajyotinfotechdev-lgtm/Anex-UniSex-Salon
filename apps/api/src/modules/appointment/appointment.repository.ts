@@ -15,6 +15,7 @@ export class AppointmentRepository extends BaseRepository<Appointment, Prisma.Ap
       include: {
         customer: true,
         branch: true,
+        invoices: true,
         items: {
           include: {
             service: true,

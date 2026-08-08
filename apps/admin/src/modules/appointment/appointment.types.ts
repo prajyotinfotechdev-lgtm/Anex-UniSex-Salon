@@ -87,6 +87,7 @@ export interface Appointment {
   branch?: any;
   customer?: Customer;
   items?: AppointmentItem[];
+  invoices?: any[];
 }
 
 export interface SlotGenerationRequest {

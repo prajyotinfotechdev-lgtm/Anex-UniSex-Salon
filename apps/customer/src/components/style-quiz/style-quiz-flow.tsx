@@ -154,18 +154,17 @@ export function StyleQuizFlow({ onClose }: Props) {
       className="fixed inset-0 z-[100] flex flex-col"
       style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(12px)' }}
     >
-      {/* ── Modal Container ── */}
+      {/* ── Top Sheet ── */}
       <motion.div
-        initial={{ scale: 0.96, opacity: 0, y: 10 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.96, opacity: 0, y: 10 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-        className="m-auto w-full max-w-md max-h-[90dvh] flex flex-col
-          bg-zinc-950 rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl"
+        initial={{ y: '-100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '-100%' }}
+        transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+        className="absolute top-0 left-0 right-0 max-h-[94dvh] flex flex-col
+          bg-zinc-950 rounded-b-[2rem] border-b border-white/8 overflow-hidden shadow-2xl"
       >
-
-
-        {/* ── Header ── */}
+        {/* Handle bar for Top Sheet */}
+        <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-3 mt-auto shrink-0 order-last" />        {/* ── Header ── */}
         <div className="flex items-center justify-between px-6 pt-4 pb-3 shrink-0">
           <button
             onClick={goBack}

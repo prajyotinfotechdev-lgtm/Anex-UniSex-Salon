@@ -23,14 +23,8 @@ export interface DashboardData {
 
 const DEFAULT_GUEST_DASHBOARD: DashboardData = {
   greeting: "Welcome, Guest",
-  urgencyState: "UPCOMING_APPOINTMENT",
-  urgentAction: {
-    type: "UPCOMING_APPOINTMENT",
-    title: "Signature Haircut",
-    subtitle: "with Stylist",
-    time: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
-    actions: ["MANAGE"]
-  },
+  urgencyState: "NONE",
+  urgentAction: null,
   financials: null,
   recommendations: [
     {

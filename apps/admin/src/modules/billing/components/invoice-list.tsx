@@ -18,6 +18,9 @@ import { useCustomers } from '@/modules/customer/customer.hooks';
 import { Customer } from '@/modules/customer/customer.types';
 import { CustomerInvoiceTable } from './customer-invoice-table';
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AllInvoicesTable } from './all-invoices-table';
+
 export function InvoiceList() {
   const router = useRouter();
   const pathname = usePathname();
@@ -27,6 +30,7 @@ export function InvoiceList() {
   const page = Number(searchParams.get('page')) || 1;
   const limit = Number(searchParams.get('limit')) || 10;
   const search = searchParams.get('search') || '';
+  const tab = searchParams.get('tab') || 'recent';
 
   // Local state for debounced search input
   const [searchInput, setSearchInput] = React.useState(search);
@@ -66,6 +70,13 @@ export function InvoiceList() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const setTab = (newTab: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', newTab);
+    params.delete('page');
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const toggleCustomer = (id: string) => {
     setExpandedCustomers((prev) => ({
       ...prev,
@@ -87,7 +98,7 @@ export function InvoiceList() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search customers..."
+                placeholder={tab === 'recent' ? "Search invoices..." : "Search customers..."}
                 className="pl-8 pr-8 w-full"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
@@ -112,161 +123,174 @@ export function InvoiceList() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => refetch()}
-            disabled={isLoading}
-            title="Refresh Customers"
+            onClick={() => tab === 'customers' ? refetch() : undefined}
+            disabled={isLoading && tab === 'customers'}
+            title="Refresh"
           >
-            <RefreshCcw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCcw className={`h-4 w-4 ${isLoading && tab === 'customers' ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </div>
 
-      {/* Data Table */}
-      <div className="rounded-md border bg-card overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px]"></TableHead>
-              <TableHead>Customer Name</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead className="text-right">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {/* Walk-in Pseudo-Customer */}
-            {(!search || 'walk-in'.includes(search.toLowerCase())) && page === 1 && (
-              <>
-                <TableRow 
-                  className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => toggleCustomer('walk-in')}
-                >
-                  <TableCell>
-                    {expandedCustomers['walk-in'] ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-primary/10 p-2 rounded-full">
-                        <User className="h-4 w-4 text-primary" />
-                      </div>
-                      <span className="italic">Walk-in Customers</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">-</TableCell>
-                  <TableCell className="text-muted-foreground">-</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
-                      {expandedCustomers['walk-in'] ? 'Hide Invoices' : 'View Invoices'}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                {expandedCustomers['walk-in'] && (
-                  <TableRow className="bg-muted/10">
-                    <TableCell colSpan={5} className="p-4 border-b">
-                      <CustomerInvoiceTable customerId={null} />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </>
-            )}
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
+        <TabsList className="mb-4 bg-muted/50 p-1">
+          <TabsTrigger value="recent" className="rounded-md px-6 py-2">Recent Invoices</TabsTrigger>
+          <TabsTrigger value="customers" className="rounded-md px-6 py-2">Browse by Customer</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="recent" className="m-0 focus-visible:outline-none">
+          <AllInvoicesTable search={search} />
+        </TabsContent>
 
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-64 p-0">
-                  <PremiumLoader text="Loading customers..." />
-                </TableCell>
-              </TableRow>
-            ) : isError ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-red-500">
-                  Failed to load customers. Please try again.
-                </TableCell>
-              </TableRow>
-            ) : customers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                  No customers found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              customers.map((customer: Customer) => (
-                <React.Fragment key={customer.id}>
-                  <TableRow 
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => toggleCustomer(customer.id)}
-                  >
-                    <TableCell>
-                      {expandedCustomers[customer.id] ? (
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <div className="bg-primary/10 p-2 rounded-full font-bold text-primary flex items-center justify-center h-8 w-8 text-xs">
-                          {customer.firstName[0]}{customer.lastName[0]}
+        <TabsContent value="customers" className="m-0 focus-visible:outline-none">
+          {/* Data Table */}
+          <div className="rounded-md border bg-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]"></TableHead>
+                  <TableHead>Customer Name</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {/* Walk-in Pseudo-Customer */}
+                {(!search || 'walk-in'.includes(search.toLowerCase())) && page === 1 && (
+                  <>
+                    <TableRow 
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => toggleCustomer('walk-in')}
+                    >
+                      <TableCell>
+                        {expandedCustomers['walk-in'] ? (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div className="bg-primary/10 p-2 rounded-full">
+                            <User className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="italic">Walk-in Customers</span>
                         </div>
-                        {customer.firstName} {customer.lastName}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span>{customer.primaryPhone}</span>
-                        {customer.email && <span className="text-xs text-muted-foreground">{customer.email}</span>}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(customer.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
-                        {expandedCustomers[customer.id] ? 'Hide Invoices' : 'View Invoices'}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                  {expandedCustomers[customer.id] && (
-                    <TableRow className="bg-muted/10">
-                      <TableCell colSpan={5} className="p-4 border-b">
-                        <CustomerInvoiceTable customerId={customer.id} />
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">-</TableCell>
+                      <TableCell className="text-muted-foreground">-</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm">
+                          {expandedCustomers['walk-in'] ? 'Hide Invoices' : 'View Invoices'}
+                        </Button>
                       </TableCell>
                     </TableRow>
-                  )}
-                </React.Fragment>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+                    {expandedCustomers['walk-in'] && (
+                      <TableRow className="bg-muted/10">
+                        <TableCell colSpan={5} className="p-4 border-b">
+                          <CustomerInvoiceTable customerId={null} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
+                )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-          >
-            Previous
-          </Button>
-          <div className="text-sm text-muted-foreground px-2">
-            Page {page} of {totalPages} ({total} customers)
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-64 p-0">
+                      <PremiumLoader text="Loading customers..." />
+                    </TableCell>
+                  </TableRow>
+                ) : isError ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center text-red-500">
+                      Failed to load customers. Please try again.
+                    </TableCell>
+                  </TableRow>
+                ) : customers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                      No customers found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  customers.map((customer: Customer) => (
+                    <React.Fragment key={customer.id}>
+                      <TableRow 
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => toggleCustomer(customer.id)}
+                      >
+                        <TableCell>
+                          {expandedCustomers[customer.id] ? (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-primary/10 p-2 rounded-full font-bold text-primary flex items-center justify-center h-8 w-8 text-xs">
+                              {customer.firstName[0]}{customer.lastName[0]}
+                            </div>
+                            {customer.firstName} {customer.lastName}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span>{customer.primaryPhone}</span>
+                            {customer.email && <span className="text-xs text-muted-foreground">{customer.email}</span>}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(customer.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm">
+                            {expandedCustomers[customer.id] ? 'Hide Invoices' : 'View Invoices'}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                      {expandedCustomers[customer.id] && (
+                        <TableRow className="bg-muted/10">
+                          <TableCell colSpan={5} className="p-4 border-b">
+                            <CustomerInvoiceTable customerId={customer.id} />
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-end space-x-2 py-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm text-muted-foreground px-2">
+                Page {page} of {totalPages} ({total} customers)
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={page >= totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

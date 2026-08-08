@@ -178,7 +178,9 @@ export class BillingRepository {
     };
 
     if (branchId) where.branchId = branchId;
-    if (customerId) where.customerId = customerId;
+    if (customerId) {
+      where.customerId = customerId === 'null' ? null : customerId;
+    }
     if (status) where.status = status as InvoiceStatus;
     if (startDate || endDate) {
       where.issueDate = {};

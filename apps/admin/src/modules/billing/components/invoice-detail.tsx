@@ -65,7 +65,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
     const invoiceLink = `${customerBaseUrl}/invoice/${invoice.id}`;
 
     let msg = `*${invoice.branch?.name || 'Anex Salon'}*\n`;
-    msg += `Hi ${invoice.customer.firstName},\n\n`;
+    msg += `Hi ${invoice.customer?.firstName || 'Customer'},\n\n`;
     msg += `Thank you for your visit! Your premium invoice is ready.\n\n`;
     msg += `*View & Download Invoice PDF:*\n${invoiceLink}\n\n`;
     msg += `We look forward to seeing you again.`;

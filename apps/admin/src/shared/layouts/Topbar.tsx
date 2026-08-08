@@ -66,12 +66,10 @@ export function Topbar() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{user?.firstName?.[0] || 'A'}{user?.lastName?.[0] || 'U'}</AvatarFallback>
-              </Avatar>
-            </Button>
+          <DropdownMenuTrigger render={<Button variant="ghost" className="relative h-8 w-8 rounded-full" />}>
+            <Avatar className="h-8 w-8">
+              <AvatarFallback>{user?.firstName?.[0] || 'A'}{user?.lastName?.[0] || 'U'}</AvatarFallback>
+            </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel className="font-normal">

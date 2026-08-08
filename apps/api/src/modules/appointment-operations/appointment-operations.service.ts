@@ -124,8 +124,6 @@ export class AppointmentOperationsService extends BaseService {
     const newStartDate = new Date(data.startTime);
     let currentStartTime = newStartDate;
 
-    const newItems: AppointmentItemDto[] = [];
-    
     // We assume sequential execution of items for multi-service
     for (const item of existing.items) {
       // Need duration from original service.
@@ -151,20 +149,30 @@ export class AppointmentOperationsService extends BaseService {
       const totalMinutes = service.durationMinutes + (service.processingMinutes || 0) + (service.cleanupMinutes || 0);
       const newEndTime = new Date(currentStartTime.getTime() + totalMinutes * 60000);
 
-      newItems.push({
-        serviceId: item.serviceId,
-        employeeId: item.employeeId,
-        startTime: currentStartTime.toISOString(),
-        endTime: newEndTime.toISOString(),
-        price: Number(item.price) // or snapshottedPrice
+      // Update each item's startTime/endTime in-place — this PRESERVES snapshotData and all
+      // other required fields so the DB transaction does not roll back.
+      await prisma.appointmentItem.update({
+        where: { id: item.id },
+        data: {
+          startTime: currentStartTime,
+          endTime: newEndTime,
+        }
       });
 
       currentStartTime = newEndTime;
     }
 
-    const appointment = await this.coreService.updateAppointment(organizationId, appointmentId, actorUserId, {
-      date: data.date,
-      items: newItems
+    // Only update the top-level date on the appointment (no items rebuild)
+    const appointment = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { date: new Date(data.date) },
+      include: {
+        customer: true,
+        branch: true,
+        items: {
+          include: { service: true, employee: true }
+        }
+      }
     });
 
     await this.auditLog(organizationId, ActionType.UPDATE, appointmentId, actorUserId, {

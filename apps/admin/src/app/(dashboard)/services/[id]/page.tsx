@@ -61,7 +61,7 @@ export default function ServiceDetailPage() {
             </div>
             <div className="flex items-center gap-1">
               <DollarSign className="h-4 w-4" />
-              {service.pricingType === 'FIXED' ? `$${service.basePrice}` : `${service.pricingType.replace('_', ' ')} $${service.basePrice}`}
+              {service.pricingType === 'FIXED' ? `₹${service.basePrice}` : `${service.pricingType.replace('_', ' ')} ₹${service.basePrice}`}
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-4 w-4" />
@@ -118,7 +118,7 @@ export default function ServiceDetailPage() {
                 </div>
                 <div className="space-y-1">
                   <span className="text-sm font-medium">Base Price</span>
-                  <p className="text-sm text-muted-foreground">${service.basePrice}</p>
+                  <p className="text-sm text-muted-foreground">₹{service.basePrice}</p>
                 </div>
               </div>
               <hr className="my-4 border-border" />
@@ -197,7 +197,7 @@ export default function ServiceDetailPage() {
                     {service.serviceBranches.map((sb: any) => (
                       <div key={sb.branchId} className="flex items-center justify-between">
                         <span className="text-sm font-medium">{sb.branch?.name || 'Branch'}</span>
-                        <span className="text-sm text-muted-foreground">${sb.price || sb.priceOverride || service.basePrice}</span>
+                        <span className="text-sm text-muted-foreground">₹{sb.price || sb.priceOverride || service.basePrice}</span>
                       </div>
                     ))}
                   </div>

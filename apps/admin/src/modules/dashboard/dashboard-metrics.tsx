@@ -24,7 +24,7 @@ export function DashboardMetrics() {
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${data.todaysRevenue?.toFixed(2) || '0.00'}</div>
+          <div className="text-2xl font-bold">₹{data.todaysRevenue?.toFixed(2) || '0.00'}</div>
           <p className="text-xs text-muted-foreground">Collected today</p>
         </CardContent>
       </Card>
@@ -54,7 +54,7 @@ export function DashboardMetrics() {
           <ArrowUpRight className="h-4 w-4 text-destructive" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${data.outstandingPayments?.toFixed(2) || '0.00'}</div>
+          <div className="text-2xl font-bold">₹{data.outstandingPayments?.toFixed(2) || '0.00'}</div>
           <p className="text-xs text-muted-foreground">Total unpaid</p>
         </CardContent>
       </Card>

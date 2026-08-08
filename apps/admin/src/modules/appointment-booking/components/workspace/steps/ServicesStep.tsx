@@ -74,7 +74,7 @@ export function ServicesStep() {
                   <span className="font-semibold">{s.name}</span>
                   <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1"><Clock className="h-3 w-3"/>{s.durationMinutes} min</span>
-                    <span>${Number(s.basePrice).toFixed(2)}</span>
+                    <span>₹{Number(s.basePrice).toFixed(2)}</span>
                   </div>
                 </div>
               )
@@ -129,7 +129,7 @@ export function ServicesStep() {
                       <div className="text-sm font-medium flex items-center gap-1.5 text-muted-foreground">
                         <Clock className="h-4 w-4" /> {s.durationMinutes} min
                       </div>
-                      <div className="text-lg font-semibold">${Number(s.basePrice).toFixed(2)}</div>
+                      <div className="text-lg font-semibold">₹{Number(s.basePrice).toFixed(2)}</div>
                     </div>
                   </div>
                 )

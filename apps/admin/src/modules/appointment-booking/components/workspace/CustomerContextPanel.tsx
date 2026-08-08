@@ -85,7 +85,7 @@ export function CustomerContextPanel() {
         <h4 className="text-sm font-medium mb-2">Wallet & Memberships</h4>
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">Wallet Balance</span>
-          <span className="font-medium">$0.00</span>
+          <span className="font-medium">₹0.00</span>
         </div>
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">Active Packages</span>

@@ -23,7 +23,7 @@ export function DashboardRecentActivity() {
     },
     {
       label: 'Pending Payments',
-      value: isLoading ? '—' : `$${(data?.outstandingPayments ?? 0).toFixed(2)}`,
+      value: isLoading ? '—' : `₹${(data?.outstandingPayments ?? 0).toFixed(2)}`,
       sublabel: 'Total outstanding',
       icon: CreditCard,
       color: 'text-amber-500',
@@ -31,7 +31,7 @@ export function DashboardRecentActivity() {
     },
     {
       label: "Today's Revenue",
-      value: isLoading ? '—' : `$${(data?.todaysRevenue ?? 0).toFixed(2)}`,
+      value: isLoading ? '—' : `₹${(data?.todaysRevenue ?? 0).toFixed(2)}`,
       sublabel: 'Collected today',
       icon: TrendingUp,
       color: 'text-emerald-500',

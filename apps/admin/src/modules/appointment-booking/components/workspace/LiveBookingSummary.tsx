@@ -40,7 +40,7 @@ export function LiveBookingSummary() {
               <div key={item.id} className="p-4 bg-background rounded-lg border text-sm space-y-2 relative animate-in fade-in slide-in-from-right-2">
                 <div className="flex justify-between font-medium">
                   <span>{item.name}</span>
-                  <span>${item.price.toFixed(2)}</span>
+                  <span>₹{item.price.toFixed(2)}</span>
                 </div>
                 
                 {item.employeeName ? (
@@ -81,7 +81,7 @@ export function LiveBookingSummary() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-green-600">
@@ -91,7 +91,7 @@ export function LiveBookingSummary() {
               )}
               <div className="flex justify-between font-semibold text-lg pt-2 border-t">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
             </div>
           </div>

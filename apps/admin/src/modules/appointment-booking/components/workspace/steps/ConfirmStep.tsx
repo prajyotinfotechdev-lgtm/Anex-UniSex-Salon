@@ -92,7 +92,7 @@ export function ConfirmStep() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">${item.price.toFixed(2)}</p>
+                  <p className="font-medium">₹{item.price.toFixed(2)}</p>
                   <p className="text-sm text-muted-foreground">{item.duration} min</p>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export function ConfirmStep() {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>₹{subtotal.toFixed(2)}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-green-600">
@@ -121,7 +121,7 @@ export function ConfirmStep() {
             <Separator className="my-2" />
             <div className="flex justify-between font-bold text-xl">
               <span>Total Estimated</span>
-              <span>${total.toFixed(2)}</span>
+              <span>₹{total.toFixed(2)}</span>
             </div>
           </div>
         </Card>

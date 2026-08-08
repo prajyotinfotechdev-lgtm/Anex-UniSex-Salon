@@ -42,12 +42,12 @@ export function DashboardCharts() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value: unknown) => `$${value}`}
+                tickFormatter={(value: unknown) => `₹${value}`}
               />
               <Tooltip 
                 cursor={{ fill: 'transparent' }}
                 labelFormatter={(label: unknown) => new Date(label as string).toLocaleDateString()}
-                formatter={(value: unknown) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
+                formatter={(value: unknown) => [`₹${Number(value).toFixed(2)}`, 'Revenue']}
               />
               <Bar dataKey="revenue" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
             </BarChart>

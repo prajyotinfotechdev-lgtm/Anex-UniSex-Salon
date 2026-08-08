@@ -224,7 +224,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
                 <hr className="my-2 border-border" />
                 <div className="flex justify-between font-medium">
                   <span>Total Amount</span>
-                  <span>${Number(totalPrice).toFixed(2)}</span>
+                  <span>₹{Number(totalPrice).toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -249,7 +249,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
                         <Clock className="h-3 w-3 mr-1.5 text-muted-foreground" />
                         {format(parseISO(item.startTime), 'h:mm a')} - {format(parseISO(item.endTime), 'h:mm a')}
                       </div>
-                      <span className="font-semibold text-primary">${Number(item.price).toFixed(2)}</span>
+                      <span className="font-semibold text-primary">₹{Number(item.price).toFixed(2)}</span>
                     </div>
                   </div>
                 ))}

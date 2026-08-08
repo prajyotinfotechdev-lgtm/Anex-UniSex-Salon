@@ -116,7 +116,7 @@ export function ServiceList() {
                   </TableCell>
                   <TableCell>{service.serviceCategory?.name}</TableCell>
                   <TableCell>
-                    {service.pricingType === 'FIXED' ? `$${service.basePrice}` : `${service.pricingType.replace('_', ' ')} $${service.basePrice}`}
+                    {service.pricingType === 'FIXED' ? `₹${service.basePrice}` : `${service.pricingType.replace('_', ' ')} ₹${service.basePrice}`}
                   </TableCell>
                   <TableCell>{service.durationMinutes} min</TableCell>
                   <TableCell>{service.employeeServices?.length || 0}</TableCell>

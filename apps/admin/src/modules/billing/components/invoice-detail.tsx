@@ -175,14 +175,14 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
                         <p className="text-xs text-muted-foreground">{item.type}</p>
                       </TableCell>
                       <TableCell className="text-center">{item.quantity}</TableCell>
-                      <TableCell className="text-right">${Number(item.unitPrice).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{Number(item.unitPrice).toFixed(2)}</TableCell>
                       <TableCell className="text-right text-red-500">
-                        {Number(item.discount) > 0 ? `-$${Number(item.discount).toFixed(2)}` : '-'}
+                        {Number(item.discount) > 0 ? `-₹${Number(item.discount).toFixed(2)}` : '-'}
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        {Number(item.tax) > 0 ? `$${Number(item.tax).toFixed(2)}` : '-'}
+                        {Number(item.tax) > 0 ? `₹${Number(item.tax).toFixed(2)}` : '-'}
                       </TableCell>
-                      <TableCell className="text-right font-semibold">${Number(item.total).toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-semibold">₹{Number(item.total).toFixed(2)}</TableCell>
                     </TableRow>
                   ))
                 ) : (
@@ -202,7 +202,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
           <div className="w-full max-w-sm space-y-3 p-4 bg-muted/20 rounded-lg">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${Number(invoice.subtotal).toFixed(2)}</span>
+              <span>₹{Number(invoice.subtotal).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm text-red-500">
               <span>Total Discount</span>
@@ -210,18 +210,18 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total Tax</span>
-              <span>${Number(invoice.taxTotal).toFixed(2)}</span>
+              <span>₹{Number(invoice.taxTotal).toFixed(2)}</span>
             </div>
             {Number(invoice.tipAmount) > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Tip</span>
-                <span>${Number(invoice.tipAmount).toFixed(2)}</span>
+                <span>₹{Number(invoice.tipAmount).toFixed(2)}</span>
               </div>
             )}
             <hr className="my-4 border-slate-200" />
             <div className="flex justify-between font-bold text-lg">
               <span>Grand Total</span>
-              <span>${Number(invoice.grandTotal).toFixed(2)}</span>
+              <span>₹{Number(invoice.grandTotal).toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -237,18 +237,18 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
               {renderStatusBadge(invoice.status)}
               
               <div className="text-center">
-                <p className="text-3xl font-bold">${Number(invoice.amountDue).toFixed(2)}</p>
+                <p className="text-3xl font-bold">₹{Number(invoice.amountDue).toFixed(2)}</p>
                 <p className="text-sm text-muted-foreground">Amount Due</p>
               </div>
 
               <div className="w-full space-y-2 mt-4 pt-4 border-t">
                 <div className="flex justify-between text-sm">
                   <span>Grand Total</span>
-                  <span className="font-medium">${Number(invoice.grandTotal).toFixed(2)}</span>
+                  <span className="font-medium">₹{Number(invoice.grandTotal).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Amount Paid</span>
-                  <span className="font-medium text-green-600">${Number(invoice.amountPaid).toFixed(2)}</span>
+                  <span className="font-medium text-green-600">₹{Number(invoice.amountPaid).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -301,7 +301,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
                 {invoice.payments.map((payment: Payment) => (
                   <div key={payment.id} className="flex justify-between items-center border-b pb-2 last:border-0 last:pb-0">
                     <div>
-                      <p className="font-medium">${Number(payment.amount).toFixed(2)}</p>
+                      <p className="font-medium">₹{Number(payment.amount).toFixed(2)}</p>
                       <p className="text-xs text-muted-foreground">{formatDate(payment.paymentDate)} via {payment.method}</p>
                     </div>
                     {renderPaymentStatusBadge(payment.status)}

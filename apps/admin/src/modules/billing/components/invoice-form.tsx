@@ -471,7 +471,7 @@ export function InvoiceForm() {
             <div className="bg-muted/30 p-6 rounded-lg space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm text-red-500">
                 <span>Total Discount</span>
@@ -479,12 +479,12 @@ export function InvoiceForm() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Tax</span>
-                <span>${taxTotal.toFixed(2)}</span>
+                <span>₹{taxTotal.toFixed(2)}</span>
               </div>
               <hr className="my-4 border-slate-200" />
               <div className="flex justify-between font-bold text-lg">
                 <span>Grand Total</span>
-                <span>${grandTotal.toFixed(2)}</span>
+                <span>₹{grandTotal.toFixed(2)}</span>
               </div>
             </div>
           </CardContent>

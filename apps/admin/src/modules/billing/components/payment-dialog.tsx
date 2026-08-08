@@ -100,7 +100,7 @@ export function PaymentDialog({ invoice, children }: PaymentDialogProps) {
 
         <div className="bg-muted/30 p-4 rounded-md mb-2 flex justify-between items-center">
           <span className="text-sm font-medium">Amount Due:</span>
-          <span className="text-lg font-bold">${Number(invoice.amountDue).toFixed(2)}</span>
+          <span className="text-lg font-bold">₹{Number(invoice.amountDue).toFixed(2)}</span>
         </div>
 
         <Form {...form}>

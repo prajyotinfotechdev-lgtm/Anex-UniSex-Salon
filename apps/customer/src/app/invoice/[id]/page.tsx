@@ -108,7 +108,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                         <div className="text-sm text-zinc-500 print:text-zinc-600 mt-1">Specialist: {item.employee?.firstName}</div>
                       </td>
                       <td className="py-6 text-right font-medium text-zinc-200 print:text-black text-base">
-                        ${Number(item.price).toFixed(2)}
+                        ₹{Number(item.price).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -117,7 +117,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
                   <tr className="border-t border-zinc-800 print:border-zinc-300">
                     <td className="pt-8 font-serif text-xl font-semibold text-zinc-300 print:text-black">Total Amount</td>
                     <td className="pt-8 text-right font-serif font-bold text-2xl text-amber-500 print:text-amber-600">
-                      ${totalPrice.toFixed(2)}
+                      ₹{totalPrice.toFixed(2)}
                     </td>
                   </tr>
                 </tfoot>

@@ -64,7 +64,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
     
     const invoiceLink = `${customerBaseUrl}/invoice/${invoice.id}`;
 
-    let msg = `*${invoice.branch?.name || 'Anex Salon'}*\n`;
+    let msg = `*Anex Salon*\n`;
     msg += `Hi ${invoice.customer?.firstName || 'Customer'},\n\n`;
     msg += `Thank you for your visit! Your premium invoice is ready.\n\n`;
     msg += `*View & Download Invoice PDF:*\n${invoiceLink}\n\n`;
@@ -131,7 +131,7 @@ export function InvoiceDetail({ id }: InvoiceDetailProps) {
             />
             
             <div>
-              <h1 className="text-2xl font-serif font-bold text-slate-900 tracking-wide uppercase">{invoice.branch?.name || 'Anex Salon'}</h1>
+              <h1 className="text-2xl font-serif font-bold text-slate-900 tracking-wide uppercase">Anex Salon</h1>
               <p className="text-sm text-slate-500 mt-1">Premium Invoice</p>
             </div>
             

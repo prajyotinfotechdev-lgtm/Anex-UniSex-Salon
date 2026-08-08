@@ -19,7 +19,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Check if the video has started playing after 1.5 seconds.
+    // Check if the video has started playing after 4 seconds.
     // If it hasn't (blocked by iOS Low Power Mode, user settings, or slow network),
     // immediately skip the splash screen so the user doesn't see a play button or frozen frame.
     const autoplayCheckTimer = setTimeout(() => {
@@ -27,12 +27,12 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
         console.log("Autoplay blocked or loading slowly, skipping splash screen.");
         handleVideoEnd();
       }
-    }, 1500);
+    }, 4000);
 
-    // Safety fallback: dismiss splash screen after 3 seconds if video gets stuck or takes too long to load
+    // Safety fallback: dismiss splash screen after 8 seconds if video gets stuck or takes too long to load
     timerRef.current = setTimeout(() => {
       handleVideoEnd();
-    }, 3000);
+    }, 8000);
 
     return () => {
       clearTimeout(autoplayCheckTimer);

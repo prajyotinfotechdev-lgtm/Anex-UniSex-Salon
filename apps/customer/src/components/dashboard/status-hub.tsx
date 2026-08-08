@@ -226,19 +226,21 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
         style={{ rotateX, rotateY, translateZ: 50 }}
         className="p-7 pb-6 relative z-10"
       >
-        {urgencyState === "APPOINTMENT_TODAY" && displayAction ? (
+        {(urgencyState === "APPOINTMENT_TODAY" || urgencyState === "UPCOMING_APPOINTMENT") && displayAction ? (
           <div className="space-y-5">
             <div className="inline-flex items-center gap-1.5 bg-primary/20 text-primary px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-primary/30 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                {urgencyState === "APPOINTMENT_TODAY" && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                )}
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              Today
+              {urgencyState === "APPOINTMENT_TODAY" ? "Today" : "Upcoming Appointment"}
             </div>
             
             <div>
-              <h2 className="text-4xl font-serif text-zinc-900 dark:text-white tracking-tight mb-2">
-                {new Date(displayAction.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <h2 className="text-3xl font-serif text-zinc-900 dark:text-white tracking-tight mb-2">
+                {new Date(displayAction.time).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(displayAction.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </h2>
               <p className="text-zinc-600 dark:text-zinc-300 font-medium text-sm">
                 {displayAction.title} {displayAction.subtitle}

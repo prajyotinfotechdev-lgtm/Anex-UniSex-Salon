@@ -85,6 +85,7 @@ function PinCard({ post, onBookmark }: { post: PublicInspirationPost; onBookmark
           height={675}
           className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-[1.04] will-change-transform"
           loading="lazy"
+          unoptimized={true}
         />
 
         {/* Gradient overlay — only on hover */}
@@ -199,6 +200,7 @@ function HeroBanner({ posts, onBookmark }: { posts: PublicInspirationPost[]; onB
             className="object-cover"
             priority
             quality={90}
+            unoptimized={true}
           />
         </motion.div>
       </AnimatePresence>
@@ -318,6 +320,7 @@ function CollectionsRow({ collections }: { collections: PublicInspirationCollect
                   alt={col.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-[1.06] will-change-transform"
+                  unoptimized={true}
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 to-zinc-800" />

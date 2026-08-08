@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useBookingEngine } from '@/components/booking/booking-orchestrator';
 
 interface InspirationDetailProps {
   idOrSlug: string;
@@ -200,16 +201,33 @@ export function InspirationDetail({ idOrSlug }: InspirationDetailProps) {
     await toggleBookmark.mutateAsync(post.id);
   };
 
+  const { selectService, setStylist, setInspiration, goToDimension, reset } = useBookingEngine();
+
   const handleBook = () => {
     if (!post) return;
     trackEvent.mutate({ postId: post.id, eventType: 'book_click' });
-    const query = new URLSearchParams();
-    if (post.serviceId) query.append('serviceId', post.serviceId);
-    if (post.employeeId) query.append('employeeId', post.employeeId);
-    if (post.branchId) query.append('branchId', post.branchId);
-    query.append('inspirationId', post.id);
-    query.append('skipToTime', 'true');
-    router.push(`/book?${query.toString()}`);
+    
+    // Reset any previous state first
+    reset();
+    
+    setInspiration(post.id, post.heroMedia?.url || post.heroMedia?.key);
+
+    if (post.serviceId) {
+      // Auto-select based on the look
+      selectService(post.serviceId);
+      if (post.employeeId && post.employee) {
+        setStylist(post.employeeId, `${post.employee.firstName} ${post.employee.lastName}`);
+      }
+      // Jump straight to the time picker
+      goToDimension('TIME');
+    } else {
+      // If no service attached, send them to the service page
+      const query = new URLSearchParams();
+      if (post.employeeId) query.append('employeeId', post.employeeId);
+      if (post.branchId) query.append('branchId', post.branchId);
+      query.append('inspirationId', post.id);
+      router.push(`/book?${query.toString()}`);
+    }
   };
 
   if (isLoading) {

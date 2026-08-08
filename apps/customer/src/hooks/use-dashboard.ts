@@ -60,7 +60,9 @@ export function useDashboard() {
 
   async function fetchGuestDashboard() {
     try {
-      const res = await fetch(getFullApiUrl("/public/inspiration"));
+      const res = await fetch(getFullApiUrl("/public/inspiration"), {
+        signal: AbortSignal.timeout(4000)
+      });
       if (res.ok) {
         const json = await res.json();
         let items = Array.isArray(json) ? json : (json.data || []);
@@ -105,7 +107,8 @@ export function useDashboard() {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
-          cache: "no-store"
+          cache: "no-store",
+          signal: AbortSignal.timeout(5000)
         });
 
         if (res.status === 401 || res.status === 404) {

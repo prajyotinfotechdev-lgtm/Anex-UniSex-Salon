@@ -134,16 +134,16 @@ export default function HomePage() {
       <NotificationPrompt customerId="mock-customer-id-for-now" />
 
       <div className="px-6 space-y-10 mt-6">
-        {/* 2. The Anex Hub (Merged Hero & Identity) */}
+        {/* 2. Style Quiz Widget (Top priority) */}
+        <StyleQuizWidget />
+
+        {/* 3. The Anex Hub (Merged Hero & Identity) */}
         <StatusHub
           urgencyState={data.urgencyState || 'normal'}
           urgentAction={data.urgentAction}
           predictiveBooking={data.predictiveBooking}
           financials={data.financials}
         />
-
-        {/* 3. Style Quiz Widget */}
-        <StyleQuizWidget />
 
         {/* 4. Contextual Recommendations */}
         <ContextualRecommendations recommendations={data.recommendations} />

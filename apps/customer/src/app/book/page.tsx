@@ -333,36 +333,40 @@ export default function BookPage() {
       {/* Luxury Sticky Book Bar */}
       <AnimatePresence>
         {hasSelection && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-32 md:bottom-36 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-[26rem]"
-            style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+          <div 
+            className="fixed bottom-[110px] md:bottom-[120px] left-1/2 -translate-x-1/2 z-[90] w-[92%] max-w-[26rem] pointer-events-none" 
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
-            <div className="bg-zinc-950/90 border border-primary/30 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl shadow-black/80">
-              <div>
-                <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold">Selected</p>
-                <h4 className="text-white font-serif font-semibold text-base">
-                  {state.serviceIds.length} Treatment{state.serviceIds.length > 1 ? "s" : ""}
-                </h4>
-                <p className="text-primary font-semibold text-xs mt-0.5">
-                  Total: ₹{totalPrice.toLocaleString("en-IN")}
-                </p>
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              className="pointer-events-auto"
+            >
+              <div className="bg-zinc-950/90 border border-primary/30 backdrop-blur-xl rounded-2xl p-4 flex items-center justify-between shadow-2xl shadow-black/80">
+                <div>
+                  <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold">Selected</p>
+                  <h4 className="text-white font-serif font-semibold text-base">
+                    {state.serviceIds.length} Treatment{state.serviceIds.length > 1 ? "s" : ""}
+                  </h4>
+                  <p className="text-primary font-semibold text-xs mt-0.5">
+                    Total: ₹{totalPrice.toLocaleString("en-IN")}
+                  </p>
+                </div>
+                <Button
+                  size="lg"
+                  className="bg-primary hover:bg-primary/95 text-black font-semibold rounded-xl gap-1 px-5 shadow-lg shadow-primary/10 h-12 text-sm"
+                  onClick={() => {
+                    haptics.trigger("medium");
+                    goToDimension("TIME");
+                  }}
+                >
+                  <span>Choose Slot</span>
+                  <ChevronRight size={16} strokeWidth={2.5} />
+                </Button>
               </div>
-              <Button
-                size="lg"
-                className="bg-primary hover:bg-primary/95 text-black font-semibold rounded-xl gap-1 px-5 shadow-lg shadow-primary/10 h-12 text-sm"
-                onClick={() => {
-                  haptics.trigger("medium");
-                  goToDimension("TIME");
-                }}
-              >
-                <span>Choose Slot</span>
-                <ChevronRight size={16} strokeWidth={2.5} />
-              </Button>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

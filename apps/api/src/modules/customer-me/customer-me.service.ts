@@ -137,7 +137,7 @@ export class CustomerMeService {
     });
 
     // Shuffle the array to show random images every time the PWA opens
-    inspirationPosts = inspirationPosts.sort(() => 0.5 - Math.random()).slice(0, 8);
+    inspirationPosts = inspirationPosts.sort(() => 0.5 - Math.random()).slice(0, 5);
 
     const discover = inspirationPosts
       .filter(p => p.heroMedia?.secureUrl || p.heroMedia?.url)  // Guard: skip posts without a valid image

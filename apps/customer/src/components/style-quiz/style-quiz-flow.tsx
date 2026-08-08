@@ -40,7 +40,7 @@ const slideIn = {
   initial:  { opacity: 0, x: 40 },
   animate:  { opacity: 1, x: 0 },
   exit:     { opacity: 0, x: -40 },
-  transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
+  transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] as const },
 };
 
 // ── Result Card ────────────────────────────────────────────────────────────

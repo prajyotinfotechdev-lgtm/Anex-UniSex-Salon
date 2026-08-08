@@ -8,8 +8,8 @@ export class CustomerMeService {
       where: { id: customerId },
       include: {
         appointments: {
-          orderBy: { date: 'desc' },
-          take: 5,
+          orderBy: { createdAt: 'desc' },
+          take: 10,
           include: {
             items: {
               include: {

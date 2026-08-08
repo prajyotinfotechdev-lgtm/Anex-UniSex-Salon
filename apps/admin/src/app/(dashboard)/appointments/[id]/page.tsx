@@ -5,8 +5,11 @@ import { useAppointment, useConfirmAppointment, useCheckInAppointment, useStartA
 import { AppointmentStatusBadge } from '@/modules/appointment/components/appointment-status-badge';
 import { AppointmentTimeline } from '@/modules/appointment/components/appointment-timeline';
 import { RescheduleDialog } from '@/modules/appointment/components/reschedule-dialog';
-import { InvoiceDialog } from '@/modules/appointment/components/invoice-dialog';
 import { AppointmentStatus } from '@/modules/appointment/appointment.types';
+import { useCreateInvoice } from '@/modules/billing/billing.hooks';
+import { InvoiceItemType } from '@/modules/billing/billing.types';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -45,6 +48,8 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: appointment, isLoading, isError } = useAppointment(unwrappedParams.id);
+  const queryClient = useQueryClient();
+  const createInvoiceMutation = useCreateInvoice();
 
   const confirmMutation = useConfirmAppointment(unwrappedParams.id);
   const checkInMutation = useCheckInAppointment(unwrappedParams.id);
@@ -55,7 +60,6 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
   const updateNotesMutation = useUpdateNotes(unwrappedParams.id);
 
   const [isRescheduleOpen, setIsRescheduleOpen] = React.useState(false);
-  const [isInvoiceOpen, setIsInvoiceOpen] = React.useState(false);
   const [isCancelOpen, setIsCancelOpen] = React.useState(searchParams.get('action') === 'cancel');
   const [cancelReason, setCancelReason] = React.useState('');
 
@@ -96,6 +100,25 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
     setIsCancelOpen(false);
   };
 
+  const handleGenerateInvoice = async () => {
+    try {
+      const response = await createInvoiceMutation.mutateAsync({
+        branchId: appointment.branchId,
+        customerId: appointment.customerId || undefined,
+        appointmentId: appointment.id,
+        items: appointment.items?.map((item: any) => ({
+          type: InvoiceItemType.SERVICE,
+          quantity: 1,
+          unitPrice: Number(item.price),
+        })) || []
+      });
+      queryClient.invalidateQueries({ queryKey: ['appointment', appointment.id] });
+      router.push(`/invoices/${response.data.id}`);
+    } catch (error) {
+      // Toast handled by mutation
+    }
+  };
+
   const totalDuration = appointment.items?.reduce((acc, item) => acc + item.durationMinutes, 0) || 0;
   const totalPrice = appointment.items?.reduce((acc, item) => acc + Number(item.price), 0) || 0;
 
@@ -132,9 +155,9 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
               </Button>
             )}
             {appointment.status === AppointmentStatus.COMPLETED && (!appointment.invoices || appointment.invoices.length === 0) && (
-              <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={() => setIsInvoiceOpen(true)}>
+              <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 text-primary border-primary/20" onClick={handleGenerateInvoice} disabled={createInvoiceMutation.isPending}>
                 <FileText className="h-4 w-4 mr-2" />
-                Generate Invoice
+                {createInvoiceMutation.isPending ? 'Generating...' : 'Generate Invoice'}
               </Button>
             )}
             {appointment.status === AppointmentStatus.COMPLETED && appointment.invoices && appointment.invoices.length > 0 && (
@@ -371,12 +394,6 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
         isOpen={isRescheduleOpen}
         onClose={() => setIsRescheduleOpen(false)}
         appointment={appointment}
-      />
-
-      <InvoiceDialog
-        appointment={appointment}
-        open={isInvoiceOpen}
-        onOpenChange={setIsInvoiceOpen}
       />
 
       <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>

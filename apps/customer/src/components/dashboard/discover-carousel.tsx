@@ -84,8 +84,19 @@ function CarouselItem({ item, containerRef, index }: { item: DiscoverItem, conta
 
 export function DiscoverCarousel({ items }: DiscoverCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [shuffledItems, setShuffledItems] = React.useState<DiscoverItem[]>([]);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    if (items && items.length > 0) {
+      setShuffledItems([...items].sort(() => Math.random() - 0.5));
+    }
+    setIsMounted(true);
+  }, [items]);
 
   if (!items || items.length === 0) return null;
+
+  const displayItems = isMounted ? shuffledItems : items;
 
   return (
     <motion.div
@@ -110,7 +121,7 @@ export function DiscoverCarousel({ items }: DiscoverCarouselProps) {
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto pb-6 px-6 no-scrollbar snap-x snap-mandatory"
       >
-        {items.map((item, index) => (
+        {displayItems.map((item, index) => (
           <CarouselItem key={item.id} item={item} containerRef={scrollRef} index={index} />
         ))}
         <div className="shrink-0 w-2" />

@@ -2,11 +2,13 @@
 import { useRouter } from "next/navigation";
 
 import React, { useEffect, useState } from 'react';
-import { motion, useMotionTemplate, useMotionValue, animate } from "framer-motion";
-import { Sparkles, MapPin, Crown, ArrowRight, QrCode, Wallet } from "lucide-react";
+import { motion, useMotionTemplate, useMotionValue, animate, AnimatePresence } from "framer-motion";
+import { Sparkles, MapPin, Crown, ArrowRight, QrCode, Wallet, Check, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBookingEngine } from "../booking/booking-orchestrator";
 import { useTheme } from "next-themes";
+import { getFullApiUrl } from "@/lib/api";
+import { toast } from "sonner";
 
 interface StatusHubProps {
   urgencyState: string;
@@ -27,6 +29,67 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
   const { goToDimension, loadPrediction, reset } = useBookingEngine();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  
+  // Reschedule State
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
+  const [displayAction, setDisplayAction] = useState(urgentAction);
+
+  useEffect(() => {
+    if (urgentAction) setDisplayAction(urgentAction);
+  }, [urgentAction]);
+
+  const handleConfirmReschedule = async () => {
+    if (!selectedSlot || !displayAction?.id) return;
+    setIsRescheduling(true);
+    
+    try {
+      const selectedDate = new Date(selectedSlot);
+      const token = localStorage.getItem("anex_device_token");
+      
+      const res = await fetch(getFullApiUrl(`/api/v1/me/appointments/${displayAction.id}/reschedule`), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          date: selectedDate.toISOString().split('T')[0],
+          startTime: selectedDate.toISOString()
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to reschedule');
+      }
+      
+      setRescheduleSuccess(true);
+      setDisplayAction({ ...displayAction, time: selectedSlot });
+      
+      setTimeout(() => {
+        setRescheduleSuccess(false);
+        setShowReschedule(false);
+        setSelectedSlot(null);
+      }, 1500);
+    } catch (error) {
+      console.error('Failed to reschedule:', error);
+      toast.error('Failed to reschedule appointment. Please try again.');
+    } finally {
+      setIsRescheduling(false);
+    }
+  };
+
+  const getDummySlots = () => {
+    if (!displayAction?.time) return [];
+    const baseTime = new Date(displayAction.time);
+    return [
+      new Date(baseTime.getTime() + 15 * 60000).toISOString(),
+      new Date(baseTime.getTime() + 30 * 60000).toISOString(),
+      new Date(baseTime.getTime() + 60 * 60000).toISOString(),
+    ];
+  };
   
   useEffect(() => {
     setMounted(true);
@@ -89,12 +152,75 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
       {/* Dynamic Frosted Overlay */}
       <div className="absolute inset-0 bg-white/40 dark:bg-black/40 backdrop-blur-sm pointer-events-none" />
 
+      {/* Reschedule Overlay */}
+      <AnimatePresence>
+        {showReschedule && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="absolute inset-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-xl p-6 flex flex-col justify-center rounded-[2.5rem]"
+          >
+            {rescheduleSuccess ? (
+              <motion.div 
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                className="flex flex-col items-center justify-center h-full text-center space-y-4"
+              >
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
+                  <Check className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-serif font-bold text-zinc-900 dark:text-white">Slot Updated</h3>
+                <p className="text-zinc-500 text-sm">We've adjusted your time. Drive safely!</p>
+              </motion.div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-serif font-bold text-zinc-900 dark:text-white">Running Late?</h3>
+                    <p className="text-sm text-zinc-500">Pick a new time for today</p>
+                  </div>
+                  <Button variant="ghost" size="icon" className="rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 h-8 w-8" onClick={() => setShowReschedule(false)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 mb-6">
+                  {getDummySlots().map((slot, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedSlot(slot)}
+                      className={`py-3 px-1 rounded-xl text-[13px] font-semibold transition-all border ${
+                        selectedSlot === slot 
+                          ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                          : 'bg-black/5 dark:bg-white/5 border-transparent text-zinc-700 dark:text-zinc-300 hover:bg-black/10 dark:hover:bg-white/10'
+                      }`}
+                    >
+                      {new Date(slot).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </button>
+                  ))}
+                </div>
+
+                <Button 
+                  className="w-full bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 font-bold h-12 rounded-2xl shadow-xl"
+                  disabled={!selectedSlot || isRescheduling}
+                  onClick={handleConfirmReschedule}
+                  haptic="medium"
+                >
+                  {isRescheduling ? 'Confirming...' : 'Confirm New Time'}
+                </Button>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Status Section */}
       <motion.div 
         style={{ rotateX, rotateY, translateZ: 50 }}
         className="p-7 pb-6 relative z-10"
       >
-        {urgencyState === "APPOINTMENT_TODAY" && urgentAction ? (
+        {urgencyState === "APPOINTMENT_TODAY" && displayAction ? (
           <div className="space-y-5">
             <div className="inline-flex items-center gap-1.5 bg-primary/20 text-primary px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-primary/30 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
@@ -106,18 +232,18 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
             
             <div>
               <h2 className="text-4xl font-serif text-zinc-900 dark:text-white tracking-tight mb-2">
-                {new Date(urgentAction.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(displayAction.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </h2>
               <p className="text-zinc-600 dark:text-zinc-300 font-medium text-sm">
-                {urgentAction.title} {urgentAction.subtitle}
+                {displayAction.title} {displayAction.subtitle}
               </p>
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 font-semibold rounded-2xl h-12 shadow-lg shadow-black/5 dark:shadow-white/5" haptic="medium">
+              <Button className="flex-1 bg-black dark:bg-white text-white dark:text-black hover:bg-zinc-800 dark:hover:bg-zinc-200 font-semibold rounded-2xl h-12 shadow-lg shadow-black/5 dark:shadow-white/5" haptic="medium" onClick={() => window.open('https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB7SAQgzNDA4ajBqNKgCALACAQ&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KUN-FHYAg887McSa-386Ei1A&daddr=9HQ6%2BWJR,+Sahakar+Maharshi+Keshavrao+Sonawane+Marg,+near+icici+bank,+Mantri+Nagar,+Latur,+Maharashtra+413531', '_blank')}>
                 <MapPin className="w-4 h-4 mr-2" /> Directions
               </Button>
-              <Button variant="outline" className="flex-1 border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-900 dark:text-white rounded-2xl h-12 backdrop-blur-md" haptic="light">
+              <Button variant="outline" className="flex-1 border-black/20 dark:border-white/20 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-900 dark:text-white rounded-2xl h-12 backdrop-blur-md" haptic="light" onClick={() => setShowReschedule(true)}>
                 Running Late?
               </Button>
             </div>

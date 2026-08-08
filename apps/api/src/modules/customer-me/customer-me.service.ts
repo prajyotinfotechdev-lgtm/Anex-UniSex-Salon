@@ -51,6 +51,7 @@ export class CustomerMeService {
       const nextAppt = todayAppointments[todayAppointments.length - 1]; // Closest one
       const firstItem = nextAppt.items[0];
       urgentAction = {
+        id: nextAppt.id,
         type: "APPOINTMENT_COUNTDOWN",
         title: firstItem?.service?.name || "Appointment",
         subtitle: firstItem?.employee?.firstName ? `with ${firstItem.employee.firstName}` : "",

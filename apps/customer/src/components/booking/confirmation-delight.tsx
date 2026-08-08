@@ -118,7 +118,7 @@ export function ConfirmationDelight() {
           <Calendar size={18} />
           Add to Calendar
         </Button>
-        <Button variant="outline" size="lg" className="w-full gap-2 bg-background/50 backdrop-blur">
+        <Button variant="outline" size="lg" className="w-full gap-2 bg-background/50 backdrop-blur" onClick={() => window.open('https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB7SAQgzNDA4ajBqNKgCALACAQ&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KUN-FHYAg887McSa-386Ei1A&daddr=9HQ6%2BWJR,+Sahakar+Maharshi+Keshavrao+Sonawane+Marg,+near+icici+bank,+Mantri+Nagar,+Latur,+Maharashtra+413531', '_blank')}>
           <MapPin size={18} />
           Get Directions
         </Button>

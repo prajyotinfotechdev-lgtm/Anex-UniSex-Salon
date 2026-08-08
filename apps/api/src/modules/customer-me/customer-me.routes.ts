@@ -19,7 +19,8 @@ import {
   getAvailabilityHandler,
   getBookingPredictionsHandler,
   createCustomerAppointmentHandler,
-  updateProfileHandler
+  updateProfileHandler,
+  rescheduleCustomerAppointmentHandler
 } from './customer-me.controller';
 
 const router = Router();
@@ -43,6 +44,7 @@ router.get('/appointments', getAppointmentsHandler);
 router.post('/appointments', createCustomerAppointmentHandler);
 router.get('/appointments/:id', getAppointmentByIdHandler);
 router.post('/appointments/:id/cancel', cancelAppointmentHandler);
+router.post('/appointments/:id/reschedule', rescheduleCustomerAppointmentHandler);
 
 // Invoices
 router.get('/invoices', getInvoicesHandler);

@@ -3,8 +3,10 @@ import { CustomerMeService } from './customer-me.service';
 import { AvailabilityService } from '../appointment/availability.service';
 import { PredictionService } from '../appointment/prediction.service';
 import { AppointmentCoreService } from '../appointment/appointment.service';
+import { AppointmentOperationsService } from '../appointment-operations/appointment-operations.service';
 
 const appointmentCoreService = new AppointmentCoreService();
+const appointmentOperationsService = new AppointmentOperationsService();
 
 export const getDashboardHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -161,5 +163,29 @@ export const updateProfileHandler = async (req: Request, res: Response, next: Ne
     const customerId = (req as any).customer.customerId;
     const data = await CustomerMeService.updateProfile(customerId, { firstName, lastName, email, gender });
     res.status(200).json(data);
+  } catch (error) { next(error); }
+};
+export const rescheduleCustomerAppointmentHandler = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const { date, startTime } = req.body;
+    const organizationId = (req as any).customer.organizationId;
+    const customerId = (req as any).customer.customerId;
+
+    // Verify ownership
+    const appointment = await CustomerMeService.getAppointmentById(organizationId, customerId, id);
+    if (!appointment) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+
+    // Call ops service
+    const updated = await appointmentOperationsService.rescheduleAppointment(
+      organizationId,
+      id,
+      customerId, // using customer ID as actor ID
+      { date, startTime }
+    );
+
+    res.status(200).json(updated);
   } catch (error) { next(error); }
 };

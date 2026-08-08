@@ -1,9 +1,8 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Moon, Sun, Bell, UserPlus } from "lucide-react";
+import { Moon, Sun, Bell, UserPlus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { PremiumLoader } from "@/components/ui/premium-loader";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { useCustomerProfile } from "@/components/providers/CustomerProfileContext";
@@ -20,17 +19,18 @@ import { NotificationPrompt } from "@/components/dashboard/notification-prompt";
 import { ContextualRecommendations } from "@/components/dashboard/contextual-recommendations";
 
 export default function HomePage() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const { data, isLoading, error } = useDashboard();
   const { profile, isGuest, isLoading: profileLoading } = useCustomerProfile();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [timeGreeting, setTimeGreeting] = useState("Hello");
+  const [mounted, setMounted] = useState(false);
 
-  // Show onboarding after profile context finishes loading and user is still a guest
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     if (!profileLoading && isGuest) {
-      // Tiny delay so the splash screen finishes first
       const t = setTimeout(() => setShowOnboarding(true), 400);
       return () => clearTimeout(t);
     }
@@ -45,9 +45,7 @@ export default function HomePage() {
   }, [error]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -69,7 +67,6 @@ export default function HomePage() {
 
   if (!data) return null;
 
-  // Priority: live profile name > API greeting name > fallback
   const displayName = profile
     ? profile.firstName
     : (() => {
@@ -77,83 +74,142 @@ export default function HomePage() {
         return nameParts.length > 1 ? nameParts[1].trim() : data.greeting;
       })();
 
+  const isLight = mounted && resolvedTheme === 'light';
+
   return (
-    <div className="flex-1 pb-32">
+    <div className="flex-1 pb-36 overflow-x-hidden">
       {/* Premium Onboarding Card */}
       <AnimatePresence>
         {showOnboarding && (
           <OnboardingCard onClose={() => setShowOnboarding(false)} />
         )}
       </AnimatePresence>
-      {/* 1. Dynamic Sticky Header */}
-      <motion.div 
-        className={cn(
-          "sticky top-0 z-50 px-6 pt-12 pb-4 transition-all duration-300 flex items-center justify-between",
-          scrolled ? "bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5 shadow-sm" : "bg-transparent"
+
+      {/* === PREMIUM HERO HEADER === */}
+      <div className="relative">
+        {/* Soft ambient gradient behind header — only visible in light */}
+        {isLight && (
+          <div className="absolute inset-0 bg-gradient-to-b from-[#fdf8f0] via-[#fdf8f0]/80 to-transparent pointer-events-none" />
         )}
-      >
+
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-xl md:text-2xl font-light text-zinc-500 dark:text-zinc-400 tracking-wide">
-            {timeGreeting},
-          </h1>
-          <h2 className="text-2xl md:text-3xl font-serif font-medium text-zinc-900 dark:text-white tracking-tight">
-            {displayName}
-          </h2>
-        </motion.div>
-        
-        <motion.div 
-          className="flex items-center gap-2"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button variant="ghost" size="icon" className="rounded-full h-11 w-11 relative bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-800 dark:text-white" haptic="light">
-              <Bell className="w-4 h-4" />
-              {(data.notifications?.unreadCount || 0) > 0 && (
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-white dark:ring-black" />
-              )}
-            </Button>
-          </motion.div>
-          {isGuest && (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full h-11 w-11 bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary"
-                onClick={() => setShowOnboarding(true)}
-                haptic="medium"
-                title="Create your profile"
-              >
-                <UserPlus className="w-4 h-4" />
-              </Button>
-            </motion.div>
+          className={cn(
+            "sticky top-0 z-50 px-6 pt-12 pb-4 transition-all duration-500",
+            scrolled
+              ? "bg-white/85 dark:bg-black/85 backdrop-blur-2xl border-b border-[#cba876]/15 dark:border-white/5 shadow-[0_1px_24px_rgba(203,168,118,0.08)]"
+              : "bg-transparent"
           )}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full h-11 w-11 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-800 dark:text-white"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              haptic="medium"
+        >
+          <div className="flex items-center justify-between pt-8">
+            {/* Left: Greeting */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
             >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </motion.div>
+              <p className={cn(
+                "text-sm font-medium tracking-widest uppercase mb-0.5",
+                isLight ? "text-[#cba876]" : "text-[#e6c896]"
+              )}>
+                {timeGreeting}
+              </p>
+              <h1 className="text-3xl font-serif font-semibold text-zinc-900 dark:text-white tracking-tight leading-tight">
+                {displayName}
+              </h1>
+            </motion.div>
+
+            {/* Right: Action Buttons */}
+            <motion.div
+              className="flex items-center gap-2"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+            >
+              {/* Bell */}
+              <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.93 }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "rounded-full h-11 w-11 relative border",
+                    isLight
+                      ? "bg-[#fdf6ed] border-[#cba876]/20 hover:bg-[#cba876]/10 text-zinc-700"
+                      : "bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                  )}
+                  haptic="light"
+                >
+                  <Bell className="w-4 h-4" />
+                  {(data.notifications?.unreadCount || 0) > 0 && (
+                    <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-[#cba876] rounded-full ring-2 ring-white dark:ring-black shadow-sm" />
+                  )}
+                </Button>
+              </motion.div>
+
+              {/* Guest sign-up */}
+              {isGuest && (
+                <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.93 }}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full h-11 w-11 bg-[#cba876]/10 border border-[#cba876]/30 hover:bg-[#cba876]/20 text-[#cba876]"
+                    onClick={() => setShowOnboarding(true)}
+                    haptic="medium"
+                    title="Create your profile"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Theme toggle */}
+              <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.93 }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "rounded-full h-11 w-11 border",
+                    isLight
+                      ? "bg-[#fdf6ed] border-[#cba876]/20 hover:bg-[#cba876]/10 text-zinc-700"
+                      : "bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                  )}
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  haptic="medium"
+                >
+                  <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span className="sr-only">Toggle theme</span>
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
-      </motion.div>
+      </div>
 
       {/* Push Notification Prompt */}
-      <NotificationPrompt customerId="mock-customer-id-for-now" />
+      <div className="px-6">
+        <NotificationPrompt customerId="mock-customer-id-for-now" />
+      </div>
 
-      <div className="px-6 space-y-10 mt-6">
-        {/* 2. The Anex Hub (Merged Hero & Identity) */}
+      {/* === MAIN CONTENT === */}
+      <div className="px-5 space-y-8 mt-4">
+
+        {/* Section Label */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.4 }}
+          className="flex items-center gap-2"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-[#cba876]" />
+          <span className={cn(
+            "text-[10px] font-bold uppercase tracking-[0.2em]",
+            isLight ? "text-[#cba876]" : "text-[#e6c896]"
+          )}>
+            Your Status
+          </span>
+        </motion.div>
+
+        {/* StatusHub — The Hero */}
         <StatusHub
           urgencyState={data.urgencyState || 'normal'}
           urgentAction={data.urgentAction}
@@ -161,17 +217,14 @@ export default function HomePage() {
           financials={data.financials}
         />
 
-        {/* Quick Actions Scroll Bar Removed */}
-
-        {/* 3. Contextual Recommendations */}
+        {/* Contextual Recommendations */}
         <ContextualRecommendations recommendations={data.recommendations} />
       </div>
 
-      {/* 4. Discover Section (Edge to Edge) */}
-      <div className="mt-12">
+      {/* Discover — Edge-to-edge */}
+      <div className="mt-10">
         <DiscoverCarousel items={data.discover} />
       </div>
-
     </div>
   );
 }

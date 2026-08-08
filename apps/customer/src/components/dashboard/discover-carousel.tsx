@@ -6,6 +6,9 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface DiscoverItem {
   id: string;
@@ -21,9 +24,7 @@ interface DiscoverCarouselProps {
 }
 
 function getHref(item: DiscoverItem): string {
-  if (item.action === 'VIEW_INSPIRATION') {
-    return `/inspiration/${item.targetId}`;
-  }
+  if (item.action === 'VIEW_INSPIRATION') return `/inspiration/${item.targetId}`;
   return `/inspiration`;
 }
 
@@ -32,48 +33,65 @@ function getSafeImageUrl(url: string): string {
   return url.replace(/^http:\/\//, 'https://');
 }
 
-function CarouselItem({ item, containerRef, index }: { item: DiscoverItem, containerRef: React.RefObject<HTMLDivElement | null>, index: number }) {
+function CarouselItem({ item, containerRef }: {
+  item: DiscoverItem;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+}) {
   const safeUrl = getSafeImageUrl(item.imageUrl);
   const itemRef = useRef<HTMLAnchorElement>(null);
-
   const { scrollXProgress } = useScroll({ container: containerRef });
-  
-  const x = useTransform(scrollXProgress, [0, 1], ["0%", "15%"]);
+  const x = useTransform(scrollXProgress, [0, 1], ["0%", "12%"]);
 
   return (
     <Link
       ref={itemRef}
       href={getHref(item)}
-      className="snap-start shrink-0 w-[260px] relative rounded-[2rem] overflow-hidden group cursor-pointer block ring-1 ring-black/10 dark:ring-white/10 hover:ring-black/30 dark:hover:ring-white/30 transition-all shadow-2xl"
+      className="snap-start shrink-0 w-[230px] relative rounded-[1.75rem] overflow-hidden group cursor-pointer block
+        ring-1 ring-black/8 hover:ring-[#cba876]/40
+        shadow-[0_4px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_40px_rgba(203,168,118,0.20)]
+        transition-all duration-500"
     >
-      <div className="aspect-[4/5] relative bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
+      <div className="aspect-[4/5] relative bg-zinc-100 overflow-hidden">
         {safeUrl ? (
           <motion.div style={{ x, width: "115%", height: "100%", left: "-7.5%", position: "absolute" }}>
             <Image
               src={safeUrl}
               alt={item.title}
               fill
-              className="object-cover transition-transform duration-1000 group-hover:scale-110 will-change-transform"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
+              className="object-cover transition-transform duration-1000 group-hover:scale-108 will-change-transform"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           </motion.div>
-        ) : null}
+        ) : (
+          /* Elegant placeholder */
+          <div className="absolute inset-0 bg-gradient-to-br from-[#fdf7ee] to-[#e9d8be] flex items-center justify-center">
+            <Sparkles className="w-10 h-10 text-[#cba876]/40" />
+          </div>
+        )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
 
-        <div className="absolute bottom-0 left-0 right-0 p-5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+        {/* Bottom content */}
+        <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
+          {/* Type badge */}
           <div className="flex items-center gap-1.5 mb-2">
-            <Sparkles className="w-3 h-3 text-primary" />
-            <span className="text-[9px] uppercase tracking-widest font-bold text-primary">
+            <Sparkles className="w-3 h-3 text-[#cba876]" />
+            <span className="text-[9px] uppercase tracking-[0.18em] font-bold text-[#cba876]">
               {item.type.replace(/_/g, ' ')}
             </span>
           </div>
-          <h4 className="text-white font-serif text-lg leading-tight mb-4 line-clamp-2">
+
+          {/* Title */}
+          <h4 className="text-white font-serif text-[17px] leading-snug mb-4 line-clamp-2">
             {item.title}
           </h4>
-          <div className="w-full h-10 border-white/20 text-white bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border text-xs font-semibold group-hover:bg-white group-hover:text-black transition-colors duration-300">
+
+          {/* CTA pill */}
+          <div className="w-full h-10 rounded-full flex items-center justify-center border text-xs font-semibold
+            border-white/25 text-white bg-white/10 backdrop-blur-md
+            group-hover:bg-white group-hover:text-zinc-900 group-hover:border-transparent
+            transition-all duration-300">
             View Look
           </div>
         </div>
@@ -86,6 +104,9 @@ export function DiscoverCarousel({ items }: DiscoverCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shuffledItems, setShuffledItems] = React.useState<DiscoverItem[]>([]);
   const [isMounted, setIsMounted] = React.useState(false);
+  const { resolvedTheme } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
+  useEffect(() => { setThemeReady(true); }, []);
 
   React.useEffect(() => {
     if (items && items.length > 0) {
@@ -97,34 +118,57 @@ export function DiscoverCarousel({ items }: DiscoverCarouselProps) {
   if (!items || items.length === 0) return null;
 
   const displayItems = isMounted ? shuffledItems : items;
+  const isLight = themeReady && resolvedTheme === 'light';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+      transition={{ delay: 0.5, duration: 0.55, ease: [0.32, 0.72, 0, 1] }}
       className="space-y-5"
     >
-      <div className="flex items-end justify-between px-6">
+      {/* Section header */}
+      <div className="flex items-end justify-between px-5">
         <div>
-          <h3 className="text-2xl font-serif tracking-tight text-zinc-900 dark:text-white mb-0.5">Lookbook</h3>
-          <p className="text-xs text-zinc-600 dark:text-zinc-500 font-medium tracking-wide uppercase">Curated Inspiration</p>
+          <h3 className={cn(
+            "text-2xl font-serif tracking-tight mb-0.5",
+            isLight ? "text-zinc-900" : "text-white"
+          )}>
+            Lookbook
+          </h3>
+          <p className={cn(
+            "text-[10px] font-bold uppercase tracking-[0.18em]",
+            isLight ? "text-[#cba876]/80" : "text-[#e6c896]/60"
+          )}>
+            Curated Inspiration
+          </p>
         </div>
         <Link href="/inspiration">
-          <Button variant="ghost" size="sm" className="h-8 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white px-2" haptic="light">
-            Explore <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "h-8 px-3 text-xs font-semibold rounded-full border gap-1",
+              isLight
+                ? "bg-[#fdf6ed] border-[#cba876]/25 text-[#8a6d3b] hover:bg-[#cba876]/15"
+                : "bg-white/5 border-white/10 text-zinc-400 hover:text-white"
+            )}
+            haptic="light"
+          >
+            Explore <ArrowRight className="w-3.5 h-3.5" />
           </Button>
         </Link>
       </div>
 
-      <div 
+      {/* Scrollable row */}
+      <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-6 px-6 no-scrollbar snap-x snap-mandatory"
+        className="flex gap-4 overflow-x-auto pb-6 px-5 no-scrollbar snap-x snap-mandatory"
       >
-        {displayItems.map((item, index) => (
-          <CarouselItem key={item.id} item={item} containerRef={scrollRef} index={index} />
+        {displayItems.map((item) => (
+          <CarouselItem key={item.id} item={item} containerRef={scrollRef} />
         ))}
-        <div className="shrink-0 w-2" />
+        <div className="shrink-0 w-1" />
       </div>
     </motion.div>
   );

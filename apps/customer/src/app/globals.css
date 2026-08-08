@@ -61,25 +61,26 @@
 
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #111111;
-    --card: #ffffff;
-    --card-foreground: #111111;
-    --popover: #ffffff;
-    --popover-foreground: #111111;
-    /* Soft, luxury Gold/Champagne primary for light mode */
+    /* Warm off-white — premium parchment, not clinical white */
+    --background: #fdf9f4;
+    --foreground: #1a1714;
+    --card: #fffdf9;
+    --card-foreground: #1a1714;
+    --popover: #fffdf9;
+    --popover-foreground: #1a1714;
+    /* Luxury Champagne Gold */
     --primary: #cba876;
     --primary-foreground: #ffffff;
-    --secondary: #f4f4f5;
-    --secondary-foreground: #18181b;
-    --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --accent: #f4f4f5;
-    --accent-foreground: #18181b;
-    --destructive: #ef4444;
-    --destructive-foreground: #f8fafc;
-    --border: #e4e4e7;
-    --input: #e4e4e7;
+    --secondary: #f5f0e8;
+    --secondary-foreground: #1a1714;
+    --muted: #f5f0e8;
+    --muted-foreground: #7a6f63;
+    --accent: #f5f0e8;
+    --accent-foreground: #1a1714;
+    --destructive: #dc2626;
+    --destructive-foreground: #fef2f2;
+    --border: #e8e0d4;
+    --input: #e8e0d4;
     --ring: #cba876;
     --radius: 1rem;
   }
@@ -120,6 +121,13 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: none;
+  }
+  /* Premium light mode adds a very subtle warm noise texture */
+  :root body {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+  }
+  .dark body {
+    background-image: none;
   }
 }
 

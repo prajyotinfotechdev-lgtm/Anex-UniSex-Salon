@@ -42,9 +42,6 @@ export function HeroCard({ urgencyState, urgentAction, predictiveBooking }: Hero
             <Button className="flex-1 shadow-xl shadow-primary/20" haptic="medium" onClick={() => window.open('https://www.google.com/maps?gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB7SAQgzNDA4ajBqNKgCALACAQ&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KUN-FHYAg887McSa-386Ei1A&daddr=9HQ6%2BWJR,+Sahakar+Maharshi+Keshavrao+Sonawane+Marg,+near+icici+bank,+Mantri+Nagar,+Latur,+Maharashtra+413531', '_blank')}>
               <MapPin className="w-4 h-4 mr-2" /> Directions
             </Button>
-            <Button variant="outline" className="flex-1 border-white/20 bg-background/50" haptic="medium">
-              Running Late?
-            </Button>
           </CardContent>
         </Card>
       </motion.div>

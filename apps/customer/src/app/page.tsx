@@ -111,14 +111,7 @@ export default function HomePage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button variant="ghost" size="icon" className="rounded-full h-11 w-11 relative bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-800 dark:text-white" haptic="light">
-              <Bell className="w-4 h-4" />
-              {(data.notifications?.unreadCount || 0) > 0 && (
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-white dark:ring-black" />
-              )}
-            </Button>
-          </motion.div>
+
           {isGuest && (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
@@ -133,19 +126,6 @@ export default function HomePage() {
               </Button>
             </motion.div>
           )}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full h-11 w-11 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 text-zinc-800 dark:text-white"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              haptic="medium"
-            >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </motion.div>
         </motion.div>
       </motion.div>
 

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import * as React from 'react';
 import { Suspense } from 'react';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -11,7 +12,8 @@ export const metadata: Metadata = {
   description: 'View invoice details, payments, and timeline',
 };
 
-export default function InvoiceDetailPage({ params }: { params: { id: string } }) {
+export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = React.use(params);
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -27,7 +29,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
       </div>
 
       <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>}>
-        <InvoiceDetail id={params.id} />
+        <InvoiceDetail id={unwrappedParams.id} />
       </Suspense>
     </div>
   );

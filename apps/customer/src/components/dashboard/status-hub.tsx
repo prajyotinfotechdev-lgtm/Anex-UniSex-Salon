@@ -42,27 +42,33 @@ export function StatusHub({ urgencyState, urgentAction, predictiveBooking, finan
   }, [urgentAction]);
 
   const handleConfirmReschedule = async () => {
-    if (!selectedSlot || !displayAction?.id) return;
+    if (!selectedSlot) return;
     setIsRescheduling(true);
     
     try {
       const selectedDate = new Date(selectedSlot);
       const token = localStorage.getItem("anex_device_token");
       
-      const res = await fetch(getFullApiUrl(`/api/v1/me/appointments/${displayAction.id}/reschedule`), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
-          date: selectedDate.toISOString().split('T')[0],
-          startTime: selectedDate.toISOString()
-        })
-      });
+      // If we have a real appointment ID, make the API call
+      if (displayAction?.id) {
+        const res = await fetch(getFullApiUrl(`/api/v1/me/appointments/${displayAction.id}/reschedule`), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
+            date: selectedDate.toISOString().split('T')[0],
+            startTime: selectedDate.toISOString()
+          })
+        });
 
-      if (!res.ok) {
-        throw new Error('Failed to reschedule');
+        if (!res.ok) {
+          throw new Error('Failed to reschedule');
+        }
+      } else {
+        // Mock mode (e.g. guest dashboard demo) - just wait a moment to simulate network
+        await new Promise(resolve => setTimeout(resolve, 800));
       }
       
       setRescheduleSuccess(true);

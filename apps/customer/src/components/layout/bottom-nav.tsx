@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Calendar, CalendarDays, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { haptics } from "@/lib/haptics";
+import { useHaptics } from "@/hooks/use-haptics";
 
 const NAV_ITEMS = [
   { name: "Home", href: "/", icon: Home },
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const haptics = useHaptics();
 
   return (
     <nav className="fixed bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-center pb-[env(safe-area-inset-bottom)] w-full max-w-[24rem] pointer-events-none px-4">

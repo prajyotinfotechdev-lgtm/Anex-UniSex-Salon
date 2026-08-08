@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import { Moon, Sun, Bell, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,11 +108,22 @@ export default function HomePage() {
         </motion.div>
         
         <motion.div 
-          className="flex items-center gap-2"
+          className="flex items-center gap-4"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
+          {/* Premium Logo */}
+          <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-black/5 dark:border-white/10 shadow-sm bg-white dark:bg-zinc-900 flex items-center justify-center p-1">
+            <Image 
+              src="/logo-premium.png" 
+              alt="Anex Salon Logo" 
+              width={40} 
+              height={40} 
+              className="object-contain drop-shadow-sm"
+              priority
+            />
+          </div>
 
           {isGuest && (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

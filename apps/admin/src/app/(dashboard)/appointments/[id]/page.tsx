@@ -110,6 +110,7 @@ export default function AppointmentDetailPage({ params }: { params: Promise<{ id
           type: InvoiceItemType.SERVICE,
           quantity: 1,
           unitPrice: Number(item.price),
+          snapshottedName: item.service?.name || 'Appointment Service',
         })) || []
       });
       queryClient.invalidateQueries({ queryKey: ['appointment', appointment.id] });
